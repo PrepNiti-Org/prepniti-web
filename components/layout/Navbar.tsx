@@ -96,10 +96,10 @@ export function Navbar() {
                     
                     <div className="flex items-center gap-8">
                         <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight hover:opacity-90 transition-opacity">
-                            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-1">
-                                <Sparkles className="h-5 w-5 text-blue-600" />
+                            <span className="bg-gradient-to-r from-orange-500 via-orange-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-1 font-bold">
+                                <Sparkles className="h-5 w-5 text-orange-500 animate-pulse" />
                                 PrepNiti
-                            </span> 
+                            </span>
                         </Link>
 
                         <nav className="hidden md:flex items-center gap-2">
