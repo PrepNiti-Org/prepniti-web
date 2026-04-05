@@ -1,65 +1,93 @@
-import Image from "next/image";
+import { Metadata } from "next";
+import { FeedClient } from "@/features/experiences/components/FeedClient";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PenSquare, BookOpen } from "lucide-react";
+import Link from "next/link";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "PrepNiti | Real Interview Experiences for Aspirants",
+  description: "Read verified interview transcripts for UPSC, State PSC, and Banking exams. Share your journey and track your syllabus progress.",
+  openGraph: {
+    title: "PrepNiti Community",
+    description: "The ultimate community for government job aspirants.",
+    type: "website",
+  },
+};
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="max-w-7xl mx-auto space-y-8 px-4 sm:px-0">
+      
+      <div className="bg-primary/10 border border-primary/20 rounded-2xl p-8 md:p-12 text-center space-y-4 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent -z-10" />
+        
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+          Real Interview Experiences.<br className="hidden sm:block" /> From Real Aspirants.
+        </h1>
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          PrepNiti is the ultimate community for UPSC, PSC, and Banking aspirants. Read verified interview transcripts and boost your preparation.
+        </p>
+        <div className="flex justify-center gap-4 pt-4">
+          <Link href="/submit">
+            <Button size="lg" className="font-semibold">
+              <PenSquare className="mr-2 h-4 w-4" /> Share Experience
+            </Button>
+          </Link>
+          <Link href="/dashboard">
+            <Button size="lg" variant="outline" className="bg-background">
+              <BookOpen className="mr-2 h-4 w-4" /> Syllabus Tracker
+            </Button>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <div className="lg:col-span-3">
+          <FeedClient />
         </div>
-      </main>
+
+        <div className="hidden lg:block space-y-6">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Contribute to PrepNiti</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your interview experience could be the roadmap for someone else&apos;s success.
+              </p>
+              <Link href="/submit">
+                <Button className="w-full">Create a Post</Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Trending Exams</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {["UPSC CSE 2024", "UPPSC PCS", "SBI PO", "RBI Grade B"].map((exam) => (
+                <Link href={`/search?q=${encodeURIComponent(exam)}`} key={exam}>
+                  <div className="flex items-center justify-between text-sm cursor-pointer hover:text-primary transition-colors mt-3 first:mt-0">
+                    <span className="font-medium">{exam}</span>
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">Hot</span>
+                  </div>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+          
+          <div className="text-xs text-muted-foreground/60 flex flex-wrap gap-x-3 gap-y-1 px-2">
+            <Link href="/about" className="hover:underline hover:text-primary">About</Link>
+            <Link href="/privacy" className="hover:underline hover:text-primary">Privacy</Link>
+            <Link href="/terms" className="hover:underline hover:text-primary">Terms</Link>
+            <span>© {new Date().getFullYear()} PrepNiti</span>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
