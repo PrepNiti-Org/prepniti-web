@@ -38,7 +38,7 @@ import { Loader2, Pencil } from "lucide-react";
 
 const formSchema = z.object({
     exam_name: z.string().min(2, "Exam name is required."),
-    year: z.number().min(2000).max(new Date().getFullYear() + 1),
+    year: z.coerce.number().min(2000).max(new Date().getFullYear() + 1),
     verdict: z.string().min(1, "Please select a verdict."),
     difficulty: z.string().min(1, "Please select a difficulty level."),
     description: z.string().min(50, "Please write at least 50 characters."),
@@ -50,7 +50,8 @@ export function EditExperienceModal({ post }: { post: Experience }) {
     const queryClient = useQueryClient();
 
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        resolver: zodResolver(formSchema) as any,
         defaultValues: {
             exam_name: post.exam_name,
             year: post.year,
@@ -69,7 +70,7 @@ export function EditExperienceModal({ post }: { post: Experience }) {
             queryClient.invalidateQueries({ queryKey: ["experiences-feed"] });
             setIsOpen(false);
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { error?: string } } }) => {
             toast.error("Update failed", {
                 description: error.response?.data?.error || "Failed to save changes."
             });

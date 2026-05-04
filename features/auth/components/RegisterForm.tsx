@@ -32,6 +32,7 @@ export function RegisterForm() {
             toast.success("Account Created!", { description: "Please login with your new account." });
             router.push("/login");
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
             const msg = error?.response?.data?.error || "Registration Failed";
             console.log("Registration error:", error);

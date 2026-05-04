@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "@/lib/react-query";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppShell } from "@/components/layout/AppShell";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
@@ -34,10 +34,10 @@ export default function RootLayout({
               <div className="absolute inset-0 bg-dot-pattern opacity-50"></div>
             </div>
 
-            <Navbar />
-            <main className="container relative mx-auto py-8 min-h-screen">
+            <AppShell>
               {children}
-            </main>
+            </AppShell>
+
             <Toaster />
 
           </ReactQueryProvider>
