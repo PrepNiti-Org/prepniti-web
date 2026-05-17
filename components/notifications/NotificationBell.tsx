@@ -1,0 +1,105 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getNotifications, markNotificationsAsRead, Notification } from "@/features/notifications/api";
+import { useNotifications } from "@/features/notifications/hooks/useNotifications";
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+
+export function NotificationBell() {
+    const [isOpen, setIsOpen] = useState(false);
+    const queryClient = useQueryClient();
+
+    useNotifications();
+
+    const { data } = useQuery({
+        queryKey: ["notifications"],
+        queryFn: () => getNotifications({ pageParam: 1 }),
+        refetchInterval: 60000, // fallback polling every 60s
+    });
+
+    const markAsReadMutation = useMutation({
+        mutationFn: markNotificationsAsRead,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        }
+    });
+
+    const unreadCount = data?.unreadCount || 0;
+    const notifications = data?.data || [];
+
+    const handleOpenChange = (open: boolean) => {
+        setIsOpen(open);
+        if (open && unreadCount > 0) {
+            markAsReadMutation.mutate();
+        }
+    };
+
+    return (
+        <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                        <span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                    )}
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80" align="end" sideOffset={12}>
+                <DropdownMenuLabel className="flex justify-between items-center">
+                    <span>Notifications</span>
+                    {unreadCount > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                            {unreadCount} new
+                        </Badge>
+                    )}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup className="max-h-[400px] overflow-y-auto">
+                    {notifications.length === 0 ? (
+                        <div className="py-8 text-center text-sm text-muted-foreground">
+                            No notifications yet.
+                        </div>
+                    ) : (
+                        notifications.map((notif: Notification) => (
+                            <DropdownMenuItem key={notif.id} className="cursor-pointer p-3 focus:bg-muted/50" asChild>
+                                <Link href={notif.post_id ? `/posts/${notif.post_id}` : "#"}>
+                                    <div className="flex gap-3 items-start w-full">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                                                {notif.actor?.username ? notif.actor.username.substring(0, 2).toUpperCase() : "U"}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 space-y-1 overflow-hidden">
+                                            <p className="text-sm leading-tight">
+                                                <span className="font-semibold">{notif.actor?.username}</span>{" "}
+                                                {notif.type === "like_post" && "liked your post."}
+                                                {notif.type === "comment_post" && "commented on your post."}
+                                                {notif.type === "like_comment" && "liked your comment."}
+                                                {notif.type === "reply_comment" && "replied to your comment."}
+                                            </p>
+                                            <p className="text-[10px] text-muted-foreground">
+                                                {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                                            </p>
+                                        </div>
+                                        {!notif.is_read && (
+                                            <div className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0" />
+                                        )}
+                                    </div>
+                                </Link>
+                            </DropdownMenuItem>
+                        ))
+                    )}
+                </DropdownMenuGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}

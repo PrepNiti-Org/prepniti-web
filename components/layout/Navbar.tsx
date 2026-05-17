@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
-import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut } from "lucide-react";
+import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +22,7 @@ import {
 import { ModeToggle } from "../theme/mode-toggle";
 import { Sidenav } from "./Sidenav";
 import { ElevatedButton } from "../ui/button-elevated";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 interface NavbarProps {
     // onToggleSidebar not needed anymore since Desktop toggle is in Sidenav
@@ -98,6 +99,8 @@ export function Navbar({ }: NavbarProps) {
                                 </ElevatedButton>
                             </Link>
 
+                            <NotificationBell />
+
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary p-0">
@@ -119,7 +122,7 @@ export function Navbar({ }: NavbarProps) {
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild className="cursor-pointer">
-                                        <Link href="/tracker"><LayoutDashboard className="mr-2 h-4 w-4 text-muted-foreground" /> Tracker</Link>
+                                        <Link href="/bookmarks"><Bookmark className="mr-2 h-4 w-4 text-muted-foreground" /> Bookmarks</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild className="cursor-pointer">
                                         <Link href="/profile"><UserIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Profile</Link>

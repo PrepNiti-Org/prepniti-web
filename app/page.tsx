@@ -17,11 +17,11 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="max-w-7xl mx-auto space-y-8 px-4 sm:px-0">
-      
+    <div className="container max-w-7xl mx-auto space-y-8">
+
       <div className="bg-primary/10 border border-primary/20 rounded-2xl p-8 md:p-12 text-center space-y-4 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent -z-10" />
-        
+
         <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
           Real Interview Experiences.<br className="hidden sm:block" /> From Real Aspirants.
         </h1>
@@ -43,7 +43,7 @@ export default function HomePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
+
         <div className="lg:col-span-3">
           <FeedClient />
         </div>
@@ -78,7 +78,7 @@ export default function HomePage() {
               ))}
             </CardContent>
           </Card>
-          
+
           <div className="text-xs text-muted-foreground/60 flex flex-wrap gap-x-3 gap-y-1 px-2">
             <Link href="/about" className="hover:underline hover:text-primary">About</Link>
             <Link href="/privacy" className="hover:underline hover:text-primary">Privacy</Link>

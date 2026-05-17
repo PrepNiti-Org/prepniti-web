@@ -41,7 +41,7 @@ export default function TrackerDashboard() {
     });
 
     return (
-        <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 min-h-screen">
+        <div className="container max-w-7xl mx-auto">
 
             <div className="flex flex-col justify-between border-b pb-6">
                 <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
