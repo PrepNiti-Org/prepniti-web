@@ -23,6 +23,7 @@ import { ModeToggle } from "../theme/mode-toggle";
 import { Sidenav } from "./Sidenav";
 import { ElevatedButton } from "../ui/button-elevated";
 import { NotificationBell } from "../notifications/NotificationBell";
+import { NavbarTimer } from "../timer/NavbarTimer";
 
 interface NavbarProps {
     // onToggleSidebar not needed anymore since Desktop toggle is in Sidenav
@@ -71,16 +72,19 @@ export function Navbar({ }: NavbarProps) {
                     </Link>
                 </div>
 
-                {/* Center Section: Search */}
-                <div className="flex-1 max-w-xl mx-auto px-2 md:px-6">
-                    <div className="relative group">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-primary/50 group-focus-within:text-primary transition-colors" />
-                        <Input
-                            type="search"
-                            placeholder="Search discussions, experiences..."
-                            className="w-full pl-9 bg-primary/10 text-foreground border-primary/50 focus-visible:bg-background focus-visible:ring-1 focus-visible:border-primary transition-all h-9 rounded-full text-sm"
-                        />
+                <div className="flex max-w-xl w-full mx-auto">
+                    {/* Center Section: Search */}
+                    <div className="flex-1 px-2 md:px-6">
+                        <div className="relative group">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-primary/50 group-focus-within:text-primary transition-colors" />
+                            <Input
+                                type="search"
+                                placeholder="Search discussions, experiences..."
+                                className="w-full pl-9 bg-primary/10 text-foreground border-primary/50 focus-visible:bg-background focus-visible:ring-1 focus-visible:border-primary transition-all h-9 rounded-full text-sm"
+                            />
+                        </div>
                     </div>
+                    <NavbarTimer />
                 </div>
 
                 {/* Right Section: Actions & Profile */}

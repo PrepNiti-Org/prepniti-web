@@ -35,3 +35,45 @@ export const deleteTask = async (id: string) => {
     const res = await api.delete(`/tasks/${id}`);
     return res.data;
 };
+
+// --- Time Logs ---
+
+export interface TimeLog {
+    id: string;
+    task_id: string;
+    user_id: string;
+    duration_minutes: number;
+    note: string;
+    logged_at: string;
+    created_at: string;
+}
+
+export interface DailyEntry {
+    date: string;
+    minutes: number;
+}
+
+export const createTimeLog = async (taskId: string, data: { duration_minutes: number; note?: string; logged_at?: string }) => {
+    const res = await api.post(`/tasks/${taskId}/timelogs`, data);
+    return res.data.data;
+};
+
+export const getTaskTimeLogs = async (taskId: string): Promise<{ data: TimeLog[]; total_minutes: number }> => {
+    const res = await api.get(`/tasks/${taskId}/timelogs`);
+    return res.data;
+};
+
+export const getUserTimeLogs = async (from?: string, to?: string): Promise<{ data: TimeLog[]; daily: DailyEntry[]; total_minutes: number }> => {
+    let url = "/timelogs";
+    const params = new URLSearchParams();
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    if (params.toString()) url += `?${params.toString()}`;
+    const res = await api.get(url);
+    return res.data;
+};
+
+export const deleteTimeLog = async (id: string) => {
+    const res = await api.delete(`/timelogs/${id}`);
+    return res.data;
+};

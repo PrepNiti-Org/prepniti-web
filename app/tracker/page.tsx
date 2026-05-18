@@ -3,17 +3,16 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getTasks } from "@/features/kanban/api";
-import { Loader2, LayoutDashboard, ListTodo, Search, Target, BarChart3 } from "lucide-react";
+import { Loader2, LayoutDashboard, ListTodo, Search, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { KanbanBoardView } from "@/features/kanban/components/KanbanBoardView";
 import { TaskListView } from "@/features/kanban/components/TaskListView";
-import { TaskAnalyticsView } from "@/features/kanban/components/TaskAnalyticsView";
 import { AddTaskModal } from "@/features/kanban/components/AddTaskModal";
 
-type ViewMode = "BOARD" | "LIST" | "ANALYTICS";
+type ViewMode = "BOARD" | "LIST";
 
 export default function TrackerDashboard() {
     const [view, setView] = useState<ViewMode>("BOARD");
@@ -45,7 +44,7 @@ export default function TrackerDashboard() {
 
             <div className="flex flex-col justify-between border-b pb-6">
                 <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <Target className="w-8 h-8 text-primary" /> Syllabus Tracker
+                    <Target className="w-8 h-8 text-primary" /> Study Tracker
                 </h1>
                 <p className="text-muted-foreground text-sm mt-1">
                     Manage your study targets and track your progress.
@@ -54,7 +53,7 @@ export default function TrackerDashboard() {
 
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 bg-card border rounded-lg p-2 shadow-sm">
 
-                <div className={`flex flex-col sm:flex-row w-full gap-2 transition-opacity ${view === "ANALYTICS" ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
+                <div className="flex flex-col sm:flex-row w-full gap-2 opacity-100">
                     <div className="relative flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input placeholder="Search targets..." className="pl-9 h-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
@@ -86,18 +85,13 @@ export default function TrackerDashboard() {
                     <Button variant={view === "LIST" ? "default" : "ghost"} size="sm" onClick={() => setView("LIST")} className="h-7 text-xs">
                         <ListTodo className="w-3.5 h-3.5 mr-1.5" /> List
                     </Button>
-                    <Button variant={view === "ANALYTICS" ? "default" : "ghost"} size="sm" onClick={() => setView("ANALYTICS")} className="h-7 text-xs">
-                        <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Insights
-                    </Button>
                 </div>
 
                 <AddTaskModal />
             </div>
 
             <div className="mt-2">
-                {view === "ANALYTICS" ? (
-                    <TaskAnalyticsView tasks={tasks} />
-                ) : filteredTasks.length === 0 ? (
+                {filteredTasks.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                         <Target className="w-12 h-12 mb-4 opacity-20" />
                         <p>No study targets found matching your filters.</p>

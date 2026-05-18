@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Task } from "../api";
+import { Task, getTaskTimeLogs } from "../api";
 import { TaskDetailsModal } from "./TaskDetailsModal";
-import { Clock, CalendarDays, BookOpen, PenTool, Target, BrainCircuit } from "lucide-react";
+import { Clock, CalendarDays, BookOpen, PenTool, Target, BrainCircuit, Timer } from "lucide-react";
 
 const TypeIcon = ({ type }: { type: string }) => {
     switch (type) {
@@ -23,6 +24,11 @@ export function TaskCard({ task }: { task: Task }) {
     const [showModal, setShowModal] = useState(false);
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: String(task.id) });
 
+    const { data: timeLogData } = useQuery({
+        queryKey: ["taskTimeLogs", task.id],
+        queryFn: () => getTaskTimeLogs(task.id),
+    });
+
     const style = {
         transform: CSS.Translate.toString(transform),
         opacity: isDragging ? 0.5 : 1,
@@ -30,6 +36,8 @@ export function TaskCard({ task }: { task: Task }) {
     };
 
     const isOverdue = task.target_date && new Date(task.target_date) < new Date() && task.status !== "DONE";
+    const loggedMinutes = timeLogData?.total_minutes || 0;
+    const loggedHours = (loggedMinutes / 60).toFixed(1);
 
     return (
         <>
@@ -47,10 +55,13 @@ export function TaskCard({ task }: { task: Task }) {
                     <h4 className="font-medium text-sm leading-tight text-foreground/90">{task.title}</h4>
                     {task.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>}
 
-                    {(task.estimated_hours || task.target_date) && (
+                    {(task.estimated_hours || task.target_date || loggedMinutes > 0) && (
                         <div className="flex items-center gap-3 mt-3 pt-2 border-t border-border/50 text-[10px] text-muted-foreground">
-                            {task.estimated_hours && (
-                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {task.estimated_hours}h</span>
+                            {(task.estimated_hours || loggedMinutes > 0) && (
+                                <span className="flex items-center gap-1">
+                                    <Timer className="w-3 h-3 text-green-500" />
+                                    {loggedHours}h{task.estimated_hours ? ` / ${task.estimated_hours}h` : ""}
+                                </span>
                             )}
                             {task.target_date && (
                                 <span className={`flex items-center gap-1 ${isOverdue ? "text-red-500 font-medium" : ""}`}>
