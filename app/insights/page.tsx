@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { getTasks, getUserTimeLogs, deleteTimeLog, TimeLog, DailyEntry } from "@/features/kanban/api";
+import { getMockTestInsights, MockTestInsights } from "@/features/profile/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -30,7 +31,11 @@ import {
     Lightbulb,
     Target,
     Activity,
-    Layers
+    Layers,
+    GraduationCap,
+    Trophy,
+    Zap,
+    FileText
 } from "lucide-react";
 import {
     AreaChart,
@@ -53,7 +58,6 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false })
 
 type RangeDays = 7 | 30 | 90;
 
-// Framer motion variants for gorgeous cascade loading
 const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -66,8 +70,8 @@ const containerVariants = {
 
 const itemVariants = {
     hidden: { opacity: 0, y: 15 },
-    show: { 
-        opacity: 1, 
+    show: {
+        opacity: 1,
         y: 0,
         transition: {
             type: "spring" as any,
@@ -81,8 +85,6 @@ export default function InsightsPage() {
     const queryClient = useQueryClient();
     const [range, setRange] = useState<RangeDays>(30);
     const [activeChartTab, setActiveChartTab] = useState<"trend" | "subjects" | "types">("trend");
-    
-    // Dynamic theme check for premium charts coloring
     const [isDarkTheme, setIsDarkTheme] = useState(true);
 
     useEffect(() => {
@@ -90,30 +92,23 @@ export default function InsightsPage() {
             const isDark = document.documentElement.classList.contains("dark");
             setIsDarkTheme(isDark);
         };
-        
+
         checkTheme();
-        
+
         const observer = new MutationObserver(checkTheme);
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-        
+
         return () => observer.disconnect();
     }, []);
-    
-    // Interactive drilldown state
+
     const [selectedDrillSubject, setSelectedDrillSubject] = useState<string>("ALL");
-    
-    // Interactive audit filter state
     const [logSearchQuery, setLogSearchQuery] = useState("");
     const [logMethodFilter, setLogMethodFilter] = useState("ALL");
     const [logSubjectFilter, setLogSubjectFilter] = useState("ALL");
-
-    // Fetch Tasks
     const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
         queryKey: ["tasks"],
         queryFn: getTasks,
     });
-
-    // Date range calculations
     const dateRange = useMemo(() => {
         const to = new Date();
         const from = subDays(to, range);
@@ -122,14 +117,16 @@ export default function InsightsPage() {
             to: to.toISOString().split("T")[0],
         };
     }, [range]);
-
-    // Fetch Time Logs
     const { data: timeLogData, isLoading: isLogsLoading } = useQuery({
         queryKey: ["userTimeLogs", dateRange.from, dateRange.to],
         queryFn: () => getUserTimeLogs(dateRange.from, dateRange.to),
     });
 
-    // Delete Log Mutation
+    const { data: mockInsights } = useQuery<MockTestInsights>({
+        queryKey: ["mockTestInsights"],
+        queryFn: getMockTestInsights,
+    });
+
     const deleteLogMutation = useMutation({
         mutationFn: (logId: string) => deleteTimeLog(logId),
         onSuccess: () => {
@@ -147,7 +144,6 @@ export default function InsightsPage() {
     const totalMinutes = timeLogData?.total_minutes || 0;
     const totalHours = (totalMinutes / 60).toFixed(1);
 
-    // Calculate Streak
     const streak = (() => {
         const dateSet = new Set(dailyData.map(d => d.date));
         let currentStreak = 0;
@@ -159,14 +155,13 @@ export default function InsightsPage() {
             if (dateSet.has(dateStr)) {
                 currentStreak++;
             } else {
-                if (i === 0) continue; // Allow skipping today if not yet studied
+                if (i === 0) continue;
                 break;
             }
         }
         return currentStreak;
     })();
 
-    // Stats calculations
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter(t => t.status === "DONE").length;
     const completionRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
@@ -174,12 +169,10 @@ export default function InsightsPage() {
     const totalEstHours = tasks.reduce((sum, t) => sum + (t.estimated_hours || 0), 0);
     const timeEfficiency = totalEstHours === 0 ? 0 : Math.min(100, Math.round((parseFloat(totalHours) / totalEstHours) * 100));
 
-    // Coverage Rate
     const uniqueSubjects = Array.from(new Set(tasks.map(t => t.subject).filter(Boolean)));
     const subjectsStarted = new Set(tasks.filter(t => t.status !== "TODO").map(t => t.subject)).size;
     const syllabusCoverage = uniqueSubjects.length === 0 ? 0 : Math.round((subjectsStarted / uniqueSubjects.length) * 100);
 
-    // Trend Area Chart Data
     const trendChartData = (() => {
         const dataMap: Record<string, number> = {};
         dailyData.forEach(d => {
@@ -198,7 +191,6 @@ export default function InsightsPage() {
         return chartList;
     })();
 
-    // Subject balance data (Donut Chart)
     const subjectBalanceData = (() => {
         const subMinutesMap: Record<string, number> = {};
         logs.forEach(log => {
@@ -215,7 +207,6 @@ export default function InsightsPage() {
         })).sort((a, b) => b.value - a.value);
     })();
 
-    // Study Type Breakdown Data (Bar Chart)
     const typeBreakdownData = (() => {
         const typeMinutesMap: Record<string, number> = {
             "READING": 0,
@@ -243,7 +234,6 @@ export default function InsightsPage() {
         }));
     })();
 
-    // Subject Drilldown calculations
     const subjectDrilldownStats = useMemo(() => {
         if (selectedDrillSubject === "ALL") return null;
 
@@ -284,18 +274,16 @@ export default function InsightsPage() {
         };
     }, [selectedDrillSubject, tasks, logs]);
 
-    // AI PrepCoach advice generation
     const coachRecommendations = useMemo(() => {
         const advices = [];
-        
-        // Recommendation 1: Revision ratio check
+
         let totalRevisionMinutes = 0;
         logs.forEach(log => {
             const task = tasks.find(t => t.id === log.task_id);
             if (task?.type === "REVISION") totalRevisionMinutes += log.duration_minutes;
         });
         const revisionRatio = totalMinutes === 0 ? 0 : Math.round((totalRevisionMinutes / totalMinutes) * 100);
-        
+
         if (revisionRatio < 15) {
             advices.push({
                 type: "warning",
@@ -312,7 +300,6 @@ export default function InsightsPage() {
             });
         }
 
-        // Recommendation 2: Subject balance check
         if (subjectBalanceData.length > 1) {
             const topSub = subjectBalanceData[0];
             const lowestSub = subjectBalanceData[subjectBalanceData.length - 1];
@@ -328,7 +315,6 @@ export default function InsightsPage() {
             }
         }
 
-        // Recommendation 3: Consistency & Streak advise
         if (streak >= 3) {
             advices.push({
                 type: "success",
@@ -345,16 +331,51 @@ export default function InsightsPage() {
             });
         }
 
-        return advices.slice(0, 3);
-    }, [logs, tasks, totalMinutes, subjectBalanceData, streak]);
+        if (mockInsights && mockInsights.total_attempts > 0) {
+            const daysSinceLastAttempt = mockInsights.per_paper.length > 0
+                ? Math.floor((Date.now() - new Date(mockInsights.per_paper.sort((a, b) => new Date(b.last_attempted_at).getTime() - new Date(a.last_attempted_at).getTime())[0].last_attempted_at).getTime()) / (1000 * 60 * 60 * 24))
+                : 999;
 
-    // Custom filtering for session audit log manager
+            if (daysSinceLastAttempt > 7) {
+                advices.push({
+                    type: "warning",
+                    title: "Resume Mock Tests 🎯",
+                    text: `It's been ${daysSinceLastAttempt} days since your last mock test. Regular test practice builds exam-day confidence and time management skills.`,
+                    action: "Attempt a mock test today"
+                });
+            } else if (mockInsights.avg_score_pct < 50) {
+                advices.push({
+                    type: "info",
+                    title: "Focus on Accuracy 📊",
+                    text: `Your average mock test score is ${mockInsights.avg_score_pct}%. Focus on understanding concepts before attempting more tests.`,
+                    action: "Review weak topics, then re-attempt"
+                });
+            } else {
+                advices.push({
+                    type: "success",
+                    title: "Strong Mock Performance 🏆",
+                    text: `Averaging ${mockInsights.avg_score_pct}% across ${mockInsights.total_attempts} attempts. Your best score is ${mockInsights.best_score_pct}%!`,
+                    action: "Keep pushing for consistency"
+                });
+            }
+        } else {
+            advices.push({
+                type: "info",
+                title: "Take Your First Mock 🎯",
+                text: "You haven't attempted any mock tests yet. Mock tests are the #1 predictor of exam success.",
+                action: "Go to Mock Tests and start your first attempt"
+            });
+        }
+
+        return advices.slice(0, 4);
+    }, [logs, tasks, totalMinutes, subjectBalanceData, streak, mockInsights]);
+
     const filteredLogs = useMemo(() => {
         return logs.filter(log => {
             const task = tasks.find(t => t.id === log.task_id);
             const matchesSearch = log.note?.toLowerCase().includes(logSearchQuery.toLowerCase()) ||
                 task?.title.toLowerCase().includes(logSearchQuery.toLowerCase());
-            
+
             const matchesMethod = logMethodFilter === "ALL" || task?.type === logMethodFilter;
             const matchesSubject = logSubjectFilter === "ALL" || task?.subject === logSubjectFilter;
 
@@ -362,7 +383,6 @@ export default function InsightsPage() {
         });
     }, [logs, tasks, logSearchQuery, logMethodFilter, logSubjectFilter]);
 
-    // Study Rings options
     const ringSeries = [completionRate, timeEfficiency, syllabusCoverage];
     const ringOptions: unknown = {
         chart: { type: 'radialBar', background: 'transparent', fontFamily: 'inherit' },
@@ -397,15 +417,14 @@ export default function InsightsPage() {
     }
 
     return (
-        <motion.div 
+        <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="show"
             className="container max-w-7xl mx-auto space-y-8 pb-20 px-4 sm:px-6 py-6"
         >
 
-            {/* Header section with glass effect */}
-            <motion.div 
+            <motion.div
                 variants={itemVariants}
                 className="relative overflow-hidden rounded-2xl border bg-card/60 backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-md"
             >
@@ -423,7 +442,6 @@ export default function InsightsPage() {
                     </p>
                 </div>
 
-                {/* Range filter switch */}
                 <div className="flex bg-muted/60 p-1.5 rounded-xl border relative z-10 shrink-0 self-stretch md:self-auto justify-center sm:justify-start">
                     {([7, 30, 90] as RangeDays[]).map((d) => (
                         <button
@@ -440,12 +458,10 @@ export default function InsightsPage() {
                 </div>
             </motion.div>
 
-            {/* Key Metrics Grid */}
-            <motion.div 
+            <motion.div
                 variants={itemVariants}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
             >
-                {/* Metric 1 */}
                 <motion.div whileHover={{ y: -5, scale: 1.015 }} className="transition-all duration-300">
                     <Card className="hover:border-primary/30 transition-all shadow-sm h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -461,7 +477,6 @@ export default function InsightsPage() {
                     </Card>
                 </motion.div>
 
-                {/* Metric 2 */}
                 <motion.div whileHover={{ y: -5, scale: 1.015 }} className="transition-all duration-300">
                     <Card className="hover:border-primary/30 transition-all shadow-sm h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -479,7 +494,6 @@ export default function InsightsPage() {
                     </Card>
                 </motion.div>
 
-                {/* Metric 3 */}
                 <motion.div whileHover={{ y: -5, scale: 1.015 }} className="transition-all duration-300">
                     <Card className="hover:border-primary/30 transition-all shadow-sm h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -495,7 +509,6 @@ export default function InsightsPage() {
                     </Card>
                 </motion.div>
 
-                {/* Metric 4 */}
                 <motion.div whileHover={{ y: -5, scale: 1.015 }} className="transition-all duration-300">
                     <Card className="hover:border-primary/30 transition-all shadow-sm h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -512,10 +525,8 @@ export default function InsightsPage() {
                 </motion.div>
             </motion.div>
 
-            {/* Interactive Performance Space and Graphs */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Left side: Rings & mastery */}
                 <motion.div variants={itemVariants} className="lg:col-span-1 space-y-6">
                     <Card className="border bg-card/60 backdrop-blur-md shadow-md">
                         <CardHeader className="pb-0">
@@ -546,42 +557,8 @@ export default function InsightsPage() {
                             </div>
                         </CardContent>
                     </Card>
-
-                    {/* Interactive PrepCoach AI Advice Panel */}
-                    <Card className="border bg-gradient-to-br from-primary/5 via-transparent to-accent/5 shadow-sm">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-bold flex items-center gap-1.5">
-                                <Lightbulb className="h-4 w-4 text-amber-500" /> PrepCoach Recommendations
-                            </CardTitle>
-                            <CardDescription className="text-xs">Contextual study advice based on your logged metrics.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {coachRecommendations.map((adv, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    whileHover={{ scale: 1.01, x: 2 }}
-                                    className={`p-3 rounded-lg border text-xs space-y-1.5 transition-all ${
-                                        adv.type === "warning"
-                                            ? "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10"
-                                            : adv.type === "success"
-                                            ? "border-green-500/20 bg-green-500/5 hover:bg-green-500/10"
-                                            : "border-primary/20 bg-primary/5 hover:bg-primary/10"
-                                    }`}
-                                >
-                                    <h5 className="font-bold flex items-center justify-between text-foreground">
-                                        {adv.title}
-                                    </h5>
-                                    <p className="text-muted-foreground leading-normal">{adv.text}</p>
-                                    <div className="text-[10px] font-semibold text-primary/95 flex items-center gap-1 mt-1">
-                                        <span>Focus: {adv.action}</span>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </CardContent>
-                    </Card>
                 </motion.div>
 
-                {/* Right side: Interactive advanced charts panel */}
                 <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 animate-in fade-in duration-300">
                     <Card className="shadow-md">
                         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
@@ -590,7 +567,6 @@ export default function InsightsPage() {
                                 <CardDescription>Visualize trends, subject balance, and preparation methods.</CardDescription>
                             </div>
 
-                            {/* Chart switcher tabs */}
                             <div className="flex bg-muted p-1 rounded-lg self-start sm:self-auto border">
                                 <button
                                     onClick={() => setActiveChartTab("trend")}
@@ -636,9 +612,9 @@ export default function InsightsPage() {
                                                 <XAxis dataKey="dateFormatted" fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "currentColor", opacity: 0.6 }} />
                                                 <YAxis fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "currentColor", opacity: 0.6 }} />
                                                 <RechartsTooltip
-                                                    contentStyle={{ 
-                                                        backgroundColor: "hsl(var(--popover))", 
-                                                        border: "1px solid hsl(var(--border))", 
+                                                    contentStyle={{
+                                                        backgroundColor: "hsl(var(--popover))",
+                                                        border: "1px solid hsl(var(--border))",
                                                         borderRadius: "8px",
                                                         color: "hsl(var(--popover-foreground))"
                                                     }}
@@ -650,7 +626,7 @@ export default function InsightsPage() {
                                         </ResponsiveContainer>
                                     </motion.div>
                                 )}
- 
+
                                 {activeChartTab === "subjects" && (
                                     <motion.div
                                         key="subjects"
@@ -683,11 +659,11 @@ export default function InsightsPage() {
                                                                     <Cell key={`cell-${idx}`} fill={entry.color} />
                                                                 ))}
                                                             </Pie>
-                                                            <RechartsTooltip 
-                                                                formatter={(val) => `${val}h`} 
-                                                                contentStyle={{ 
-                                                                    backgroundColor: "hsl(var(--popover))", 
-                                                                    border: "1px solid hsl(var(--border))", 
+                                                            <RechartsTooltip
+                                                                formatter={(val) => `${val}h`}
+                                                                contentStyle={{
+                                                                    backgroundColor: "hsl(var(--popover))",
+                                                                    border: "1px solid hsl(var(--border))",
                                                                     borderRadius: "8px",
                                                                     color: "hsl(var(--popover-foreground))"
                                                                 }}
@@ -721,7 +697,7 @@ export default function InsightsPage() {
                                         )}
                                     </motion.div>
                                 )}
- 
+
                                 {activeChartTab === "types" && (
                                     <motion.div
                                         key="types"
@@ -736,11 +712,11 @@ export default function InsightsPage() {
                                                 <CartesianGrid stroke="currentColor" strokeDasharray="3 3" opacity={0.1} vertical={false} />
                                                 <XAxis dataKey="type" fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "currentColor", opacity: 0.6 }} />
                                                 <YAxis fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "currentColor", opacity: 0.6 }} />
-                                                <RechartsTooltip 
-                                                    formatter={(val) => `${val}h`} 
-                                                    contentStyle={{ 
-                                                        backgroundColor: "hsl(var(--popover))", 
-                                                        border: "1px solid hsl(var(--border))", 
+                                                <RechartsTooltip
+                                                    formatter={(val) => `${val}h`}
+                                                    contentStyle={{
+                                                        backgroundColor: "hsl(var(--popover))",
+                                                        border: "1px solid hsl(var(--border))",
                                                         borderRadius: "8px",
                                                         color: "hsl(var(--popover-foreground))"
                                                     }}
@@ -760,7 +736,6 @@ export default function InsightsPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Drilldown view for selected subject with spring physics accordion */}
                     <AnimatePresence mode="popLayout">
                         {subjectDrilldownStats && (
                             <motion.div
@@ -818,10 +793,209 @@ export default function InsightsPage() {
 
             </div>
 
-            {/* Heatmap & Recent Sessions Manager in detailed Grid */}
+            <motion.div variants={itemVariants}>
+                <Card className="border bg-gradient-to-br from-primary/5 via-transparent to-accent/5 shadow-md">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-lg font-bold flex items-center gap-2">
+                            <Lightbulb className="h-5 w-5 text-amber-500" /> PrepCoach Recommendations
+                        </CardTitle>
+                        <CardDescription>Personalized study advice based on your study patterns and mock test performance.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {coachRecommendations.map((adv, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    whileHover={{ scale: 1.01, x: 2 }}
+                                    className={`p-4 rounded-xl border text-xs space-y-2 transition-all ${adv.type === "warning"
+                                        ? "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10"
+                                        : adv.type === "success"
+                                            ? "border-green-500/20 bg-green-500/5 hover:bg-green-500/10"
+                                            : "border-primary/20 bg-primary/5 hover:bg-primary/10"
+                                        }`}
+                                >
+                                    <h5 className="font-bold text-sm flex items-center justify-between text-foreground">
+                                        {adv.title}
+                                    </h5>
+                                    <p className="text-muted-foreground leading-relaxed">{adv.text}</p>
+                                    <div className="text-[10px] font-semibold text-primary/95 flex items-center gap-1 pt-1">
+                                        <ArrowUpRight className="h-3 w-3" />
+                                        <span>Focus: {adv.action}</span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="space-y-6">
+                <Card className="border bg-card/60 backdrop-blur-md shadow-md overflow-hidden">
+                    <CardHeader className="pb-4 border-b">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <GraduationCap className="h-5 w-5 text-primary" />
+                                    <span className="text-xs font-semibold tracking-wider uppercase text-primary">Mock Test Analytics</span>
+                                </div>
+                                <CardTitle className="text-lg font-bold">Mock Test Performance</CardTitle>
+                                <CardDescription>Track your exam readiness through mock test attempts and score trends.</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-8">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <motion.div whileHover={{ y: -3, scale: 1.01 }} className="transition-all">
+                                <div className="p-4 rounded-xl border bg-gradient-to-br from-violet-500/5 to-violet-500/10 hover:border-violet-500/30 transition-all">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Attempts</span>
+                                        <Target className="h-3.5 w-3.5 text-violet-500" />
+                                    </div>
+                                    <div className="text-2xl font-black tracking-tight">{mockInsights?.total_attempts || 0}</div>
+                                    <p className="text-[10px] text-muted-foreground mt-1">mock tests taken</p>
+                                </div>
+                            </motion.div>
+                            <motion.div whileHover={{ y: -3, scale: 1.01 }} className="transition-all">
+                                <div className="p-4 rounded-xl border bg-gradient-to-br from-blue-500/5 to-blue-500/10 hover:border-blue-500/30 transition-all">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Average Score</span>
+                                        <BarChart3 className="h-3.5 w-3.5 text-blue-500" />
+                                    </div>
+                                    <div className="text-2xl font-black tracking-tight">{mockInsights?.avg_score_pct || 0}%</div>
+                                    <p className="text-[10px] text-muted-foreground mt-1">across all attempts</p>
+                                </div>
+                            </motion.div>
+                            <motion.div whileHover={{ y: -3, scale: 1.01 }} className="transition-all">
+                                <div className="p-4 rounded-xl border bg-gradient-to-br from-amber-500/5 to-amber-500/10 hover:border-amber-500/30 transition-all">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Best Score</span>
+                                        <Trophy className="h-3.5 w-3.5 text-amber-500" />
+                                    </div>
+                                    <div className="text-2xl font-black tracking-tight">{mockInsights?.best_score_pct || 0}%</div>
+                                    <p className="text-[10px] text-muted-foreground mt-1">personal best</p>
+                                </div>
+                            </motion.div>
+                            <motion.div whileHover={{ y: -3, scale: 1.01 }} className="transition-all">
+                                <div className="p-4 rounded-xl border bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 hover:border-emerald-500/30 transition-all">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Papers Covered</span>
+                                        <FileText className="h-3.5 w-3.5 text-emerald-500" />
+                                    </div>
+                                    <div className="text-2xl font-black tracking-tight">{mockInsights?.total_papers_attempted || 0}</div>
+                                    <p className="text-[10px] text-muted-foreground mt-1">unique papers attempted</p>
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                            <div className="lg:col-span-3">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Zap className="h-4 w-4 text-primary" />
+                                    <h4 className="text-sm font-bold">Score Trend</h4>
+                                    <span className="text-[10px] text-muted-foreground">Last 10 attempts</span>
+                                </div>
+                                {(!mockInsights?.recent_trend || mockInsights.recent_trend.length === 0) ? (
+                                    <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground border rounded-xl bg-muted/20">
+                                        <GraduationCap className="w-10 h-10 mb-2 opacity-20" />
+                                        <p className="text-xs">No mock test attempts yet. Take your first test!</p>
+                                    </div>
+                                ) : (
+                                    <div className="h-[250px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={mockInsights.recent_trend.map((t, i) => ({
+                                                attempt: `#${i + 1}`,
+                                                examLabel: t.exam_name.length > 20 ? t.exam_name.slice(0, 20) + '...' : t.exam_name,
+                                                "Score %": t.percentage,
+                                            }))} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                <defs>
+                                                    <linearGradient id="colorMockScore" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4} />
+                                                        <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid stroke="currentColor" strokeDasharray="3 3" opacity={0.1} vertical={false} />
+                                                <XAxis dataKey="attempt" fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "currentColor", opacity: 0.6 }} />
+                                                <YAxis fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "currentColor", opacity: 0.6 }} domain={[0, 100]} />
+                                                <RechartsTooltip
+                                                    contentStyle={{
+                                                        backgroundColor: "hsl(var(--popover))",
+                                                        border: "1px solid hsl(var(--border))",
+                                                        borderRadius: "8px",
+                                                        color: "hsl(var(--popover-foreground))"
+                                                    }}
+                                                    labelStyle={{ color: "hsl(var(--muted-foreground))" }}
+                                                    itemStyle={{ color: "#8B5CF6" }}
+                                                    formatter={(val) => [`${val}%`, 'Score']}
+                                                />
+                                                <Area type="monotone" dataKey="Score %" stroke="#8B5CF6" strokeWidth={2.5} fillOpacity={1} fill="url(#colorMockScore)" dot={{ r: 4, fill: '#8B5CF6', strokeWidth: 2, stroke: 'hsl(var(--background))' }} activeDot={{ r: 6 }} />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="lg:col-span-2">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Layers className="h-4 w-4 text-primary" />
+                                    <h4 className="text-sm font-bold">Per-Paper Stats</h4>
+                                </div>
+                                {(!mockInsights?.per_paper || mockInsights.per_paper.length === 0) ? (
+                                    <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground border rounded-xl bg-muted/20">
+                                        <FileText className="w-10 h-10 mb-2 opacity-20" />
+                                        <p className="text-xs">No papers attempted yet.</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                                        {mockInsights.per_paper
+                                            .sort((a, b) => new Date(b.last_attempted_at).getTime() - new Date(a.last_attempted_at).getTime())
+                                            .map((paper, idx) => (
+                                                <motion.div
+                                                    key={idx}
+                                                    whileHover={{ scale: 1.01, x: 2 }}
+                                                    className="p-3 rounded-lg border bg-muted/20 hover:bg-muted/40 transition-all space-y-2"
+                                                >
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <h5 className="text-xs font-bold text-foreground leading-tight line-clamp-1">
+                                                            {paper.exam_name.replace(/\.[^/.]+$/, "")}
+                                                        </h5>
+                                                        <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0">
+                                                            {paper.attempts} {paper.attempts === 1 ? 'attempt' : 'attempts'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-1">
+                                                            <Trophy className="h-3 w-3 text-amber-500" />
+                                                            <span className="text-[10px] text-muted-foreground">Best: <span className="font-bold text-foreground">{paper.best_pct}%</span></span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <BarChart3 className="h-3 w-3 text-blue-500" />
+                                                            <span className="text-[10px] text-muted-foreground">Avg: <span className="font-bold text-foreground">{paper.avg_pct}%</span></span>
+                                                        </div>
+                                                        <span className="text-[10px] text-muted-foreground ml-auto">
+                                                            {formatDistanceToNow(new Date(paper.last_attempted_at), { addSuffix: true })}
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full bg-muted/60 rounded-full h-1.5">
+                                                        <div
+                                                            className="h-1.5 rounded-full transition-all duration-500"
+                                                            style={{
+                                                                width: `${Math.min(paper.best_pct, 100)}%`,
+                                                                background: paper.best_pct >= 80 ? '#10B981' : paper.best_pct >= 50 ? '#F59E0B' : '#EF4444'
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+
             <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Heatmap space */}
                 <Card className="lg:col-span-1 shadow-sm">
                     <CardHeader>
                         <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -830,18 +1004,15 @@ export default function InsightsPage() {
                         <CardDescription>Study activity visual map over past 90 days.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center justify-center py-6 overflow-hidden">
-                        {/* Custom visual study heatmap */}
                         {(() => {
                             const dailyMap: Record<string, number> = {};
                             dailyData.forEach(d => { dailyMap[d.date] = d.minutes; });
 
-                            // Create exactly 13 weeks of Sunday-Saturday blocks (91 days total)
                             const today = new Date();
                             const dayOfWeek = today.getDay(); // 0 is Sunday, 6 is Saturday
-                            
-                            // Align endDate to the Saturday of the current week so our columns are filled
+
                             const endDate = subDays(today, -(6 - dayOfWeek));
-                            
+
                             const days = [];
                             for (let i = 90; i >= 0; i--) {
                                 const d = subDays(endDate, i);
@@ -853,7 +1024,6 @@ export default function InsightsPage() {
                                 });
                             }
 
-                            // Slice into 13 columns (weeks), each containing exactly 7 days (Sunday - Saturday)
                             const weeks: typeof days[] = [];
                             for (let i = 0; i < 13; i++) {
                                 weeks.push(days.slice(i * 7, (i + 1) * 7));
@@ -868,16 +1038,15 @@ export default function InsightsPage() {
 
                             return (
                                 <div className="flex flex-col gap-2 w-full max-w-[280px] sm:max-w-none items-center">
-                                    
-                                    {/* Months Row */}
+
                                     <div className="flex text-[9px] text-muted-foreground select-none font-semibold h-4 w-full items-center pl-6">
-                                        <div className="w-8 shrink-0" /> {/* Align spacer with Mon/Wed/Fri labels */}
+                                        <div className="w-8 shrink-0" />
                                         <div className="flex gap-1.5 flex-1 justify-between">
                                             {weeks.map((week, wi) => {
                                                 const date = new Date(week[0].date);
                                                 const prevWeekDate = wi > 0 ? new Date(weeks[wi - 1][0].date) : null;
                                                 const isNewMonth = !prevWeekDate || date.getMonth() !== prevWeekDate.getMonth();
-                                                
+
                                                 return (
                                                     <div key={wi} className="w-2.5 shrink-0 relative">
                                                         {isNewMonth && (
@@ -891,10 +1060,8 @@ export default function InsightsPage() {
                                         </div>
                                     </div>
 
-                                    {/* Grid row with weekday labels on left */}
                                     <div className="flex items-center gap-2 w-full justify-center">
-                                        
-                                        {/* Weekday Labels Column */}
+
                                         <div className="flex flex-col justify-between text-[9px] text-muted-foreground h-[94px] w-6 shrink-0 text-right select-none font-bold py-1">
                                             <span>Sun</span>
                                             <span>Mon</span>
@@ -905,7 +1072,6 @@ export default function InsightsPage() {
                                             <span>Sat</span>
                                         </div>
 
-                                        {/* Columns of weeks */}
                                         <div className="flex gap-1.5 flex-1 justify-between">
                                             {weeks.map((week, wi) => (
                                                 <div key={wi} className="flex flex-col gap-1.5 shrink-0">
@@ -922,7 +1088,6 @@ export default function InsightsPage() {
 
                                     </div>
 
-                                    {/* Footer Legend row */}
                                     <div className="flex justify-between items-center text-[10px] text-muted-foreground w-full px-1 mt-2 max-w-[280px]">
                                         <span>Less</span>
                                         <div className="flex items-center gap-1">
@@ -940,7 +1105,6 @@ export default function InsightsPage() {
                     </CardContent>
                 </Card>
 
-                {/* Session Logs Manager with list item animations */}
                 <Card className="lg:col-span-2 shadow-sm">
                     <CardHeader className="pb-3">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -951,7 +1115,6 @@ export default function InsightsPage() {
                                 <CardDescription>Search, filter, and audit logged study efforts.</CardDescription>
                             </div>
 
-                            {/* Search box inside logs manager */}
                             <div className="relative w-full sm:w-60">
                                 <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                                 <Input
@@ -963,11 +1126,9 @@ export default function InsightsPage() {
                             </div>
                         </div>
 
-                        {/* Interactive multi-select filter row */}
                         <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t">
                             <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Filter Logs:</span>
-                            
-                            {/* Method select */}
+
                             <select
                                 className="bg-muted text-[11px] font-semibold py-1 px-2 rounded-md border border-border/50 text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
                                 value={logMethodFilter}
@@ -980,7 +1141,6 @@ export default function InsightsPage() {
                                 <option value="REVISION">Revision 🧠</option>
                             </select>
 
-                            {/* Subject select */}
                             <select
                                 className="bg-muted text-[11px] font-semibold py-1 px-2 rounded-md border border-border/50 text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
                                 value={logSubjectFilter}
@@ -1020,8 +1180,8 @@ export default function InsightsPage() {
                                     {filteredLogs.map((log) => {
                                         const task = tasks.find(t => t.id === log.task_id);
                                         return (
-                                            <motion.div 
-                                                key={log.id} 
+                                            <motion.div
+                                                key={log.id}
                                                 layout
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: "auto" }}
