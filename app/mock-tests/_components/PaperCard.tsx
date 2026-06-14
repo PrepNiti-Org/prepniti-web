@@ -20,11 +20,11 @@ export function PaperCard({ paper, onStart, loadingExam, selectedPaperId, attemp
 
     return (
         <Card className={`flex flex-col justify-between hover:shadow-xl transition-all duration-300 border bg-card relative overflow-hidden group ${isFullLength
-                ? "border-amber-500/20 dark:border-amber-500/10 hover:border-amber-500/40"
-                : "border-border hover:border-primary/40"
+            ? "border-amber-500/20 dark:border-amber-500/10 hover:border-amber-500/40"
+            : "border-border hover:border-primary/40"
             }`}>
             {isFullLength && (
-                <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-amber-500/10 dark:bg-amber-500/5 blur-2xl group-hover:bg-amber-500/25 transition-all duration-300" />
+                <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-amber-500/10 dark:bg-amber-500/15 blur-2xl group-hover:bg-amber-500/25 group-hover:dark:bg-amber-500/30 transition-all duration-300" />
             )}
 
             <CardHeader className="pb-3 relative z-10">
