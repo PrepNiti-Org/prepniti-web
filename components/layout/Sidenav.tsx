@@ -10,7 +10,8 @@ import {
     LayoutDashboard,
     MessageSquare,
     Menu,
-    TrendingUp
+    TrendingUp,
+    GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +20,7 @@ export const navLinks = [
     { name: "Tracker", href: "/tracker", icon: LayoutDashboard },
     { name: "Discussions", href: "/posts", icon: MessageSquare },
     { name: "Insights", href: "/insights", icon: TrendingUp },
+    { name: "Mock Tests", href: "/mock-tests", icon: GraduationCap },
 ];
 
 interface SidenavProps {
