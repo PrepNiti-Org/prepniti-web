@@ -11,8 +11,13 @@ export interface UserProfile {
 }
 
 export interface PerformanceStat {
-    month: string;
+    id: string;
+    exam_name: string;
     score: number;
+    max_score: number;
+    percentage: number;
+    month: string;
+    attempted_at: string;
 }
 
 export interface UpdateProfileDTO {
@@ -64,4 +69,34 @@ export const getUserActivity = async (): Promise<ActivityData> => {
 export const getUserExperiences = async (): Promise<UserExperience[]> => {
     const res = await api.get("/experiences/me");
     return res.data.data || [];
+};
+
+export interface MockTestTrendEntry {
+    exam_name: string;
+    percentage: number;
+    score: number;
+    max_score: number;
+    attempted_at: string;
+}
+
+export interface MockTestPerPaper {
+    exam_name: string;
+    attempts: number;
+    best_pct: number;
+    avg_pct: number;
+    last_attempted_at: string;
+}
+
+export interface MockTestInsights {
+    total_attempts: number;
+    avg_score_pct: number;
+    best_score_pct: number;
+    total_papers_attempted: number;
+    recent_trend: MockTestTrendEntry[];
+    per_paper: MockTestPerPaper[];
+}
+
+export const getMockTestInsights = async (): Promise<MockTestInsights> => {
+    const res = await api.get("/users/me/stats/insights");
+    return res.data;
 };

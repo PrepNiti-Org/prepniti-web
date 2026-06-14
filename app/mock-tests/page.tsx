@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { api } from "@/lib/api";
-import { GraduationCap } from "lucide-react";
+import { getMockTestInsights, MockTestInsights } from "@/features/profile/api";
+import { GraduationCap, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
-import { Paper, ExamElement, ScoreInfo } from "./_components/types";
+import { Paper, ExamElement, ScoreInfo, PaperAttemptStats } from "./_components/types";
 import { useExamSecurity } from "./_components/useExamSecurity";
 import { PaperCard } from "./_components/PaperCard";
 import { ExamInstructions } from "./_components/ExamInstructions";
@@ -17,36 +19,24 @@ export default function MockTestsPage() {
     const [step, setStep] = useState<"setup" | "instructions" | "testing" | "result">("setup");
     const [papers, setPapers] = useState<Paper[]>([]);
     const [loadingPapers, setLoadingPapers] = useState(true);
-
-    // Config states
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeTab, setActiveTab] = useState<"all" | "full" | "practice">("all");
     const [selectedPaperId, setSelectedPaperId] = useState("");
-
-    // Exam runtime states
     const [blueprint, setBlueprint] = useState<ExamElement[]>([]);
-    const [answers, setAnswers] = useState<Record<string, string>>({}); // question_id -> option_text
-    const [timeRemaining, setTimeRemaining] = useState(1800); // in seconds
+    const [answers, setAnswers] = useState<Record<string, string>>({});
+    const [timeRemaining, setTimeRemaining] = useState(1800);
     const [loadingExam, setLoadingExam] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-    // Results states
     const [scoreInfo, setScoreInfo] = useState<ScoreInfo>({ correct: 0, total: 0, percentage: 0 });
-
-    // CBT runtime states
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [questionStatuses, setQuestionStatuses] = useState<Record<string, "not_visited" | "not_answered" | "answered" | "marked_review" | "answered_marked_review">>({});
-
-    // Instructions states
     const [defaultLanguage, setDefaultLanguage] = useState("English");
     const [selectedPaperDuration, setSelectedPaperDuration] = useState(120);
-
-    // Security submit reference
+    const [mockInsights, setMockInsights] = useState<MockTestInsights | null>(null);
     const submitRef = useRef<() => void>(() => { });
-
-    // Hook to monitor browser boundaries, developer tool hotkeys and disable copying
     const { enterFullscreen, exitFullscreen } = useExamSecurity(step, submitRef);
 
     useEffect(() => {
-        // Fetch papers
         api.get<Paper[]>("/papers")
             .then(res => {
                 setPapers(res.data);
@@ -60,9 +50,12 @@ export default function MockTestsPage() {
             .finally(() => {
                 setLoadingPapers(false);
             });
+
+        getMockTestInsights()
+            .then(data => setMockInsights(data))
+            .catch(() => { });
     }, []);
 
-    // Countdown Timer logic
     useEffect(() => {
         if (step === "testing") {
             timerRef.current = setInterval(() => {
@@ -98,7 +91,6 @@ export default function MockTestsPage() {
             setBlueprint(res.data);
             setAnswers({});
 
-            // Initialize all question statuses to "not_visited"
             const flat = res.data.flatMap(el => el.questions);
             const initialStatuses: Record<string, "not_visited" | "not_answered" | "answered" | "marked_review" | "answered_marked_review"> = {};
             flat.forEach((q, idx) => {
@@ -110,7 +102,6 @@ export default function MockTestsPage() {
             setSelectedPaperDuration(durationMin);
             setTimeRemaining(durationMin * 60);
 
-            // Go to instructions screen first
             setStep("instructions");
         } catch {
             toast.error("Failed to load mock exam questions");
@@ -120,7 +111,6 @@ export default function MockTestsPage() {
     };
 
     const handleSubmitExam = async () => {
-        // Exit fullscreen if browser is in fullscreen mode
         await exitFullscreen();
 
         let correctCount = 0;
@@ -128,12 +118,10 @@ export default function MockTestsPage() {
 
         blueprint.forEach(el => {
             el.questions.forEach(q => {
+                totalCount++;
                 const correctOpt = q.options.find(o => o.is_correct);
-                if (correctOpt) {
-                    totalCount++;
-                    if (answers[q.id] === correctOpt.option_text) {
-                        correctCount++;
-                    }
+                if (correctOpt && answers[q.id] === correctOpt.option_text) {
+                    correctCount++;
                 }
             });
         });
@@ -141,7 +129,6 @@ export default function MockTestsPage() {
         const pct = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
         setScoreInfo({ correct: correctCount, total: totalCount, percentage: pct });
 
-        // Save Attempt to Database via Go backend
         const activePaper = papers.find(p => p.id === selectedPaperId);
         try {
             await api.post("/users/me/stats", {
@@ -149,24 +136,51 @@ export default function MockTestsPage() {
                 score: parseFloat(correctCount.toFixed(1)),
                 max_score: parseFloat(totalCount.toFixed(1))
             });
+            getMockTestInsights()
+                .then(data => setMockInsights(data))
+                .catch(() => { });
         } catch {
-            // Silently capture scoring save errors
         }
 
         setStep("result");
     };
 
-    // Update submission reference for event listeners
     useEffect(() => {
         submitRef.current = handleSubmitExam;
     }, [blueprint, answers, selectedPaperId, papers]);
 
     const activePaper = papers.find(p => p.id === selectedPaperId);
 
+    const filteredPapers = papers.filter(p => {
+        const matchesSearch = p.filename.toLowerCase().includes(searchQuery.toLowerCase());
+        const isFullLength = p.exam_type === "full";
+        if (activeTab === "full") return matchesSearch && isFullLength;
+        if (activeTab === "practice") return matchesSearch && !isFullLength;
+        return matchesSearch;
+    });
+
+    const paperAttemptMap = useMemo(() => {
+        const map: Record<string, PaperAttemptStats> = {};
+        if (!mockInsights?.per_paper) return map;
+        for (const paper of papers) {
+            const match = mockInsights.per_paper.find(
+                pp => pp.exam_name === paper.filename
+            );
+            if (match) {
+                map[paper.id] = {
+                    attempts: match.attempts,
+                    best_pct: match.best_pct,
+                    avg_pct: match.avg_pct,
+                    last_attempted_at: match.last_attempted_at,
+                };
+            }
+        }
+        return map;
+    }, [papers, mockInsights]);
+
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
             <AnimatePresence mode="wait">
-                {/* 1. SETUP STEP */}
                 {step === "setup" && (
                     <motion.div
                         key="setup-screen"
@@ -174,11 +188,55 @@ export default function MockTestsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -15 }}
                     >
-                        <div className="flex items-center gap-3 mb-6">
-                            <GraduationCap className="h-8 w-8 text-primary" />
-                            <div>
-                                <h1 className="text-3xl font-extrabold tracking-tight font-sans">Mock Tests</h1>
-                                <p className="text-muted-foreground text-sm font-sans">Attempt mock papers and evaluate your performance under realistic exam constraints.</p>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                            <div className="flex items-center gap-3">
+                                <GraduationCap className="h-8 w-8 text-primary" />
+                                <div>
+                                    <h1 className="text-3xl font-extrabold tracking-tight font-sans">Mock Tests</h1>
+                                    <p className="text-muted-foreground text-sm font-sans">Attempt mock papers and evaluate your performance under realistic exam constraints.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 bg-card border border-border p-4 rounded-2xl shadow-sm">
+                            <div className="relative w-full md:max-w-xs">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search mock papers..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-9 bg-background/50 border-border rounded-xl focus-visible:ring-1"
+                                />
+                            </div>
+                            <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-xl border border-border/50 w-full md:w-auto overflow-x-auto">
+                                <button
+                                    onClick={() => setActiveTab("all")}
+                                    className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${activeTab === "all"
+                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                        }`}
+                                >
+                                    All Mocks
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab("full")}
+                                    className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${activeTab === "full"
+                                        ? "bg-amber-500 text-slate-950 shadow-sm font-bold"
+                                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                        }`}
+                                >
+                                    Full-Length Mocks
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab("practice")}
+                                    className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${activeTab === "practice"
+                                        ? "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-sm font-bold"
+                                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                        }`}
+                                >
+                                    Practice Sheets
+                                </button>
                             </div>
                         </div>
 
@@ -186,15 +244,18 @@ export default function MockTestsPage() {
                             <div className="py-20 text-center text-muted-foreground font-sans">Loading mock exam list...</div>
                         ) : papers.length === 0 ? (
                             <div className="py-20 text-center text-muted-foreground font-sans">No mock tests have been published by the administrator yet.</div>
+                        ) : filteredPapers.length === 0 ? (
+                            <div className="py-20 text-center text-muted-foreground font-sans">No mock tests found matching your search or filters.</div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {papers.map(p => (
+                                {filteredPapers.map(p => (
                                     <PaperCard
                                         key={p.id}
                                         paper={p}
                                         onStart={handleStartExamForPaper}
                                         loadingExam={loadingExam}
                                         selectedPaperId={selectedPaperId}
+                                        attemptStats={paperAttemptMap[p.id]}
                                     />
                                 ))}
                             </div>
@@ -202,7 +263,6 @@ export default function MockTestsPage() {
                     </motion.div>
                 )}
 
-                {/* 2. INSTRUCTIONS STEP */}
                 {step === "instructions" && (
                     <ExamInstructions
                         selectedPaper={activePaper}
@@ -217,7 +277,6 @@ export default function MockTestsPage() {
                     />
                 )}
 
-                {/* 3. TESTING STEP */}
                 {step === "testing" && (
                     <ExamWorkspace
                         selectedPaper={activePaper}
@@ -233,7 +292,6 @@ export default function MockTestsPage() {
                     />
                 )}
 
-                {/* 4. RESULT STEP */}
                 {step === "result" && (
                     <motion.div
                         key="result-screen"

@@ -27,6 +27,8 @@ export interface Paper {
     filename: string;
     uploaded_at: string;
     q_count: number;
+    exam_type: string;
+    duration: number;
 }
 
 export interface ScoreInfo {
@@ -36,3 +38,10 @@ export interface ScoreInfo {
 }
 
 export type QuestionStatus = "not_visited" | "not_answered" | "answered" | "marked_review" | "answered_marked_review";
+
+export interface PaperAttemptStats {
+    attempts: number;
+    best_pct: number;
+    avg_pct: number;
+    last_attempted_at: string;
+}

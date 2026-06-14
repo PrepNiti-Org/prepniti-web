@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObject<() => void>) {
+    const isExitingIntentionally = useRef(false);
+
     const enterFullscreen = async () => {
         const docEl = document.documentElement as any;
         try {
@@ -22,6 +24,7 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
 
     const exitFullscreen = async () => {
         const doc = document as any;
+        isExitingIntentionally.current = true;
         try {
             if (doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement) {
                 if (doc.exitFullscreen) {
@@ -43,6 +46,8 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
         if (step !== "testing") return;
 
         const handleSecurityViolation = (reason: string) => {
+            if (isExitingIntentionally.current) return;
+            isExitingIntentionally.current = true;
             toast.error(`Security Violation: ${reason}. Exam submitted automatically.`);
             onSubmitRef.current();
         };
@@ -50,18 +55,23 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
         const handleFullscreenChange = () => {
             const doc = document as any;
             const isFullscreen = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+            if (isExitingIntentionally.current) {
+                return;
+            }
             if (!isFullscreen && step === "testing") {
                 handleSecurityViolation("Exited fullscreen mode");
             }
         };
 
         const handleVisibilityChange = () => {
+            if (isExitingIntentionally.current) return;
             if (document.visibilityState === "hidden") {
                 handleSecurityViolation("Switched browser tabs / minimized window");
             }
         };
 
         const handleWindowBlur = () => {
+            if (isExitingIntentionally.current) return;
             handleSecurityViolation("Lost window focus");
         };
 
