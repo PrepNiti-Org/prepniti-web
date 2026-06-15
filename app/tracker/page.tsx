@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getTasks } from "@/features/kanban/api";
+import { getTasks, Task } from "@/features/kanban/api";
 import { Loader2, LayoutDashboard, ListTodo, Search, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { KanbanBoardView } from "@/features/kanban/components/KanbanBoardView";
 import { TaskListView } from "@/features/kanban/components/TaskListView";
 import { AddTaskModal } from "@/features/kanban/components/AddTaskModal";
+import { TaskDetailsPanel } from "@/features/kanban/components/TaskDetailsPanel";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 type ViewMode = "BOARD" | "LIST";
 
+function useMediaQuery(query: string) {
+    const [matches, setMatches] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        const media = window.matchMedia(query);
+        setMatches(media.matches);
+
+        const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
+        media.addEventListener("change", listener);
+        return () => media.removeEventListener("change", listener);
+    }, [query]);
+
+    return mounted ? matches : false;
+}
+
 export default function TrackerDashboard() {
     const [view, setView] = useState<ViewMode>("BOARD");
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [subjectFilter, setSubjectFilter] = useState("ALL");
@@ -25,6 +45,9 @@ export default function TrackerDashboard() {
         queryKey: ["tasks"],
         queryFn: getTasks,
     });
+
+    const activeTask = selectedTask ? tasks.find(t => t.id === selectedTask.id) || selectedTask : null;
+    const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
     if (isLoading) {
         return <div className="flex justify-center py-32"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
@@ -90,20 +113,55 @@ export default function TrackerDashboard() {
                 <AddTaskModal />
             </div>
 
-            <div className="mt-2">
-                {filteredTasks.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                        <Target className="w-12 h-12 mb-4 opacity-20" />
-                        <p>No study targets found matching your filters.</p>
+            <div className="flex flex-col lg:flex-row gap-6 mt-6 items-start">
+                <div className="flex-1 w-full min-w-0">
+                    {filteredTasks.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground border rounded-lg bg-muted/10">
+                            <Target className="w-12 h-12 mb-4 opacity-20" />
+                            <p>No study targets found matching your filters.</p>
+                        </div>
+                    ) : (
+                        <>
+                            {view === "BOARD" && (
+                                <KanbanBoardView
+                                    tasks={filteredTasks}
+                                    selectedTaskId={activeTask?.id}
+                                    onSelectTask={setSelectedTask}
+                                />
+                            )}
+                            {view === "LIST" && (
+                                <TaskListView
+                                    tasks={filteredTasks}
+                                    selectedTaskId={activeTask?.id}
+                                    onSelectTask={setSelectedTask}
+                                />
+                            )}
+                        </>
+                    )}
+                </div>
+
+                {activeTask && isLargeScreen && (
+                    <div className="w-full lg:w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-6rem)] overflow-hidden flex flex-col">
+                        <TaskDetailsPanel
+                            task={activeTask}
+                            onClose={() => setSelectedTask(null)}
+                        />
                     </div>
-                ) : (
-                    <>
-                        {view === "BOARD" && <KanbanBoardView tasks={filteredTasks} />}
-                        {view === "LIST" && <TaskListView tasks={filteredTasks} />}
-                    </>
                 )}
             </div>
 
+            <Sheet open={!!activeTask && !isLargeScreen} onOpenChange={(open) => { if (!open) setSelectedTask(null); }}>
+                <SheetContent className="w-full sm:max-w-[540px] overflow-y-auto border-l shadow-2xl flex flex-col p-6 h-full">
+                    <SheetTitle className="sr-only">Edit Target Details</SheetTitle>
+                    {activeTask && (
+                        <TaskDetailsPanel
+                            task={activeTask}
+                            onClose={() => setSelectedTask(null)}
+                            showCloseButton={false}
+                        />
+                    )}
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

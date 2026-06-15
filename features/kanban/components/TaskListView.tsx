@@ -14,7 +14,15 @@ import {
 } from "@tanstack/react-table";
 import { ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 
-export function TaskListView({ tasks }: { tasks: Task[] }) {
+export function TaskListView({ 
+    tasks, 
+    onSelectTask, 
+    selectedTaskId 
+}: { 
+    tasks: Task[]; 
+    onSelectTask: (t: Task) => void; 
+    selectedTaskId?: string; 
+}) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     const columns = useMemo<ColumnDef<Task>[]>(() => [
@@ -104,15 +112,26 @@ export function TaskListView({ tasks }: { tasks: Task[] }) {
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows.map(row => (
-                        <TableRow key={row.id} className="hover:bg-muted/30">
-                            {row.getVisibleCells().map(cell => (
-                                <TableCell key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    ))}
+                    {table.getRowModel().rows.map(row => {
+                        const isSelected = row.original.id === selectedTaskId;
+                        return (
+                            <TableRow 
+                                key={row.id} 
+                                className={`hover:bg-muted/30 cursor-pointer transition-colors ${
+                                    isSelected 
+                                        ? "bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary" 
+                                        : ""
+                                }`}
+                                onClick={() => onSelectTask(row.original)}
+                            >
+                                {row.getVisibleCells().map(cell => (
+                                    <TableCell key={cell.id}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        );
+                    })}
                 </TableBody>
             </Table>
         </div>

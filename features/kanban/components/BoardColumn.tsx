@@ -1,4 +1,3 @@
-// components/BoardColumn.tsx
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
@@ -6,7 +5,19 @@ import { TaskCard } from "./TaskCard";
 import { QuickAddTask } from "./QuickAddTask";
 import { Task, Status } from "../api";
 
-export function BoardColumn({ id, title, tasks }: { id: Status; title: string; tasks: Task[] }) {
+export function BoardColumn({
+    id,
+    title,
+    tasks,
+    selectedTaskId,
+    onSelectTask
+}: {
+    id: Status;
+    title: string;
+    tasks: Task[];
+    selectedTaskId?: string;
+    onSelectTask: (t: Task) => void;
+}) {
     const { setNodeRef, isOver } = useDroppable({ id });
 
     return (
@@ -19,7 +30,14 @@ export function BoardColumn({ id, title, tasks }: { id: Status; title: string; t
             </div>
 
             <div ref={setNodeRef} className={`flex-1 transition-colors rounded-lg p-1 ${isOver ? "bg-primary/10 border-2 border-dashed border-primary/40" : "border-2 border-transparent"}`}>
-                {tasks.map((task) => <TaskCard key={task.id} task={task} />)}
+                {tasks.map((task) => (
+                    <TaskCard
+                        key={task.id}
+                        task={task}
+                        isCurrentlySelected={task.id === selectedTaskId}
+                        onSelectTask={onSelectTask}
+                    />
+                ))}
                 {tasks.length === 0 && !isOver && <div className="h-20 flex items-center justify-center text-muted-foreground/50 text-xs italic">Empty</div>}
             </div>
 
