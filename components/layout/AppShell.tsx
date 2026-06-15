@@ -1,11 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Navbar } from "./Navbar";
 import { Sidenav } from "./Sidenav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const pathname = usePathname();
+    const isAuthPage = pathname === "/login" || pathname === "/register";
+
+    if (isAuthPage) {
+        return <div className="w-full min-h-screen overflow-y-auto lg:overflow-hidden bg-background">{children}</div>;
+    }
 
     return (
         <div className="flex flex-col h-screen overflow-hidden">
@@ -27,3 +34,4 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
     );
 }
+
