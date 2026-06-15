@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { AxiosError } from "axios";
+import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -84,6 +85,12 @@ export function LoginForm() {
                         <FormItem className="space-y-1.5">
                             <div className="flex justify-between items-center">
                                 <FormLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Password</FormLabel>
+                                <Link 
+                                    href="/forgot-password" 
+                                    className="text-[10px] font-bold text-primary hover:underline underline-offset-4"
+                                >
+                                    Forgot password?
+                                </Link>
                             </div>
                             <FormControl>
                                 <div className="relative flex items-center">

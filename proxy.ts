@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
 
     const { pathname } = request.nextUrl;
 
     const protectedRoutes = ["/submit", "/dashboard"];
 
-    const authRoutes = ["/login", "/register"];
+    const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
     if (protectedRoutes.some((route) => pathname.startsWith(route))) {
         if (!token) {
@@ -30,6 +30,8 @@ export const config = {
         "/submit/:path*",
         "/dashboard/:path*",
         "/login",
-        "/register"
+        "/register",
+        "/forgot-password",
+        "/reset-password"
     ],
 };

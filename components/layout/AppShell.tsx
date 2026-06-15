@@ -8,7 +8,7 @@ import { Sidenav } from "./Sidenav";
 export function AppShell({ children }: { children: React.ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const pathname = usePathname();
-    const isAuthPage = pathname === "/login" || pathname === "/register";
+    const isAuthPage = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password";
 
     if (isAuthPage) {
         return <div className="w-full min-h-screen overflow-y-auto lg:overflow-hidden bg-background">{children}</div>;

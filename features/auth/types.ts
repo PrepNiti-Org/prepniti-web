@@ -18,3 +18,12 @@ export interface RegisterCredentials {
     password: string;
     target_exam?: string;
 }
+
+export interface ForgotPasswordCredentials {
+    email: string;
+}
+
+export interface ResetPasswordCredentials {
+    token: string;
+    new_password: string;
+}
