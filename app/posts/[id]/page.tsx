@@ -8,21 +8,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Trash2, Heart, MessageCircle, Send, MoreHorizontal, Bookmark } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PostCard } from "@/features/posts/components/PostCard";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -212,14 +201,7 @@ export default function SinglePostPage() {
         }
     });
 
-    const handleShare = () => {
-        const url = `${window.location.origin}/posts/${id}`;
-        navigator.clipboard.writeText(url).then(() => {
-            toast.success("Link copied to clipboard!");
-        }).catch(() => {
-            toast.error("Failed to copy link");
-        });
-    };
+
 
     if (isLoading) {
         return (
@@ -253,123 +235,19 @@ export default function SinglePostPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
                 <div className="lg:col-span-3">
-                    <motion.article
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
-                        className="bg-card border border-primary/40 rounded-2xl shadow-sm overflow-hidden mb-8"
-                    >
-                        <div className="p-5 pb-3">
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-3">
-                                    <Avatar className="h-10 w-10 border shadow-sm">
-                                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                                            {post.user?.username ? post.user.username.substring(0, 2).toUpperCase() : "AN"}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h4 className="text-sm font-bold leading-none text-foreground">
-                                            {post.user?.username || "Anonymous"}
-                                        </h4>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    {isAuthor && (
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-full">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete your
-                                                        post and remove the data from our servers.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction
-                                                        onClick={() => deleteMutation.mutate(id)}
-                                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                                    >
-                                                        {deleteMutation.isPending ? "Deleting..." : "Yes, delete post"}
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    )}
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="px-5 pb-3">
-                            <div className="text-[15px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                                {post.content}
-                            </div>
-                            {post.media_url && (
-                                <div className="mt-4 rounded-xl overflow-hidden border border-border bg-muted/10">
-                                    {post.media_type === "video" ? (
-                                        <video src={`http://localhost:8080${post.media_url}`} controls className="w-full max-h-[600px] bg-black/5" />
-                                    ) : (
-                                        <img src={`http://localhost:8080${post.media_url}`} alt="Post Media" className="w-full max-h-[600px] object-cover bg-black/5" />
-                                    )}
-                                </div>
-                            )}
-
-                            {post.tags && post.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-4">
-                                    {post.tags.map((tag: string) => (
-                                        <span key={tag} className="text-sm font-semibold text-primary/80">
-                                            #{tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="px-5 py-3 border-t border-muted/20 bg-muted/5">
-                            <div className="flex items-center justify-between w-full text-muted-foreground">
-                                <div className="flex items-center gap-6">
-                                    <button
-                                        onClick={() => toggleLikeMutation.mutate()}
-                                        disabled={toggleLikeMutation.isPending}
-                                        className="flex items-center gap-2 hover:text-rose-500 transition-colors group"
-                                    >
-                                        <Heart className="h-5 w-5 group-hover:fill-rose-500/20" />
-                                        <span className="text-sm font-medium">{post.upvotes > 0 ? post.upvotes : 'Like'}</span>
-                                    </button>
-                                    <button className="flex items-center gap-2 hover:text-primary transition-colors group text-primary">
-                                        <MessageCircle className="h-5 w-5 fill-primary/20" />
-                                        <span className="text-sm font-medium">{totalComments}</span>
-                                    </button>
-                                    <button
-                                        onClick={handleShare}
-                                        className="flex items-center gap-2 hover:text-primary transition-colors"
-                                    >
-                                        <Send className="h-5 w-5" />
-                                        <span className="text-sm font-medium">Share</span>
-                                    </button>
-                                </div>
-                                <button
-                                    onClick={() => toggleBookmarkMutation.mutate()}
-                                    disabled={toggleBookmarkMutation.isPending}
-                                    className="hover:text-primary transition-colors group"
-                                >
-                                    <Bookmark className={`h-5 w-5 ${bookmarkedIds?.includes(post.id) ? 'fill-primary text-primary' : 'group-hover:fill-primary/20'}`} />
-                                </button>
-                            </div>
-                        </div>
-                    </motion.article>
+                    <PostCard
+                        post={post}
+                        isBookmarked={!!bookmarkedIds?.includes(post.id)}
+                        onLike={() => toggleLikeMutation.mutate()}
+                        isLikePending={toggleLikeMutation.isPending}
+                        onBookmark={() => toggleBookmarkMutation.mutate()}
+                        isBookmarkPending={toggleBookmarkMutation.isPending}
+                        viewMode="detail"
+                        isAuthor={isAuthor}
+                        onDelete={() => deleteMutation.mutate(id)}
+                        isDeletePending={deleteMutation.isPending}
+                        commentCount={totalComments}
+                    />
                 </div>
 
                 <div className="lg:col-span-2 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto no-scrollbar pb-10">

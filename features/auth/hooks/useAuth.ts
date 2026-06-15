@@ -36,6 +36,16 @@ export function useAuth() {
         setIsHydrated(true);
     }, []);
 
+    const login = useCallback((token: string, userData: User) => {
+        Cookies.set("token", token, {
+            expires: 7,
+            secure: window.location.protocol === 'https:'
+        });
+        localStorage.setItem("user", JSON.stringify(userData));
+        setIsLoggedIn(true);
+        setUser(userData);
+    }, []);
+
     const logout = useCallback(() => {
         Cookies.remove("token");
         localStorage.removeItem("user");
@@ -47,5 +57,5 @@ export function useAuth() {
         router.push("/login");
     }, [router]);
 
-    return { isLoggedIn, user, logout, isHydrated };
+    return { isLoggedIn, user, login, logout, isHydrated };
 }

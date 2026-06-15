@@ -4,15 +4,14 @@ import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from "@tansta
 import { getPosts, Post, toggleLike, toggleBookmark, getUserBookmarks } from "@/features/posts/api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { toast } from "sonner";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Image as ImageIcon, Video, BarChart2, TrendingUp, UserPlus, PlusCircle } from "lucide-react";
+import { MessageSquare, Image as ImageIcon, Video, BarChart2, TrendingUp, UserPlus, PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PostCard } from "@/features/posts/components/PostCard";
 
 // Dummy data for right sidebar
 const trendingTopics = [
@@ -70,16 +69,6 @@ export default function PostsPage() {
             queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
         }
     });
-
-    const handleShare = (e: React.MouseEvent, postId: string) => {
-        e.preventDefault();
-        const url = `${window.location.origin}/posts/${postId}`;
-        navigator.clipboard.writeText(url).then(() => {
-            toast.success("Link copied to clipboard!");
-        }).catch(() => {
-            toast.error("Failed to copy link");
-        });
-    };
 
     return (
         <div className="container">
@@ -140,103 +129,17 @@ export default function PostsPage() {
                             {data.pages.map((page, i) => (
                                 <div key={i} className="space-y-6">
                                     {page.data.map((post: Post, index: number) => (
-                                        <motion.div
+                                        <PostCard
                                             key={post.id}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: index * 0.05 }}
-                                        >
-                                            <Card className="hover:shadow-md transition-all duration-300 border-primary/40 overflow-hidden bg-card rounded-xl">
-                                                <CardHeader className="p-5 pb-3">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex items-center gap-3">
-                                                            <Avatar className="h-10 w-10 border shadow-sm cursor-pointer hover:opacity-80 transition-opacity">
-                                                                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                                                                    {post.user?.username ? post.user.username.substring(0, 2).toUpperCase() : "AN"}
-                                                                </AvatarFallback>
-                                                            </Avatar>
-                                                            <div>
-                                                                <h4 className="text-sm font-bold leading-none text-foreground hover:underline cursor-pointer">
-                                                                    {post.user?.username || "Anonymous"}
-                                                                </h4>
-                                                                <p className="text-xs text-muted-foreground mt-1">
-                                                                    {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full -mt-1 -mr-2">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </CardHeader>
-                                                <Link href={`/posts/${post.id}`}>
-                                                    <CardContent className="px-5 pb-3 cursor-pointer">
-                                                        <p className="text-[15px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                                                            {post.content}
-                                                        </p>
-                                                        {post.media_url && (
-                                                            <div className="mt-3 rounded-xl overflow-hidden border border-border bg-muted/10">
-                                                                {post.media_type === "video" ? (
-                                                                    <video src={`http://localhost:8080${post.media_url}`} controls className="w-full max-h-[400px] bg-black/5" />
-                                                                ) : (
-                                                                    <img src={`http://localhost:8080${post.media_url}`} alt="Post Media" className="w-full max-h-[400px] object-cover bg-black/5" />
-                                                                )}
-                                                            </div>
-                                                        )}
-
-                                                        {post.tags && post.tags.length > 0 && (
-                                                            <div className="flex flex-wrap gap-2 mt-4">
-                                                                {post.tags.map(tag => (
-                                                                    <span key={tag} className="text-sm font-semibold text-primary/80 hover:text-primary hover:underline">
-                                                                        #{tag}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </CardContent>
-                                                </Link>
-                                                <CardFooter className="px-5 py-3 border-t border-muted/20">
-                                                    <div className="flex items-center justify-between w-full text-muted-foreground">
-                                                        <div className="flex items-center gap-6">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    toggleLikeMutation.mutate(post.id);
-                                                                }}
-                                                                className="flex items-center gap-2 hover:text-rose-500 transition-colors group"
-                                                                disabled={toggleLikeMutation.isPending}
-                                                            >
-                                                                <Heart className="h-5 w-5 group-hover:fill-rose-500/20" />
-                                                                <span className="text-sm font-medium">{post.upvotes > 0 ? post.upvotes : 'Like'}</span>
-                                                            </button>
-                                                            <Link href={`/posts/${post.id}`}>
-                                                                <button className="flex items-center gap-2 hover:text-primary transition-colors group">
-                                                                    <MessageCircle className="h-5 w-5 group-hover:fill-primary/20" />
-                                                                    <span className="text-sm font-medium">Discuss</span>
-                                                                </button>
-                                                            </Link>
-                                                            <button
-                                                                onClick={(e) => handleShare(e, post.id)}
-                                                                className="flex items-center gap-2 hover:text-primary transition-colors"
-                                                            >
-                                                                <Send className="h-5 w-5" />
-                                                                <span className="text-sm font-medium">Share</span>
-                                                            </button>
-                                                        </div>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                toggleBookmarkMutation.mutate(post.id);
-                                                            }}
-                                                            disabled={toggleBookmarkMutation.isPending}
-                                                            className="hover:text-primary transition-colors group"
-                                                        >
-                                                            <Bookmark className={`h-5 w-5 ${bookmarkedIds?.includes(post.id) ? 'fill-primary text-primary' : 'group-hover:fill-primary/20'}`} />
-                                                        </button>
-                                                    </div>
-                                                </CardFooter>
-                                            </Card>
-                                        </motion.div>
+                                            post={post}
+                                            isBookmarked={!!bookmarkedIds?.includes(post.id)}
+                                            onLike={() => toggleLikeMutation.mutate(post.id)}
+                                            isLikePending={toggleLikeMutation.isPending}
+                                            onBookmark={() => toggleBookmarkMutation.mutate(post.id)}
+                                            isBookmarkPending={toggleBookmarkMutation.isPending}
+                                            viewMode="feed"
+                                            delay={index * 0.05}
+                                        />
                                     ))}
                                 </div>
                             ))}
