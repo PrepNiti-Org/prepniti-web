@@ -9,6 +9,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/posts",
     "/insights",
     "/mock-tests",
+    "/about",
+    "/feedback",
+    "/privacy",
+    "/terms",
   ];
 
   return routes.map((route) => ({

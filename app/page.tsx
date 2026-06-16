@@ -71,6 +71,7 @@ export default function HomePage() {
             <Link href="/about" className="hover:underline hover:text-primary">About</Link>
             <Link href="/privacy" className="hover:underline hover:text-primary">Privacy</Link>
             <Link href="/terms" className="hover:underline hover:text-primary">Terms</Link>
+            <Link href="/feedback" className="hover:underline hover:text-primary">Feedback</Link>
             <span>© {new Date().getFullYear()} PrepNiti</span>
           </div>
         </div>

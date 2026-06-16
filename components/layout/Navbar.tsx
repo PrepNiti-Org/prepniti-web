@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
-import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark } from "lucide-react";
+import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,10 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuPortal,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 
 import { ModeToggle } from "../theme/mode-toggle";
@@ -134,6 +138,30 @@ export function Navbar({ }: NavbarProps) {
                                     <DropdownMenuItem asChild className="cursor-pointer md:hidden">
                                         <Link href="/posts/create"><PenTool className="mr-2 h-4 w-4 text-muted-foreground" /> Create Post</Link>
                                     </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuSub>
+                                        <DropdownMenuSubTrigger className="cursor-pointer">
+                                            <HelpCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                            <span>Help & Legal</span>
+                                        </DropdownMenuSubTrigger>
+                                        <DropdownMenuPortal>
+                                            <DropdownMenuSubContent className="w-48">
+                                                <DropdownMenuItem asChild className="cursor-pointer">
+                                                    <Link href="/about">About PrepNiti</Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild className="cursor-pointer">
+                                                    <Link href="/feedback">Send Feedback</Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem asChild className="cursor-pointer">
+                                                    <Link href="/privacy">Privacy Policy</Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild className="cursor-pointer">
+                                                    <Link href="/terms">Terms of Service</Link>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuSubContent>
+                                        </DropdownMenuPortal>
+                                    </DropdownMenuSub>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={logout} className="text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer">
                                         <LogOut className="mr-2 h-4 w-4" /> Log out
