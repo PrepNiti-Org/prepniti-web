@@ -62,7 +62,7 @@ export default function HomePage() {
                 Your interview experience could be the roadmap for someone else&apos;s success.
               </p>
               <Link href="/submit">
-                <Button className="w-full">Create a Post</Button>
+                <Button className="w-full">Share Experience</Button>
               </Link>
             </CardContent>
           </Card>

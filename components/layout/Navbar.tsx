@@ -97,9 +97,9 @@ export function Navbar({ }: NavbarProps) {
                         <div className="w-9 h-9 bg-muted animate-pulse rounded-full hidden sm:block"></div>
                     ) : isLoggedIn ? (
                         <div className="flex items-center gap-3">
-                            <Link href="/submit" className="hidden md:flex">
+                            <Link href="/posts/create" className="hidden md:flex">
                                 <ElevatedButton variant="primary" size="sm" className="btn-elevated" style={{ "--btn-shadow-color": "hsl(15 100% 38%)" } as React.CSSProperties}>
-                                    <PenTool className="h-3.5 w-3.5" /> Share
+                                    <PenTool className="h-3.5 w-3.5" /> Post
                                 </ElevatedButton>
                             </Link>
 
@@ -132,7 +132,7 @@ export function Navbar({ }: NavbarProps) {
                                         <Link href="/profile"><UserIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Profile</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild className="cursor-pointer md:hidden">
-                                        <Link href="/submit"><PenTool className="mr-2 h-4 w-4 text-muted-foreground" /> Share Experience</Link>
+                                        <Link href="/posts/create"><PenTool className="mr-2 h-4 w-4 text-muted-foreground" /> Create Post</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={logout} className="text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer">
