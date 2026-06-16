@@ -101,8 +101,9 @@ export default function NotificationsPage() {
                         <div key={pageIdx} className="space-y-4">
                             {page.data.map((notif: Notification, index: number) => {
                                 const isWelcome = notif.type === "welcome";
+                                const isBroadcast = notif.type === "broadcast";
 
-                                const snippet = notif.comment?.content || notif.post?.content;
+                                const snippet = isBroadcast ? undefined : (notif.comment?.content || notif.post?.content);
                                 const href = notif.post_id 
                                     ? (notif.type === "comment_post" || notif.type === "reply_comment" || notif.type === "like_comment"
                                         ? `/posts/${notif.post_id}#comments`
@@ -112,15 +113,20 @@ export default function NotificationsPage() {
                                 const renderContent = () => (
                                     <div className="flex gap-4 items-start w-full text-left">
                                         <Avatar className="h-10 w-10 border shadow-inner">
-                                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
-                                                {isWelcome ? "PN" : (notif.actor?.username ? notif.actor.username.substring(0, 2).toUpperCase() : "U")}
+                                            <AvatarFallback className={`${isBroadcast ? "bg-primary/20 text-primary" : "bg-primary/10 text-primary"} font-bold text-sm`}>
+                                                {isWelcome ? "PN" : isBroadcast ? "AD" : (notif.actor?.username ? notif.actor.username.substring(0, 2).toUpperCase() : "U")}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 space-y-1 overflow-hidden">
-                                            <p className="text-sm leading-normal">
+                                            <div className="text-sm leading-normal">
                                                 {isWelcome ? (
                                                     <span className="font-medium text-foreground">
                                                         Welcome to PrepNiti! We're thrilled to have you here. Click to read our welcome guide. 🚀
+                                                    </span>
+                                                ) : isBroadcast ? (
+                                                    <span className="font-medium text-foreground block">
+                                                        <span className="font-extrabold text-primary block text-base mb-1">📢 {notif.title}</span>
+                                                        <span className="text-muted-foreground text-sm leading-relaxed block">{notif.message}</span>
                                                     </span>
                                                 ) : (
                                                     <span>
@@ -131,7 +137,7 @@ export default function NotificationsPage() {
                                                         {notif.type === "reply_comment" && "replied to your comment."}
                                                     </span>
                                                 )}
-                                            </p>
+                                            </div>
                                             {snippet && (
                                                 <p className="text-xs text-muted-foreground italic mt-1.5 border-l-2 border-border/60 pl-2 text-left line-clamp-3 bg-muted/20 py-1.5 px-2 rounded-r-md">
                                                     "{snippet}"

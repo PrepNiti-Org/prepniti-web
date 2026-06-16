@@ -20,9 +20,11 @@ export interface Notification {
     id: string;
     user_id: string;
     actor_id: string;
-    type: "like_post" | "comment_post" | "like_comment" | "reply_comment" | "welcome";
+    type: "like_post" | "comment_post" | "like_comment" | "reply_comment" | "welcome" | "broadcast";
     post_id?: string;
     comment_id?: string;
+    title?: string;
+    message?: string;
     is_read: boolean;
     created_at: string;
     actor: NotificationUser;

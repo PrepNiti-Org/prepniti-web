@@ -106,6 +106,37 @@ export function NotificationBell() {
                                     );
                                 }
 
+                                if (notif.type === "broadcast") {
+                                    const href = notif.post_id ? `/posts/${notif.post_id}` : "#";
+                                    return (
+                                        <DropdownMenuItem key={notif.id} className="cursor-pointer p-3 focus:bg-muted/50" asChild>
+                                            <Link href={href}>
+                                                <div className="flex gap-3 items-start w-full">
+                                                    <Avatar className="h-8 w-8">
+                                                        <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
+                                                            AD
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex-1 space-y-1 overflow-hidden">
+                                                        <p className="text-xs leading-tight text-left font-bold text-primary">
+                                                            📢 [Broadcast] {notif.title}
+                                                        </p>
+                                                        <p className="text-[11px] text-muted-foreground text-left line-clamp-2 mt-0.5">
+                                                            {notif.message}
+                                                        </p>
+                                                        <p className="text-[10px] text-muted-foreground text-left">
+                                                            {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                                                        </p>
+                                                    </div>
+                                                    {!notif.is_read && (
+                                                        <div className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0" />
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                    );
+                                }
+
                                 const href = notif.post_id 
                                     ? (notif.type === "comment_post" || notif.type === "reply_comment" || notif.type === "like_comment"
                                         ? `/posts/${notif.post_id}#comments`
