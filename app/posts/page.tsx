@@ -13,22 +13,8 @@ import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PostCard } from "@/features/posts/components/PostCard";
 
-// Dummy data for right sidebar
-const trendingTopics = [
-    { tag: "#JEE2024", posts: "12.4k" },
-    { tag: "#PhysicsHelp", posts: "8.1k" },
-    { tag: "#NEET2024", posts: "7.2k" },
-    { tag: "#MathShortcuts", posts: "4.9k" },
-];
-
-const studyBuddies = [
-    { name: "Siddharth V.", match: "98% Match in Math", initial: "SV" },
-    { name: "Kriti P.", match: "Top Ranker in Bio", initial: "KP" },
-    { name: "Aryan R.", match: "Nearby (2km away)", initial: "AR" },
-];
-
 export default function PostsPage() {
-    const { isLoggedIn } = useAuth();
+    const { isLoggedIn, user } = useAuth();
 
     const { data: bookmarkedIds } = useQuery({
         queryKey: ["bookmarks"],
@@ -71,10 +57,10 @@ export default function PostsPage() {
     });
 
     return (
-        <div className="container">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="container max-w-7xl mx-auto space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-3 space-y-6">
 
                     <Card className="border-primary/40 shadow-sm rounded-xl overflow-hidden bg-card">
                         <CardContent className="p-3 sm:p-4">
@@ -174,71 +160,53 @@ export default function PostsPage() {
                 {/* Right Sidebar Column */}
                 <div className="hidden lg:block lg:col-span-1 space-y-6 sticky top-20 h-fit">
 
-                    {/* Trending Topics Widget */}
-                    <Card className="border-primary/40 shadow-sm rounded-xl bg-card">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-base font-bold flex items-center gap-2">
-                                <TrendingUp className="h-4 w-4 text-primary" />
-                                Trending Topics
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {trendingTopics.map((topic, i) => (
-                                <div key={i} className="flex items-center justify-between group cursor-pointer">
-                                    <span className="text-sm font-bold text-foreground/80 group-hover:text-primary transition-colors">
-                                        {topic.tag}
-                                    </span>
-                                    <Badge variant="secondary" className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-primary/10 text-primary hover:bg-primary/20 border-transparent">
-                                        {topic.posts} posts
-                                    </Badge>
+                    {isLoggedIn ? (
+                        <Card className="border-primary/40 shadow-sm rounded-xl bg-card">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-base font-bold flex items-center gap-2">
+                                    <Avatar className="h-6 w-6">
+                                        <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                                            {user?.username ? user.username.substring(0, 2).toUpperCase() : "ME"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    Your Dashboard
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="text-sm">
+                                    <p className="font-bold text-foreground">@{user?.username}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">{user?.email}</p>
                                 </div>
-                            ))}
-                            <div className="pt-2 text-center">
-                                <Link href="/explore" className="text-xs font-bold text-secondary hover:underline">
-                                    Show more
-                                </Link>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Study Buddies Widget */}
-                    <Card className="border-primary/40 shadow-sm rounded-xl bg-card">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-base font-bold flex items-center gap-2">
-                                <UserPlus className="h-4 w-4 text-primary" />
-                                Study Buddies
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-5">
-                            {studyBuddies.map((buddy, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-9 w-9 border shadow-sm">
-                                            <AvatarFallback className="bg-muted text-xs font-semibold">
-                                                {buddy.initial}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold leading-tight hover:underline cursor-pointer">
-                                                {buddy.name}
-                                            </span>
-                                            <span className="text-[11px] text-muted-foreground">
-                                                {buddy.match}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full text-primary hover:text-primary hover:bg-primary/10">
-                                        <PlusCircle className="h-5 w-5" />
+                                <div className="pt-2 border-t space-y-2">
+                                    <Link href="/profile" className="block text-xs font-semibold text-primary hover:underline">
+                                        View Profile Stats
+                                    </Link>
+                                    <Link href="/submit" className="block text-xs font-semibold text-primary hover:underline">
+                                        Share an Experience
+                                    </Link>
+                                    <Link href="/tracker" className="block text-xs font-semibold text-primary hover:underline">
+                                        Study Target Tracker
+                                    </Link>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <Card className="border-primary/40 shadow-sm rounded-xl bg-card">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-base font-bold">Join PrepNiti</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <p className="text-xs text-muted-foreground">
+                                    Create posts, track syllabus completion progress, and benchmark your scores.
+                                </p>
+                                <Link href="/login" className="block">
+                                    <Button size="sm" className="w-full text-xs font-semibold">
+                                        Log In / Register
                                     </Button>
-                                </div>
-                            ))}
-                            <div className="pt-1 text-center">
-                                <Link href="/buddies" className="text-xs font-bold text-secondary hover:underline">
-                                    Find more peers
                                 </Link>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Footer Links */}
                     <div className="px-2 pt-2">

@@ -4,10 +4,10 @@ import { Info } from "lucide-react";
 
 export default function SubmitPage() {
     return (
-        <div className="max-w-5xl mx-auto py-8 px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="container max-w-7xl mx-auto py-8 px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-3 space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Create a Post</h1>
                         <p className="text-muted-foreground mt-2">
@@ -20,7 +20,7 @@ export default function SubmitPage() {
                     </div>
                 </div>
 
-                <div className="hidden lg:block space-y-6">
+                <div className="hidden lg:block lg:col-span-1 space-y-6">
                     <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">

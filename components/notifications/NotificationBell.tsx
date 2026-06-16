@@ -38,9 +38,6 @@ export function NotificationBell() {
 
     const handleOpenChange = (open: boolean) => {
         setIsOpen(open);
-        if (open && unreadCount > 0) {
-            markAsReadMutation.mutate();
-        }
     };
 
     return (
@@ -60,9 +57,23 @@ export function NotificationBell() {
                     <DropdownMenuLabel className="flex justify-between items-center">
                         <span>Notifications</span>
                         {unreadCount > 0 && (
-                            <Badge variant="secondary" className="text-xs">
-                                {unreadCount} new
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0">
+                                    {unreadCount} new
+                                </Badge>
+                                <Button
+                                    variant="ghost"
+                                    className="h-auto p-0 text-[11px] font-bold text-primary hover:text-primary/80 hover:bg-transparent"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        markAsReadMutation.mutate();
+                                    }}
+                                    disabled={markAsReadMutation.isPending}
+                                >
+                                    Mark all as read
+                                </Button>
+                            </div>
                         )}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />

@@ -19,26 +19,30 @@ export default function HomePage() {
   return (
     <div className="container max-w-7xl mx-auto space-y-8">
 
-      <div className="bg-primary/10 border border-primary/20 rounded-2xl p-8 md:p-12 text-center space-y-4 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent -z-10" />
+      <div className="border border-primary/20 rounded-3xl p-8 md:p-12 text-center space-y-4 relative overflow-hidden shadow-lg shadow-primary/5 bg-gradient-to-b from-primary/10 via-primary/[0.03] to-transparent">
+        <div className="absolute inset-0 bg-dot-pattern opacity-30 pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
 
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
-          Real Interview Experiences.<br className="hidden sm:block" /> From Real Aspirants.
-        </h1>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          PrepNiti is the ultimate community for UPSC, PSC, and Banking aspirants. Read verified interview transcripts and boost your preparation.
-        </p>
-        <div className="flex justify-center gap-4 pt-4">
-          <Link href="/submit">
-            <Button size="lg" className="font-semibold">
-              <PenSquare className="mr-2 h-4 w-4" /> Share Experience
-            </Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button size="lg" variant="outline" className="bg-background">
-              <BookOpen className="mr-2 h-4 w-4" /> Syllabus Tracker
-            </Button>
-          </Link>
+        <div className="relative z-10 space-y-4">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/80">
+            Real Interview Experiences.<br className="hidden sm:block" /> From Real Aspirants.
+          </h1>
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
+            PrepNiti is the ultimate community for UPSC, PSC, and Banking aspirants. Read verified interview transcripts and boost your preparation.
+          </p>
+          <div className="flex justify-center gap-4 pt-4">
+            <Link href="/submit">
+              <Button size="lg" className="font-semibold shadow-md hover:shadow-lg transition-all">
+                <PenSquare className="mr-2 h-4 w-4" /> Share Experience
+              </Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button size="lg" variant="outline" className="bg-background shadow-sm hover:bg-muted/50 transition-all">
+                <BookOpen className="mr-2 h-4 w-4" /> Syllabus Tracker
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -60,22 +64,6 @@ export default function HomePage() {
               <Link href="/submit">
                 <Button className="w-full">Create a Post</Button>
               </Link>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Trending Exams</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {["UPSC CSE 2024", "UPPSC PCS", "SBI PO", "RBI Grade B"].map((exam) => (
-                <Link href={`/search?q=${encodeURIComponent(exam)}`} key={exam}>
-                  <div className="flex items-center justify-between text-sm cursor-pointer hover:text-primary transition-colors mt-3 first:mt-0">
-                    <span className="font-medium">{exam}</span>
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">Hot</span>
-                  </div>
-                </Link>
-              ))}
             </CardContent>
           </Card>
 

@@ -63,15 +63,19 @@ export default function TrackerDashboard() {
     });
 
     return (
-        <div className="container max-w-7xl mx-auto">
+        <div className="container max-w-7xl mx-auto space-y-6">
 
-            <div className="flex flex-col justify-between border-b pb-6">
-                <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <Target className="w-8 h-8 text-primary" /> Study Tracker
-                </h1>
-                <p className="text-muted-foreground text-sm mt-1">
-                    Manage your study targets and track your progress.
-                </p>
+            <div className="relative overflow-hidden border border-primary/15 rounded-2xl p-6 bg-gradient-to-r from-primary/[0.08] via-primary/[0.03] to-transparent shadow-sm">
+                <div className="absolute inset-0 bg-dot-pattern opacity-25 pointer-events-none" />
+                <div className="relative z-10">
+                    <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2.5 text-foreground">
+                        <Target className="w-8 h-8 text-primary animate-pulse" /> Study Tracker
+                    </h1>
+                    <p className="text-muted-foreground text-sm mt-2 max-w-xl">
+                        Manage your study targets, configure subject priorities, and monitor your preparation journey in real-time.
+                    </p>
+                </div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
             </div>
 
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 bg-card border rounded-lg p-2 shadow-sm">
