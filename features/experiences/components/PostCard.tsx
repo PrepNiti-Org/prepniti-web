@@ -22,6 +22,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { MarkdownPreview } from "@/components/ui/markdown-preview";
 
 export function PostCard({ post }: { post: Experience }) {
     const isSelected = post.verdict.toLowerCase() === "selected";
@@ -130,8 +131,8 @@ export function PostCard({ post }: { post: Experience }) {
                     </div>
                 </DialogHeader>
 
-                <div className="overflow-y-auto p-6 md:p-8 text-[1.05rem] leading-loose text-foreground/90 whitespace-pre-wrap selection:bg-primary/20">
-                    {post.description}
+                <div className="overflow-y-auto p-6 md:p-8 selection:bg-primary/20">
+                    <MarkdownPreview value={post.description} />
                 </div>
 
                 <div className="border-t bg-background p-4 px-6 flex items-center justify-between mt-auto">

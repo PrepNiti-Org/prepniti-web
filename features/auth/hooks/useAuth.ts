@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 interface User {
     username: string;
@@ -20,23 +21,27 @@ export function useAuth() {
     useEffect(() => {
         if (typeof window === "undefined") return;
 
-        const token = Cookies.get("token");
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setIsLoggedIn(!!token);
-
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
+        const checkAuth = async () => {
             try {
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error("Failed to parse stored user:", error);
+                const res = await api.get("/users/me");
+                const userData = res.data.data;
+                setUser(userData);
+                setIsLoggedIn(true);
+                localStorage.setItem("user", JSON.stringify(userData));
+            } catch (err) {
+                setUser(null);
+                setIsLoggedIn(false);
+                localStorage.removeItem("user");
+            } finally {
+                setIsHydrated(true);
             }
-        }
+        };
 
-        setIsHydrated(true);
+        checkAuth();
     }, []);
 
     const login = useCallback((token: string, userData: User) => {
+        // Fallback for non-HttpOnly context or API references
         Cookies.set("token", token, {
             expires: 7,
             secure: window.location.protocol === 'https:'
@@ -46,7 +51,12 @@ export function useAuth() {
         setUser(userData);
     }, []);
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
+        try {
+            await api.post("/auth/logout");
+        } catch (err) {
+            console.error("Logout request failed:", err);
+        }
         Cookies.remove("token");
         localStorage.removeItem("user");
 

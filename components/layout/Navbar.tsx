@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark, HelpCircle } from "lucide-react";
@@ -36,7 +36,17 @@ interface NavbarProps {
 export function Navbar({ }: NavbarProps) {
     const { isLoggedIn, logout, user, isHydrated } = useAuth();
     const pathname = usePathname();
+    const router = useRouter();
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const trimmed = searchQuery.trim();
+        if (trimmed) {
+            router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+        }
+    };
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -77,17 +87,18 @@ export function Navbar({ }: NavbarProps) {
                 </div>
 
                 <div className="flex max-w-xl w-full mx-auto">
-                    {/* Center Section: Search */}
-                    <div className="flex-1 px-2 md:px-6">
+                    <form onSubmit={handleSearchSubmit} className="flex-1 px-2 md:px-6">
                         <div className="relative group">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-primary/50 group-focus-within:text-primary transition-colors" />
                             <Input
                                 type="search"
                                 placeholder="Search discussions, experiences..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-9 bg-primary/10 text-foreground border-primary/50 focus-visible:bg-background focus-visible:ring-1 focus-visible:border-primary transition-all h-9 rounded-full text-sm"
                             />
                         </div>
-                    </div>
+                    </form>
                     <NavbarTimer />
                 </div>
 

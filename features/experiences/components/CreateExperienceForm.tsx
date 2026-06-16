@@ -7,6 +7,7 @@ import { useCreateExperience } from "../hooks/useExperiences";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
@@ -132,10 +133,11 @@ export function CreateExperienceForm() {
                         <FormItem>
                             <FormLabel>Your Experience</FormLabel>
                             <FormControl>
-                                <Textarea
+                                <MarkdownEditor
                                     placeholder="Describe the interview process, questions asked, and your strategy..."
-                                    className="min-h-[200px] resize-none"
-                                    {...field}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    className="border-primary/20 focus-within:ring-primary/40 focus-within:border-primary"
                                 />
                             </FormControl>
                             <FormDescription>

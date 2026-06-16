@@ -10,8 +10,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import {
     Dialog,
     DialogContent,
@@ -138,7 +138,14 @@ export function EditExperienceModal({ post }: { post: Experience }) {
                         <FormField control={form.control} name="description" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Detailed Experience</FormLabel>
-                                <FormControl><Textarea className="min-h-[200px] resize-y" {...field} /></FormControl>
+                                <FormControl>
+                                    <MarkdownEditor
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Describe the interview process, questions asked, and your strategy..."
+                                        className="border-primary/20 focus-within:ring-primary/40 focus-within:border-primary"
+                                    />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )} />

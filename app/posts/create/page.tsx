@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, X, UploadCloud, Info, MessageSquare, Heart } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 
 const formSchema = z.object({
     title: z.string().min(5, "Title must be at least 5 characters").max(100, "Title cannot exceed 100 characters"),
@@ -156,10 +157,11 @@ export default function CreatePostPage() {
                                                 <FormItem>
                                                     <FormLabel className="text-sm font-semibold">Content</FormLabel>
                                                     <FormControl>
-                                                        <Textarea
+                                                        <MarkdownEditor
                                                             placeholder="Provide details, context, and examples..."
-                                                            className="min-h-[220px] text-base resize-y border-primary/40 focus-visible:ring-primary/40 focus-visible:border-primary"
-                                                            {...field}
+                                                            value={field.value}
+                                                            onChange={field.onChange}
+                                                            className="border-primary/45 focus-within:ring-primary/40 focus-within:border-primary"
                                                         />
                                                     </FormControl>
                                                     <FormMessage />

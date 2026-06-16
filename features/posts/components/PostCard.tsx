@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { MarkdownPreview } from "@/components/ui/markdown-preview";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -79,9 +80,7 @@ export function PostCard({
 
     const renderCardContentInner = () => (
         <>
-            <div className="text-[15px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                {post.content}
-            </div>
+            <MarkdownPreview value={post.content} />
             {mediaUrl && (
                 <div className={cn(
                     "rounded-xl overflow-hidden border border-border bg-muted/10",
