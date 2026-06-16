@@ -6,16 +6,28 @@ export interface NotificationUser {
     avatar_url?: string;
 }
 
+export interface NotificationPost {
+    id: string;
+    content: string;
+}
+
+export interface NotificationComment {
+    id: string;
+    content: string;
+}
+
 export interface Notification {
     id: string;
     user_id: string;
     actor_id: string;
-    type: "like_post" | "comment_post" | "like_comment" | "reply_comment";
+    type: "like_post" | "comment_post" | "like_comment" | "reply_comment" | "welcome";
     post_id?: string;
     comment_id?: string;
     is_read: boolean;
     created_at: string;
     actor: NotificationUser;
+    post?: NotificationPost;
+    comment?: NotificationComment;
 }
 
 interface GetNotificationsParams {
