@@ -12,6 +12,7 @@ export interface Question {
     difficulty?: string;
     explanation?: string;
     image_base64?: string;
+    image_url?: string;
     options: Option[];
 }
 
@@ -19,6 +20,7 @@ export interface ExamElement {
     is_passage: boolean;
     passage_text?: string;
     passage_image?: string;
+    passage_image_url?: string;
     questions: Question[];
 }
 

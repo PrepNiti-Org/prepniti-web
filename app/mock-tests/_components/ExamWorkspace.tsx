@@ -125,7 +125,7 @@ export function ExamWorkspace({
                     {q.question_text}
                 </div>
 
-                {q.image_base64 && (
+                {q.image_base64 ? (
                     <div className="border border-border rounded-lg p-2 bg-card max-w-xl">
                         <img 
                             src={`data:image/png;base64,${q.image_base64}`} 
@@ -133,7 +133,15 @@ export function ExamWorkspace({
                             className="max-h-72 object-contain rounded bg-background" 
                         />
                     </div>
-                )}
+                ) : q.image_url ? (
+                    <div className="border border-border rounded-lg p-2 bg-card max-w-xl">
+                        <img 
+                            src={q.image_url.startsWith("http") ? q.image_url : `http://localhost:8080${q.image_url}`} 
+                            alt="Question illustration" 
+                            className="max-h-72 object-contain rounded bg-background" 
+                        />
+                    </div>
+                ) : null}
 
                 {q.options && q.options.length > 0 ? (
                     <div className="flex flex-col gap-3 max-w-3xl pt-2">
@@ -217,13 +225,19 @@ export function ExamWorkspace({
                                 <div className="border border-border rounded-lg bg-card p-5 overflow-y-auto max-h-[500px]">
                                     <div className="text-xs font-bold text-primary uppercase tracking-wider mb-2 font-sans">Passage Reference</div>
                                     <div className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground font-sans">{activeElement.passage_text}</div>
-                                    {activeElement.passage_image && (
+                                    {activeElement.passage_image ? (
                                         <img 
                                             src={`data:image/png;base64,${activeElement.passage_image}`} 
                                             alt="Passage diagram" 
                                             className="max-h-60 object-contain rounded-md border mt-4 bg-background" 
                                         />
-                                    )}
+                                    ) : activeElement.passage_image_url ? (
+                                        <img 
+                                            src={activeElement.passage_image_url.startsWith("http") ? activeElement.passage_image_url : `http://localhost:8080${activeElement.passage_image_url}`} 
+                                            alt="Passage diagram" 
+                                            className="max-h-60 object-contain rounded-md border mt-4 bg-background" 
+                                        />
+                                    ) : null}
                                 </div>
 
                                 {/* Question Pane (Right) */}

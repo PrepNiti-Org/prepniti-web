@@ -226,13 +226,19 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset }: ExamResu
                                         <div className="bg-muted/40 border-l-4 border-primary rounded-r-xl p-5 space-y-3">
                                             <div className="text-xs font-bold text-primary uppercase tracking-wider">Passage Reference</div>
                                             <div className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{el.passage_text}</div>
-                                            {el.passage_image && (
+                                            {el.passage_image ? (
                                                 <img 
                                                     src={`data:image/png;base64,${el.passage_image}`} 
                                                     alt="Passage diagram" 
                                                     className="max-h-72 object-contain rounded-md border mt-4 bg-background" 
                                                 />
-                                            )}
+                                            ) : el.passage_image_url ? (
+                                                <img 
+                                                    src={el.passage_image_url.startsWith("http") ? el.passage_image_url : `http://localhost:8080${el.passage_image_url}`} 
+                                                    alt="Passage diagram" 
+                                                    className="max-h-72 object-contain rounded-md border mt-4 bg-background" 
+                                                />
+                                            ) : null}
                                         </div>
                                     )}
 
@@ -281,7 +287,7 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset }: ExamResu
                                                             {q.question_text}
                                                         </div>
 
-                                                        {q.image_base64 && (
+                                                        {q.image_base64 ? (
                                                             <div className="border border-border rounded-lg p-2 bg-card max-w-xl">
                                                                 <img 
                                                                     src={`data:image/png;base64,${q.image_base64}`} 
@@ -289,7 +295,15 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset }: ExamResu
                                                                     className="max-h-72 object-contain rounded bg-background" 
                                                                 />
                                                             </div>
-                                                        )}
+                                                        ) : q.image_url ? (
+                                                            <div className="border border-border rounded-lg p-2 bg-card max-w-xl">
+                                                                <img 
+                                                                    src={q.image_url.startsWith("http") ? q.image_url : `http://localhost:8080${q.image_url}`} 
+                                                                    alt="Question illustration" 
+                                                                    className="max-h-72 object-contain rounded bg-background" 
+                                                                />
+                                                            </div>
+                                                        ) : null}
 
                                                         {q.options && q.options.length > 0 ? (
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
