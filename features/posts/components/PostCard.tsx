@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { BACKEND_URL } from "@/lib/api";
 
 export interface PostCardProps {
     post: Post;
@@ -76,7 +77,7 @@ export function PostCard({
         viewMode === "feed" ? "cursor-pointer" : ""
     );
 
-    const mediaUrl = post.media_url ? `http://localhost:8080${post.media_url}` : null;
+    const mediaUrl = post.media_url ? `${BACKEND_URL}${post.media_url}` : null;
 
     const renderCardContentInner = () => (
         <>

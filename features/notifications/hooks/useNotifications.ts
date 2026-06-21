@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { BACKEND_URL } from "@/lib/api";
 
 export const useNotifications = () => {
     const { isLoggedIn, user } = useAuth();
@@ -12,7 +13,7 @@ export const useNotifications = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const eventSource = new EventSource(`http://localhost:8080/api/notifications/stream?token=${token}`);
+        const eventSource = new EventSource(`${BACKEND_URL}/api/notifications/stream?token=${token}`);
 
         eventSource.onmessage = (event) => {
             const newNotification = JSON.parse(event.data);

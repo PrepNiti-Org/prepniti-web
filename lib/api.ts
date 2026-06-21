@@ -9,6 +9,8 @@ export const api = axios.create({
     withCredentials: true,
 });
 
+export const BACKEND_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api").replace(/\/api$/, "");
+
 api.interceptors.request.use((config) => {
     const token = Cookies.get("token");
     if (token) {

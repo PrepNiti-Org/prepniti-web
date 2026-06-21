@@ -3,6 +3,7 @@ import { ScoreInfo, ExamElement } from "./types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, BarChart3, AlertCircle, FileQuestion, Percent, ShieldAlert } from "lucide-react";
+import { BACKEND_URL } from "@/lib/api";
 
 interface ExamResultsProps {
     scoreInfo: ScoreInfo;
@@ -255,7 +256,7 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset, securityVi
                                                 />
                                             ) : el.passage_image_url ? (
                                                 <img 
-                                                    src={el.passage_image_url.startsWith("http") ? el.passage_image_url : `http://localhost:8080${el.passage_image_url}`} 
+                                                    src={el.passage_image_url.startsWith("http") ? el.passage_image_url : `${BACKEND_URL}${el.passage_image_url}`} 
                                                     alt="Passage diagram" 
                                                     className="max-h-72 object-contain rounded-md border mt-4 bg-background" 
                                                 />
@@ -319,7 +320,7 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset, securityVi
                                                         ) : q.image_url ? (
                                                             <div className="border border-border rounded-lg p-2 bg-card max-w-xl">
                                                                 <img 
-                                                                    src={q.image_url.startsWith("http") ? q.image_url : `http://localhost:8080${q.image_url}`} 
+                                                                    src={q.image_url.startsWith("http") ? q.image_url : `${BACKEND_URL}${q.image_url}`} 
                                                                     alt="Question illustration" 
                                                                     className="max-h-72 object-contain rounded bg-background" 
                                                                 />

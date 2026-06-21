@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SubmitConfirmationModal } from "./SubmitConfirmationModal";
 import { QuestionPalette } from "./QuestionPalette";
 import { VirtualCalculator } from "./VirtualCalculator";
+import { BACKEND_URL } from "@/lib/api";
 
 interface ExamWorkspaceProps {
     selectedPaper: Paper | undefined;
@@ -233,7 +234,7 @@ export function ExamWorkspace({
                 ) : q.image_url ? (
                     <div className={`border border-border p-2 bg-card max-w-xl ${useRealisticTheme ? "rounded-lg" : "rounded-2xl shadow-sm"}`}>
                         <img
-                            src={q.image_url.startsWith("http") ? q.image_url : `http://localhost:8080${q.image_url}`}
+                            src={q.image_url.startsWith("http") ? q.image_url : `${BACKEND_URL}${q.image_url}`}
                             alt="Question illustration"
                             className="max-h-72 object-contain rounded bg-background"
                         />
@@ -427,7 +428,7 @@ export function ExamWorkspace({
                                         />
                                     ) : activeElement.passage_image_url ? (
                                         <img
-                                            src={activeElement.passage_image_url.startsWith("http") ? activeElement.passage_image_url : `http://localhost:8080${activeElement.passage_image_url}`}
+                                            src={activeElement.passage_image_url.startsWith("http") ? activeElement.passage_image_url : `${BACKEND_URL}${activeElement.passage_image_url}`}
                                             alt="Passage diagram"
                                             className={`max-h-60 object-contain border mt-4 bg-background ${useRealistic ? "rounded-md" : "rounded-xl"}`}
                                         />
