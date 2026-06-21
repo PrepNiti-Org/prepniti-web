@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 interface QuestionPaletteProps {
     questionsCount: number;
@@ -14,6 +14,8 @@ interface QuestionPaletteProps {
         markedReview: number;
         answeredMarkedReview: number;
     };
+    activeSection?: string;
+    questionTopics?: string[];
 }
 
 export function QuestionPalette({
@@ -23,11 +25,12 @@ export function QuestionPalette({
     questionStatuses,
     questionIds,
     useRealisticTheme,
-    counts
+    counts,
+    activeSection,
+    questionTopics
 }: QuestionPaletteProps) {
     const useRealistic = useRealisticTheme;
 
-    // Get shape style for a given status
     const getStatusStyle = (status: string) => {
         if (useRealistic) {
             let statusStyle = "bg-slate-200 dark:bg-slate-800 text-foreground border border-border rounded-sm";
@@ -49,7 +52,6 @@ export function QuestionPalette({
             }
             return { className: statusStyle, clipPath: clipPathStyle, alignClass };
         } else {
-            // Modern Theme Styles
             let statusStyle = "bg-slate-100 dark:bg-slate-800/80 text-muted-foreground border border-border/80 rounded-xl";
             if (status === "answered") {
                 statusStyle = "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/30 rounded-xl";
@@ -88,7 +90,36 @@ export function QuestionPalette({
         return "text-xs";
     };
 
-    // Legend icons resolution
+    const filteredIndices = useMemo(() => {
+        if (!activeSection || !questionTopics) {
+            return Array.from({ length: questionsCount }, (_, i) => i);
+        }
+        return Array.from({ length: questionsCount }, (_, i) => i).filter(
+            i => (questionTopics[i] || "Questions") === activeSection
+        );
+    }, [questionsCount, activeSection, questionTopics]);
+
+    const activeCounts = useMemo(() => {
+        if (!activeSection || !questionTopics) return counts;
+        const c = {
+            notVisited: 0,
+            notAnswered: 0,
+            answered: 0,
+            markedReview: 0,
+            answeredMarkedReview: 0
+        };
+        filteredIndices.forEach(idx => {
+            const qId = questionIds[idx];
+            const status = questionStatuses[qId] || "not_visited";
+            if (status === "not_visited") c.notVisited++;
+            else if (status === "not_answered") c.notAnswered++;
+            else if (status === "answered") c.answered++;
+            else if (status === "marked_review") c.markedReview++;
+            else if (status === "answered_marked_review") c.answeredMarkedReview++;
+        });
+        return c;
+    }, [filteredIndices, questionIds, questionStatuses, counts, activeSection, questionTopics]);
+
     const styleNotVisited = getStatusStyle("not_visited");
     const styleNotAnswered = getStatusStyle("not_answered");
     const styleAnswered = getStatusStyle("answered");
@@ -97,62 +128,59 @@ export function QuestionPalette({
 
     return (
         <div className="flex flex-col flex-1 overflow-hidden">
-            {/* Palette Legend */}
             <div className={sidebarLegendClass}>
                 <div className="flex items-center gap-2">
-                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleNotVisited.className} ${styleNotVisited.alignClass} ${getCountFontClass(counts.notVisited)}`} style={styleNotVisited.clipPath ? { clipPath: styleNotVisited.clipPath } : undefined}>
-                        {counts.notVisited}
+                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleNotVisited.className} ${styleNotVisited.alignClass} ${getCountFontClass(activeCounts.notVisited)}`} style={styleNotVisited.clipPath ? { clipPath: styleNotVisited.clipPath } : undefined}>
+                        {activeCounts.notVisited}
                     </span>
                     <span className={legendLabelClass}>Not Visited</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleNotAnswered.className} ${styleNotAnswered.alignClass} ${getCountFontClass(counts.notAnswered)}`} style={styleNotAnswered.clipPath ? { clipPath: styleNotAnswered.clipPath } : undefined}>
-                        {counts.notAnswered}
+                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleNotAnswered.className} ${styleNotAnswered.alignClass} ${getCountFontClass(activeCounts.notAnswered)}`} style={styleNotAnswered.clipPath ? { clipPath: styleNotAnswered.clipPath } : undefined}>
+                        {activeCounts.notAnswered}
                     </span>
                     <span className={legendLabelClass}>Not Answered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleAnswered.className} ${styleAnswered.alignClass} ${getCountFontClass(counts.answered)}`} style={styleAnswered.clipPath ? { clipPath: styleAnswered.clipPath } : undefined}>
-                        {counts.answered}
+                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleAnswered.className} ${styleAnswered.alignClass} ${getCountFontClass(activeCounts.answered)}`} style={styleAnswered.clipPath ? { clipPath: styleAnswered.clipPath } : undefined}>
+                        {activeCounts.answered}
                     </span>
                     <span className={legendLabelClass}>Answered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleMarkedReview.className} ${styleMarkedReview.alignClass} ${getCountFontClass(counts.markedReview)}`} style={styleMarkedReview.clipPath ? { clipPath: styleMarkedReview.clipPath } : undefined}>
-                        {counts.markedReview}
+                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleMarkedReview.className} ${styleMarkedReview.alignClass} ${getCountFontClass(activeCounts.markedReview)}`} style={styleMarkedReview.clipPath ? { clipPath: styleMarkedReview.clipPath } : undefined}>
+                        {activeCounts.markedReview}
                     </span>
                     <span className={legendLabelClass}>Marked for Review</span>
                 </div>
                 <div className="flex items-center gap-2 col-span-2 mt-1">
-                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleAnsweredMarked.className} ${styleAnsweredMarked.alignClass} ${getCountFontClass(counts.answeredMarkedReview)}`} style={styleAnsweredMarked.clipPath ? { clipPath: styleAnsweredMarked.clipPath } : undefined}>
-                        {counts.answeredMarkedReview}
+                    <span className={`flex items-center justify-center font-bold font-mono shrink-0 ${shapeSizeClass} ${styleAnsweredMarked.className} ${styleAnsweredMarked.alignClass} ${getCountFontClass(activeCounts.answeredMarkedReview)}`} style={styleAnsweredMarked.clipPath ? { clipPath: styleAnsweredMarked.clipPath } : undefined}>
+                        {activeCounts.answeredMarkedReview}
                     </span>
                     <span className={legendLabelClass}>Answered & Marked for Review</span>
                 </div>
             </div>
 
-            {/* Question Palette Header */}
             <div className={paletteHeaderClass}>
                 Question Palette
             </div>
 
-            {/* Question Grid wrapper */}
             <div className={paletteBoxClass}>
                 <div className="overflow-y-auto pr-1 flex-1">
                     <div className="grid grid-cols-5 gap-2 p-2">
-                        {Array.from({ length: questionsCount }).map((_, idx) => {
+                        {filteredIndices.map((idx) => {
                             const qId = questionIds[idx];
                             const status = questionStatuses[qId] || "not_visited";
                             const isActive = idx === currentQuestionIndex;
                             const { className: statusStyle, clipPath: clipPathStyle, alignClass } = getStatusStyle(status);
-                            
+
                             const focusRingStyle = isActive
                                 ? (useRealistic ? "ring-2 ring-slate-800 dark:ring-slate-200 ring-offset-1 rounded-sm" : "ring-2 ring-primary ring-offset-1 rounded-xl scale-105 z-10")
                                 : "hover:opacity-90 hover:scale-102";
 
                             return (
-                                <div 
-                                    key={qId || idx} 
+                                <div
+                                    key={qId || idx}
                                     className={`transition-all duration-200 ${focusRingStyle}`}
                                 >
                                     <button

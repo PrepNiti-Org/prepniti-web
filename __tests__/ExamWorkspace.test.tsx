@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { ExamWorkspace } from "../app/mock-tests/_components/ExamWorkspace";
 import { Paper, ExamElement } from "../app/mock-tests/_components/types";
+import { evaluateExpression } from "../app/mock-tests/_components/VirtualCalculator";
 
 // Mock toast and UI components
 vi.mock("sonner", () => ({
@@ -216,5 +217,102 @@ describe("ExamWorkspace Component", () => {
     // Click submit button to trigger modal
     fireEvent.click(submitBtn);
     expect(screen.getByText("Exam Submission Confirmation")).toBeInTheDocument();
+  });
+
+  describe("Scientific Calculator Parser", () => {
+    it("should evaluate basic mathematical operations with correct precedence", () => {
+      expect(evaluateExpression("2 + 3 * 4")).toBe(14);
+      expect(evaluateExpression("(2 + 3) * 4")).toBe(20);
+      expect(evaluateExpression("10 / 2 - 1")).toBe(4);
+    });
+
+    it("should evaluate scientific functions (trig, log, power, factorial, mod)", () => {
+      expect(evaluateExpression("sin(pi / 2)")).toBe(1);
+      expect(evaluateExpression("cos(0)")).toBe(1);
+      expect(evaluateExpression("2 ^ 3")).toBe(8);
+      expect(evaluateExpression("4!")).toBe(24);
+      expect(evaluateExpression("10 mod 3")).toBe(1);
+      expect(evaluateExpression("sqrt(16)")).toBe(4);
+    });
+
+    it("should throw domain or syntax error on invalid mathematical inputs", () => {
+      expect(() => evaluateExpression("sqrt(-1)")).toThrow(/negative square root/i);
+      expect(() => evaluateExpression("5 / 0")).toThrow(/divide by zero/i);
+      expect(() => evaluateExpression("2 + * 3")).toThrow(/invalid token/i);
+    });
+  });
+
+  describe("Sectional Mock Tests", () => {
+    const sectionalBlueprint: ExamElement[] = [
+      {
+        is_passage: false,
+        questions: [
+          {
+            id: "q-sec-1",
+            question_text: "Physics Question",
+            type: "MCQ",
+            topic: "Physics",
+            options: [],
+          },
+        ],
+      },
+      {
+        is_passage: false,
+        questions: [
+          {
+            id: "q-sec-2",
+            question_text: "Chemistry Question",
+            type: "MCQ",
+            topic: "Chemistry",
+            options: [],
+          },
+        ],
+      },
+    ];
+
+    it("should render section tabs when multiple topics are present", () => {
+      render(
+        <ExamWorkspace
+          selectedPaper={mockPaper}
+          timeRemaining={7200}
+          blueprint={sectionalBlueprint}
+          answers={{}}
+          setAnswers={vi.fn()}
+          currentQuestionIndex={0}
+          setCurrentQuestionIndex={vi.fn()}
+          questionStatuses={{ "q-sec-1": "not_visited", "q-sec-2": "not_visited" }}
+          setQuestionStatuses={vi.fn()}
+          onSubmit={vi.fn()}
+        />
+      );
+
+      // Section tabs should render
+      expect(screen.getByText("Physics")).toBeInTheDocument();
+      expect(screen.getByText("Chemistry")).toBeInTheDocument();
+    });
+
+    it("should jump to the first question of a section when clicking its tab", () => {
+      const setCurrentQuestionIndex = vi.fn();
+      render(
+        <ExamWorkspace
+          selectedPaper={mockPaper}
+          timeRemaining={7200}
+          blueprint={sectionalBlueprint}
+          answers={{}}
+          setAnswers={vi.fn()}
+          currentQuestionIndex={0}
+          setCurrentQuestionIndex={setCurrentQuestionIndex}
+          questionStatuses={{ "q-sec-1": "not_visited", "q-sec-2": "not_visited" }}
+          setQuestionStatuses={vi.fn()}
+          onSubmit={vi.fn()}
+        />
+      );
+
+      // Click Chemistry tab
+      fireEvent.click(screen.getByText("Chemistry"));
+      
+      // Should jump to index 1 (the chemistry question index)
+      expect(setCurrentQuestionIndex).toHaveBeenCalledWith(1);
+    });
   });
 });
