@@ -25,6 +25,13 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Edit3, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -111,9 +118,28 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Target Exam</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g. UPSC CSE 2025" {...field} />
-                                    </FormControl>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full bg-background border-border focus-visible:ring-primary/20">
+                                                <SelectValue placeholder="Select target exam" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="UPSC">UPSC</SelectItem>
+                                            <SelectItem value="JEE">JEE</SelectItem>
+                                            <SelectItem value="NEET">NEET</SelectItem>
+                                            <SelectItem value="GATE">GATE</SelectItem>
+                                            <SelectItem value="CAT">CAT</SelectItem>
+                                            <SelectItem value="SSC">SSC CGL</SelectItem>
+                                            <SelectItem value="Bank">Bank</SelectItem>
+                                            <SelectItem value="Teaching">Teaching</SelectItem>
+                                            <SelectItem value="State PCS">State PCS</SelectItem>
+                                            <SelectItem value="Defence">Defence</SelectItem>
+                                            <SelectItem value="Law">Law</SelectItem>
+                                            <SelectItem value="Nursing">Nursing</SelectItem>
+                                            <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}

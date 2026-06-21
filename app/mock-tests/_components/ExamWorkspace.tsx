@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import { Paper, ExamElement, Question } from "./types";
+import { getExamName } from "./utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ExamWorkspaceProps {
     selectedPaper: Paper | undefined;
@@ -181,14 +183,17 @@ export function ExamWorkspace({
         );
     };
 
+    const examName = getExamName(selectedPaper);
+    const headerTitle = examName === "Online" ? "Online Examination" : `${examName} Online Examination`;
+
     return (
         <div className="fixed inset-0 z-50 bg-background overflow-hidden flex flex-col select-none" style={{ userSelect: "none" }}>
             {/* CBT Header */}
             <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0">
                 <div className="flex items-center gap-4">
-                    <span className="font-bold text-lg tracking-wide uppercase font-sans">UPSC Online Examination</span>
+                    <span className="font-bold text-lg tracking-wide uppercase font-sans">{headerTitle}</span>
                     <span className="text-slate-600">|</span>
-                    <span className="text-sm text-slate-300 font-semibold font-sans">{selectedPaper?.filename.replace(/\.[^/.]+$/, "")}</span>
+                    <span className="text-sm text-slate-300 font-semibold font-sans">{selectedPaper?.exam_name || selectedPaper?.filename.replace(/\.[^/.]+$/, "")}</span>
                 </div>
                 <div className="flex items-center gap-6">
                     <div className="text-right">
@@ -211,9 +216,14 @@ export function ExamWorkspace({
                         </span>
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground font-sans">View in:</span>
-                            <select className="bg-background border border-input rounded px-2 py-0.5 text-xs focus:outline-none font-sans">
-                                <option>English</option>
-                            </select>
+                            <Select defaultValue="English">
+                                <SelectTrigger className="bg-background border border-input rounded px-2 py-0.5 text-xs focus:outline-none font-sans h-7 w-[90px]">
+                                    <SelectValue placeholder="English" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="English">English</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 

@@ -43,7 +43,7 @@ export function PaperCard({ paper, onStart, loadingExam, selectedPaperId, attemp
                     </span>
                 </div>
                 <CardTitle className="text-lg font-bold leading-snug line-clamp-2 font-sans group-hover:text-primary transition-colors duration-200">
-                    {paper.filename.replace(/\.[^/.]+$/, "")}
+                    {paper.exam_name || paper.filename.replace(/\.[^/.]+$/, "")}
                 </CardTitle>
                 <CardDescription className="text-xs font-sans">
                     Published on {new Date(paper.uploaded_at).toLocaleDateString()}

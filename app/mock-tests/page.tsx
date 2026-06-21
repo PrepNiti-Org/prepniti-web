@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 
+import { useAuth } from "@/features/auth/hooks/useAuth";
+
 import { Paper, ExamElement, ScoreInfo, PaperAttemptStats } from "./_components/types";
 import { useExamSecurity } from "./_components/useExamSecurity";
 import { PaperCard } from "./_components/PaperCard";
@@ -16,6 +18,7 @@ import { ExamWorkspace } from "./_components/ExamWorkspace";
 import { ExamResults } from "./_components/ExamResults";
 
 export default function MockTestsPage() {
+    const { isLoggedIn, user, isHydrated } = useAuth();
     const [step, setStep] = useState<"setup" | "instructions" | "testing" | "result">("setup");
     const [papers, setPapers] = useState<Paper[]>([]);
     const [loadingPapers, setLoadingPapers] = useState(true);
@@ -240,7 +243,7 @@ export default function MockTestsPage() {
                             </div>
                         </div>
 
-                        {loadingPapers ? (
+                        {loadingPapers || !isHydrated ? (
                             <div className="py-20 text-center text-muted-foreground font-sans">Loading mock exam list...</div>
                         ) : papers.length === 0 ? (
                             <div className="py-20 text-center text-muted-foreground font-sans">No mock tests have been published by the administrator yet.</div>

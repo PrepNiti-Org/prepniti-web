@@ -37,6 +37,7 @@ import {
     Zap,
     FileText
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     AreaChart,
     Area,
@@ -1129,28 +1130,30 @@ export default function InsightsPage() {
                         <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t">
                             <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Filter Logs:</span>
 
-                            <select
-                                className="bg-muted text-[11px] font-semibold py-1 px-2 rounded-md border border-border/50 text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
-                                value={logMethodFilter}
-                                onChange={(e) => setLogMethodFilter(e.target.value)}
-                            >
-                                <option value="ALL">All Methods 🧠</option>
-                                <option value="READING">Reading 📖</option>
-                                <option value="PRACTICE">Practice ✍️</option>
-                                <option value="MOCK_TEST">Mock Tests 🎯</option>
-                                <option value="REVISION">Revision 🧠</option>
-                            </select>
+                            <Select value={logMethodFilter} onValueChange={setLogMethodFilter}>
+                                <SelectTrigger className="h-8 text-[11px] w-[150px] bg-muted border border-border/50 font-semibold cursor-pointer">
+                                    <SelectValue placeholder="All Methods" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All Methods 🧠</SelectItem>
+                                    <SelectItem value="READING">Reading 📖</SelectItem>
+                                    <SelectItem value="PRACTICE">Practice ✍️</SelectItem>
+                                    <SelectItem value="MOCK_TEST">Mock Tests 🎯</SelectItem>
+                                    <SelectItem value="REVISION">Revision 🧠</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                            <select
-                                className="bg-muted text-[11px] font-semibold py-1 px-2 rounded-md border border-border/50 text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
-                                value={logSubjectFilter}
-                                onChange={(e) => setLogSubjectFilter(e.target.value)}
-                            >
-                                <option value="ALL">All Subjects 📖</option>
-                                {uniqueSubjects.map(sub => (
-                                    <option key={sub} value={sub}>{sub}</option>
-                                ))}
-                            </select>
+                            <Select value={logSubjectFilter} onValueChange={setLogSubjectFilter}>
+                                <SelectTrigger className="h-8 text-[11px] w-[150px] bg-muted border border-border/50 font-semibold cursor-pointer">
+                                    <SelectValue placeholder="All Subjects" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All Subjects 📖</SelectItem>
+                                    {uniqueSubjects.map(sub => (
+                                        <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
                             {(logSearchQuery || logMethodFilter !== "ALL" || logSubjectFilter !== "ALL") && (
                                 <Button

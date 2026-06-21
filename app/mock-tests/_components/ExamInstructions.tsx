@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Paper } from "./types";
+import { getExamName } from "./utils";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, ArrowRight, ArrowLeft } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ExamInstructionsProps {
     selectedPaper: Paper | undefined;
@@ -23,13 +25,16 @@ export function ExamInstructions({
     const [instructionStep, setInstructionStep] = useState<1 | 2>(1);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
 
+    const examName = getExamName(selectedPaper);
+    const headerTitle = examName === "Online" ? "Online Examination System" : `${examName} Examination System`;
+
     return (
         <div className="fixed inset-0 z-50 bg-background overflow-hidden flex flex-col select-none">
             {/* Instructions Header */}
             <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0">
                 <div className="flex items-center gap-3">
                     <GraduationCap className="h-6 w-6 text-primary" />
-                    <span className="font-bold text-lg tracking-wide uppercase font-sans">Online Examination System</span>
+                    <span className="font-bold text-lg tracking-wide uppercase font-sans">{headerTitle}</span>
                 </div>
                 <div className="text-sm text-slate-300 font-medium bg-slate-950 px-3 py-1 rounded border border-slate-800">
                     System Name: <span className="text-emerald-400 font-mono font-bold font-sans">LAB-TERMINAL-01</span>
@@ -132,14 +137,18 @@ export function ExamInstructions({
 
                                 <div className="space-y-3">
                                     <label className="text-xs font-bold text-foreground uppercase tracking-wider block font-sans">Choose your default language:</label>
-                                    <select 
+                                    <Select 
                                         value={defaultLanguage} 
-                                        onChange={(e) => setDefaultLanguage(e.target.value)}
-                                        className="bg-background border border-input rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full max-w-xs"
+                                        onValueChange={setDefaultLanguage}
                                     >
-                                        <option value="English">English</option>
-                                        <option value="Hindi">Hindi</option>
-                                    </select>
+                                        <SelectTrigger className="w-full max-w-xs h-10 rounded-xl bg-background border border-input px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                                            <SelectValue placeholder="Select Language" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="English">English</SelectItem>
+                                            <SelectItem value="Hindi">Hindi</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <p className="text-xs text-muted-foreground mt-1">Please note that all questions will be displayed in this language by default, but you can change the view language during the exam.</p>
                                 </div>
 

@@ -27,6 +27,8 @@ export interface ExamElement {
 export interface Paper {
     id: string;
     filename: string;
+    exam_name?: string;
+    target_exam?: string;
     uploaded_at: string;
     q_count: number;
     exam_type: string;

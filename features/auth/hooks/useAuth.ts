@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 interface User {
     username: string;
     email: string;
+    target_exam?: string;
 }
 
 export function useAuth() {
