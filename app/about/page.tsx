@@ -117,7 +117,7 @@ export default function AboutPage() {
             Standard guidance packages cost thousands, yet lack the actual field insights of candidates who sat in front of the interview boards.
           </p>
           <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-            By enabling anonymous post sharing and structured exam checklists, we ensure that every aspirant—regardless of their background, location, or financial status—gains access to the ultimate prep guidebooks absolutely free.
+            By enabling anonymous post sharing and structured exam checklists, we ensure that every aspirant—regardless of their background, location, or financial status—gains access to the ultimate prep guidebooks.
           </p>
           <div className="pt-2 flex flex-wrap gap-4">
             <Link href="/register">

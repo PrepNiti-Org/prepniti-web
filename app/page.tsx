@@ -1,82 +1,89 @@
 import { Metadata } from "next";
-import { FeedClient } from "@/features/experiences/components/FeedClient";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenSquare, BookOpen } from "lucide-react";
+import { HeroCTA } from "@/features/auth/components/HeroCTA";
+import { HomeContent } from "@/features/auth/components/HomeContent";
 import Link from "next/link";
 
+
 export const metadata: Metadata = {
-  title: "PrepNiti | Real Interview Experiences for Aspirants",
-  description: "Read verified interview transcripts for UPSC, State PSC, and Banking exams. Share your journey and track your syllabus progress.",
+  title: "PrepNiti — Exam Prep, Honestly",
+  description:
+    "Study logs, mock tests, kanban planner, interview experiences and a community — all anonymous. Built for UPSC, PSC, Banking and every serious aspirant.",
   openGraph: {
-    title: "PrepNiti Community",
-    description: "The ultimate community for government job aspirants.",
+    title: "PrepNiti — Exam Prep, Honestly",
+    description: "The prep platform built by aspirants, for aspirants.",
     type: "website",
   },
 };
 
+const WHAT_WE_HAVE = [
+  { label: "Interview Experiences", desc: "Detailed transcripts from real board interviews — UPSC, PSC, Banking.", href: "/" },
+  { label: "Full Mock Tests", desc: "Timed, auto-scored tests that match actual exam patterns.", href: "/mock-tests" },
+  { label: "Study Time Tracker", desc: "Log sessions, build streaks, see where your hours actually go.", href: "/tracker" },
+  { label: "Kanban Planner", desc: "Drag topics across Not Started → In Progress → Revised.", href: "/tracker" },
+  { label: "Progress Insights", desc: "Charts that make your consistency (and gaps) impossible to ignore.", href: "/insights" },
+  { label: "Community Posts", desc: "Open threads — strategy, doubts, wins. No real names required.", href: "/posts" },
+];
+
 export default function HomePage() {
   return (
-    <div className="container max-w-7xl mx-auto space-y-8">
+    <div className="container max-w-7xl mx-auto">
 
-      <div className="border border-primary/20 rounded-3xl p-8 md:p-12 text-center space-y-4 relative overflow-hidden shadow-lg shadow-primary/5 bg-gradient-to-b from-primary/10 via-primary/[0.03] to-transparent">
-        <div className="absolute inset-0 bg-dot-pattern opacity-30 pointer-events-none" />
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 space-y-4">
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/80">
-            Real Interview Experiences.<br className="hidden sm:block" /> From Real Aspirants.
-          </h1>
-          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
-            PrepNiti is the ultimate community for UPSC, PSC, and Banking aspirants. Read verified interview transcripts and boost your preparation.
+      <section className="pt-10 pb-12 md:pt-16 md:pb-16 border-b border-border/40">
+        <div className="max-w-3xl space-y-6">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">
+            PrepNiti
           </p>
-          <div className="flex justify-center gap-4 pt-4">
-            <Link href="/submit">
-              <Button size="lg" className="font-semibold shadow-md hover:shadow-lg transition-all">
-                <PenSquare className="mr-2 h-4 w-4" /> Share Experience
-              </Button>
+
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-[1.05] text-foreground">
+            Everything your prep<br className="hidden sm:block" />
+            needs. Nothing it{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10">doesn't.</span>
+              <span
+                className="absolute bottom-1 left-0 right-0 h-[6px] rounded-full opacity-40"
+                style={{ background: "hsl(15 100% 57%)" }}
+              />
+            </span>
+          </h1>
+
+          <p className="text-muted-foreground text-base md:text-lg max-w-xl leading-relaxed">
+            Mock tests, study tracking, kanban planner, interview experiences, and a live community — all in one anonymous space.
+          </p>
+
+          <HeroCTA />
+        </div>
+      </section>
+
+      <section className="py-10 border-b border-border/40">
+        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-muted-foreground/60 mb-6">
+          What's inside
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-0">
+          {WHAT_WE_HAVE.map((item, i) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="group flex items-start gap-4 py-4 border-t border-border/30 hover:border-primary/30 transition-colors"
+            >
+              <span className="text-[11px] font-bold text-muted-foreground/40 w-5 mt-0.5 shrink-0 tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                  {item.label}
+                </p>
+                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
+                  {item.desc}
+                </p>
+              </div>
             </Link>
-            <Link href="/dashboard">
-              <Button size="lg" variant="outline" className="bg-background shadow-sm hover:bg-muted/50 transition-all">
-                <BookOpen className="mr-2 h-4 w-4" /> Syllabus Tracker
-              </Button>
-            </Link>
-          </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <HomeContent />
 
-        <div className="lg:col-span-3">
-          <FeedClient />
-        </div>
-
-        <div className="hidden lg:block space-y-6">
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Contribute to PrepNiti</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Your interview experience could be the roadmap for someone else&apos;s success.
-              </p>
-              <Link href="/submit">
-                <Button className="w-full">Share Experience</Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <div className="text-xs text-muted-foreground/60 flex flex-wrap gap-x-3 gap-y-1 px-2">
-            <Link href="/about" className="hover:underline hover:text-primary">About</Link>
-            <Link href="/privacy" className="hover:underline hover:text-primary">Privacy</Link>
-            <Link href="/terms" className="hover:underline hover:text-primary">Terms</Link>
-            <Link href="/feedback" className="hover:underline hover:text-primary">Feedback</Link>
-            <span>© {new Date().getFullYear()} PrepNiti</span>
-          </div>
-        </div>
-
-      </div>
     </div>
   );
 }
+

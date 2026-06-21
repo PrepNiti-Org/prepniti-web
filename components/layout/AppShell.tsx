@@ -6,7 +6,7 @@ import { Navbar } from "./Navbar";
 import { Sidenav } from "./Sidenav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
     const pathname = usePathname();
     const isAuthPage = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password";
 

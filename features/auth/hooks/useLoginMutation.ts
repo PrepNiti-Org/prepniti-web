@@ -13,7 +13,9 @@ export function useLoginMutation() {
             toast.success("Welcome back!", {
                 description: `Hello, ${data.user.username}!`,
             });
-            window.location.href = "/";
+            const params = new URLSearchParams(window.location.search);
+            const next = params.get("next");
+            window.location.href = next && next.startsWith("/") ? next : "/";
         },
         onError: (error: AxiosError<{ error: string }>) => {
             toast.error("Login Failed", {
