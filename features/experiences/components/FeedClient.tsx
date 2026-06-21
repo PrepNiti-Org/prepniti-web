@@ -46,19 +46,23 @@ export function FeedClient() {
                     <TrendingUp className="h-5 w-5 text-primary" />
                     {sortBy === "latest" ? "Latest" : "Top"} Experiences
                 </h2>
-                <div className="flex gap-4 text-sm font-medium">
-                    <button 
+                <div className="flex gap-1 text-sm font-medium">
+                    <Button
+                        variant={sortBy === "latest" ? "default" : "ghost"}
+                        size="sm"
                         onClick={() => setSortBy("latest")}
-                        className={`transition-colors ${sortBy === "latest" ? "text-primary border-b-2 border-primary pb-1" : "text-muted-foreground hover:text-foreground"}`}
+                        className="rounded-lg h-8"
                     >
                         Latest
-                    </button>
-                    <button 
+                    </Button>
+                    <Button
+                        variant={sortBy === "top" ? "default" : "ghost"}
+                        size="sm"
                         onClick={() => setSortBy("top")}
-                        className={`transition-colors ${sortBy === "top" ? "text-primary border-b-2 border-primary pb-1" : "text-muted-foreground hover:text-foreground"}`}
+                        className="rounded-lg h-8"
                     >
                         Top
-                    </button>
+                    </Button>
                 </div>
             </div>
 

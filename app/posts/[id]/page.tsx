@@ -64,22 +64,26 @@ const CommentItem = ({ comment, postId, depth = 0 }: { comment: Comment, postId:
                 </div>
 
                 <div className="flex items-center gap-4 mt-1.5 px-2">
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => likeMutation.mutate()}
                         disabled={likeMutation.isPending}
-                        className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-rose-500 transition-colors group"
+                        className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-rose-500 px-2 h-7 rounded-lg"
                     >
-                        <Heart className="h-3.5 w-3.5 group-hover:fill-rose-500/20" />
+                        <Heart className="h-3.5 w-3.5" />
                         <span>{comment.upvotes > 0 ? comment.upvotes : 'Like'}</span>
-                    </button>
-                    {depth < 2 && ( // Limit nesting depth to 2 to prevent extreme indentation
-                        <button
+                    </Button>
+                    {depth < 2 && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => setIsReplying(!isReplying)}
-                            className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-primary transition-colors"
+                            className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-primary px-2 h-7 rounded-lg"
                         >
                             <MessageCircle className="h-3.5 w-3.5" />
                             <span>Reply</span>
-                        </button>
+                        </Button>
                     )}
                 </div>
 

@@ -210,55 +210,61 @@ export function PostCard({
 
                 <CardFooter className={cn("px-5 py-3 border-t border-muted/20", viewMode === "detail" && "bg-muted/5")}>
                     <div className="flex items-center justify-between w-full text-muted-foreground">
-                        <div className="flex items-center gap-6">
-                            <button
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={(e) => {
                                     e.preventDefault();
                                     onLike();
                                 }}
-                                className="flex items-center gap-2 hover:text-rose-500 transition-colors group"
                                 disabled={isLikePending}
+                                className="flex items-center gap-2 hover:text-rose-500 px-2 h-8 rounded-lg"
                             >
-                                <Heart className="h-5 w-5 group-hover:fill-rose-500/20" />
+                                <Heart className="h-4 w-4" />
                                 <span className="text-sm font-medium">{post.upvotes > 0 ? post.upvotes : 'Like'}</span>
-                            </button>
+                            </Button>
 
                             {viewMode === "feed" ? (
                                 <Link href={`/posts/${post.id}`}>
-                                    <button className="flex items-center gap-2 hover:text-primary transition-colors group">
-                                        <MessageCircle className="h-5 w-5 group-hover:fill-primary/20" />
+                                    <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:text-primary px-2 h-8 rounded-lg">
+                                        <MessageCircle className="h-4 w-4" />
                                         <span className="text-sm font-medium">Discuss</span>
-                                    </button>
+                                    </Button>
                                 </Link>
                             ) : (
-                                <button className="flex items-center gap-2 hover:text-primary transition-colors group text-primary">
-                                    <MessageCircle className="h-5 w-5 fill-primary/20" />
+                                <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:text-primary px-2 h-8 rounded-lg text-primary">
+                                    <MessageCircle className="h-4 w-4 fill-primary/20" />
                                     <span className="text-sm font-medium">{commentCount}</span>
-                                </button>
+                                </Button>
                             )}
 
-                            <button
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={handleShare}
-                                className="flex items-center gap-2 hover:text-primary transition-colors"
+                                className="flex items-center gap-2 hover:text-primary px-2 h-8 rounded-lg"
                             >
-                                <Send className="h-5 w-5" />
+                                <Send className="h-4 w-4" />
                                 <span className="text-sm font-medium">Share</span>
-                            </button>
+                            </Button>
                         </div>
 
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={(e) => {
                                 e.preventDefault();
                                 onBookmark();
                             }}
                             disabled={isBookmarkPending}
-                            className="hover:text-primary transition-colors group"
+                            className="h-8 w-8 rounded-lg hover:text-primary"
                         >
                             <Bookmark className={cn(
-                                "h-5 w-5",
-                                isBookmarked ? 'fill-primary text-primary' : 'group-hover:fill-primary/20'
+                                "h-4 w-4",
+                                isBookmarked ? 'fill-primary text-primary' : ''
                             )} />
-                        </button>
+                        </Button>
                     </div>
                 </CardFooter>
             </Card>

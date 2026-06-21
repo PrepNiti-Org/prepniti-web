@@ -8,10 +8,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Image as ImageIcon, Video, BarChart2, TrendingUp, UserPlus, PlusCircle } from "lucide-react";
+import {
+    MessageSquare, Image as ImageIcon, Video, BarChart2, TrendingUp,
+    PlusCircle, Loader2, Sparkles, Target, BookOpen, ArrowUpRight,
+    GraduationCap, FileText, PenSquare
+} from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PostCard } from "@/features/posts/components/PostCard";
+import { motion } from "framer-motion";
+
+const QUICK_LINKS = [
+    { href: "/tracker", icon: Target, label: "Study Tracker", desc: "Manage your targets", color: "text-violet-500", bg: "bg-violet-500/10" },
+    { href: "/mock-tests", icon: GraduationCap, label: "Mock Tests", desc: "Take a full-length test", color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { href: "/insights", icon: BarChart2, label: "Insights", desc: "Analytics & charts", color: "text-blue-500", bg: "bg-blue-500/10" },
+    { href: "/bookmarks", icon: BookOpen, label: "Bookmarks", desc: "Saved posts", color: "text-amber-500", bg: "bg-amber-500/10" },
+];
 
 export default function PostsPage() {
     const { isLoggedIn, user } = useAuth();
@@ -60,39 +72,48 @@ export default function PostsPage() {
         <div className="container max-w-7xl mx-auto space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                <div className="lg:col-span-3 space-y-6">
+                <div className="lg:col-span-3 space-y-5">
 
-                    <Card className="border-primary/40 shadow-sm rounded-xl overflow-hidden bg-card">
-                        <CardContent className="p-3 sm:p-4">
-                            <div className="flex gap-4 mb-4">
-                                <Avatar className="h-10 w-10 border shadow-sm">
-                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">ME</AvatarFallback>
+                    <Card className="border-primary/20 shadow-sm rounded-2xl overflow-hidden bg-card">
+                        <CardContent className="p-4">
+                            <div className="flex gap-3">
+                                <Avatar className="h-9 w-9 border border-border shadow-sm shrink-0">
+                                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+                                        {isLoggedIn && user?.username ? user.username.substring(0, 2).toUpperCase() : "?"}
+                                    </AvatarFallback>
                                 </Avatar>
-                                <div className="flex-1">
-                                    <Link href="/posts/create" className="block">
-                                        <div className="w-full bg-muted/40 hover:bg-muted/60 transition-colors rounded-xl px-4 py-3 text-muted-foreground text-sm cursor-text border border-transparent hover:border-border">
-                                            Start a discussion or ask for help...
-                                        </div>
+                                <Link href="/posts/create" className="flex-1">
+                                    <div className="w-full bg-muted/40 hover:bg-muted/70 transition-all rounded-xl px-4 py-2.5 text-muted-foreground text-sm cursor-text border border-transparent hover:border-primary/20 focus-visible:ring-2 focus-visible:ring-primary/30">
+                                        {isLoggedIn
+                                            ? `Share a question, strategy, or resource, @${user?.username}...`
+                                            : "Start a discussion or ask the community..."}
+                                    </div>
+                                </Link>
+                            </div>
+                            <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/30">
+                                <div className="flex items-center gap-1 ml-12">
+                                    <Link href="/posts/create">
+                                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-emerald-500 gap-1.5 px-2 rounded-lg h-8 text-xs font-semibold">
+                                            <ImageIcon className="h-3.5 w-3.5 text-emerald-500" />
+                                            <span className="hidden sm:inline">Photo</span>
+                                        </Button>
+                                    </Link>
+                                    <Link href="/posts/create">
+                                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-rose-500 gap-1.5 px-2 rounded-lg h-8 text-xs font-semibold">
+                                            <Video className="h-3.5 w-3.5 text-rose-500" />
+                                            <span className="hidden sm:inline">Video</span>
+                                        </Button>
+                                    </Link>
+                                    <Link href="/posts/create">
+                                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-blue-500 gap-1.5 px-2 rounded-lg h-8 text-xs font-semibold">
+                                            <BarChart2 className="h-3.5 w-3.5 text-blue-500" />
+                                            <span className="hidden sm:inline">Poll</span>
+                                        </Button>
                                     </Link>
                                 </div>
-                            </div>
-                            <div className="flex items-center justify-between pt-2">
-                                <div className="flex items-center gap-1 sm:gap-4 ml-[56px]">
-                                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-2 px-2 sm:px-3 rounded-full h-9">
-                                        <ImageIcon className="h-4 w-4 text-emerald-500" />
-                                        <span className="hidden sm:inline-block text-xs font-medium">Photo</span>
-                                    </Button>
-                                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-2 px-2 sm:px-3 rounded-full h-9">
-                                        <Video className="h-4 w-4 text-rose-500" />
-                                        <span className="hidden sm:inline-block text-xs font-medium">Video</span>
-                                    </Button>
-                                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-2 px-2 sm:px-3 rounded-full h-9">
-                                        <BarChart2 className="h-4 w-4 text-blue-500" />
-                                        <span className="hidden sm:inline-block text-xs font-medium">Poll</span>
-                                    </Button>
-                                </div>
                                 <Link href="/posts/create">
-                                    <Button size="sm" className="rounded-md px-6 shadow-sm">
+                                    <Button size="sm" className="rounded-lg px-5 font-bold shadow-sm text-xs h-8 gap-1.5">
+                                        <PenSquare className="h-3.5 w-3.5" />
                                         Post
                                     </Button>
                                 </Link>
@@ -100,20 +121,27 @@ export default function PostsPage() {
                         </CardContent>
                     </Card>
 
+                    <div className="flex items-center gap-2 px-1">
+                        <TrendingUp className="h-4 w-4 text-primary" />
+                        <h2 className="text-sm font-bold text-foreground">Recent Discussions</h2>
+                        <div className="flex-1 h-px bg-border/40 ml-2" />
+                    </div>
+
                     {status === "pending" ? (
-                        <div className="space-y-6">
+                        <div className="space-y-5">
                             {[1, 2, 3].map((i) => (
                                 <Skeleton key={i} className="h-48 w-full rounded-xl" />
                             ))}
                         </div>
                     ) : status === "error" ? (
-                        <div className="text-center py-10 bg-destructive/10 rounded-xl">
-                            <p className="text-destructive font-medium">Failed to load posts. Please try again.</p>
+                        <div className="text-center py-10 bg-destructive/5 border border-destructive/20 rounded-2xl">
+                            <p className="text-destructive font-semibold text-sm">Failed to load posts.</p>
+                            <p className="text-muted-foreground text-xs mt-1">Please refresh the page.</p>
                         </div>
                     ) : (
-                        <div className="space-y-6">
+                        <div className="space-y-5">
                             {data.pages.map((page, i) => (
-                                <div key={i} className="space-y-6">
+                                <div key={i} className="space-y-5">
                                     {page.data.map((post: Post, index: number) => (
                                         <PostCard
                                             key={post.id}
@@ -131,25 +159,34 @@ export default function PostsPage() {
                             ))}
 
                             {data.pages[0].data.length === 0 && (
-                                <div className="text-center py-20 bg-muted/20 rounded-2xl border border-dashed border-muted">
-                                    <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                                    <h3 className="text-xl font-semibold">No discussions yet</h3>
-                                    <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
+                                <div className="flex flex-col items-center justify-center py-24 text-center bg-muted/20 rounded-2xl border border-dashed border-muted">
+                                    <div className="h-16 w-16 rounded-2xl bg-muted/50 border border-border/40 flex items-center justify-center mb-4">
+                                        <MessageSquare className="h-8 w-8 text-muted-foreground/40" />
+                                    </div>
+                                    <h3 className="text-base font-bold">No discussions yet</h3>
+                                    <p className="text-muted-foreground text-sm mt-1 max-w-sm">
                                         Be the first to start a conversation in the PrepNiti community!
                                     </p>
+                                    <Link href="/posts/create" className="mt-4">
+                                        <Button size="sm" className="rounded-xl font-semibold gap-1.5">
+                                            <PlusCircle className="h-4 w-4" /> Start a discussion
+                                        </Button>
+                                    </Link>
                                 </div>
                             )}
 
                             {hasNextPage && (
-                                <div className="mt-8 text-center pb-8">
+                                <div className="mt-6 text-center pb-8">
                                     <Button
                                         variant="outline"
                                         size="lg"
-                                        className="rounded-full shadow-sm"
+                                        className="rounded-full shadow-sm px-8 font-semibold"
                                         onClick={() => fetchNextPage()}
                                         disabled={isFetchingNextPage}
                                     >
-                                        {isFetchingNextPage ? "Loading more..." : "Load More Discussions"}
+                                        {isFetchingNextPage ? (
+                                            <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading...</>
+                                        ) : "Load More Discussions"}
                                     </Button>
                                 </div>
                             )}
@@ -157,67 +194,86 @@ export default function PostsPage() {
                     )}
                 </div>
 
-                {/* Right Sidebar Column */}
-                <div className="hidden lg:block lg:col-span-1 space-y-6 sticky top-20 h-fit">
+                <div className="hidden lg:block lg:col-span-1 space-y-5 sticky top-20 h-fit">
 
                     {isLoggedIn ? (
-                        <Card className="border-primary/40 shadow-sm rounded-xl bg-card">
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-base font-bold flex items-center gap-2">
-                                    <Avatar className="h-6 w-6">
-                                        <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                        <Card className="border-primary/20 shadow-sm rounded-2xl overflow-hidden bg-card">
+                            <div className="relative bg-gradient-to-br from-primary/15 via-primary/8 to-violet-500/10 p-4 border-b border-border/30">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+                                <div className="relative flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                                        <AvatarFallback className="bg-primary/20 text-primary font-black text-sm">
                                             {user?.username ? user.username.substring(0, 2).toUpperCase() : "ME"}
                                         </AvatarFallback>
                                     </Avatar>
-                                    Your Dashboard
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="text-sm">
-                                    <p className="font-bold text-foreground">@{user?.username}</p>
-                                    <p className="text-xs text-muted-foreground mt-0.5">{user?.email}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-black text-foreground truncate">@{user?.username}</p>
+                                        <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+                                    </div>
                                 </div>
-                                <div className="pt-2 border-t space-y-2">
-                                    <Link href="/profile" className="block text-xs font-semibold text-primary hover:underline">
-                                        View Profile Stats
+                            </div>
+                            <CardContent className="p-0">
+                                {QUICK_LINKS.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        className="flex items-center gap-3 px-4 py-3 border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors group"
+                                    >
+                                        <div className={`p-1.5 rounded-lg ${item.bg} ${item.color}`}>
+                                            <item.icon className="h-3.5 w-3.5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">{item.label}</p>
+                                            <p className="text-[10px] text-muted-foreground">{item.desc}</p>
+                                        </div>
+                                        <ArrowUpRight className="h-3 w-3 text-muted-foreground/30 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                                     </Link>
-                                    <Link href="/submit" className="block text-xs font-semibold text-primary hover:underline">
-                                        Share an Experience
-                                    </Link>
-                                    <Link href="/tracker" className="block text-xs font-semibold text-primary hover:underline">
-                                        Study Target Tracker
-                                    </Link>
-                                </div>
+                                ))}
                             </CardContent>
                         </Card>
                     ) : (
-                        <Card className="border-primary/40 shadow-sm rounded-xl bg-card">
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-base font-bold">Join PrepNiti</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <p className="text-xs text-muted-foreground">
-                                    Create posts, track syllabus completion progress, and benchmark your scores.
-                                </p>
-                                <Link href="/login" className="block">
-                                    <Button size="sm" className="w-full text-xs font-semibold">
-                                        Log In / Register
+                        <Card className="border-primary/20 shadow-sm rounded-2xl overflow-hidden bg-card">
+                            <div className="relative bg-gradient-to-br from-primary/15 via-primary/8 to-violet-500/10 p-5 border-b border-border/30">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+                                <div className="relative flex items-center gap-2 mb-1">
+                                    <Sparkles className="h-4 w-4 text-primary" />
+                                    <CardTitle className="text-sm font-bold">Join PrepNiti</CardTitle>
+                                </div>
+                                <p className="text-xs text-muted-foreground">Anonymous. Free. Powerful.</p>
+                            </div>
+                            <CardContent className="p-4 space-y-4">
+                                <div className="space-y-2">
+                                    {[
+                                        { icon: FileText, text: "Post & discuss anonymously" },
+                                        { icon: GraduationCap, text: "Access full mock tests" },
+                                        { icon: Target, text: "Track your study targets" },
+                                    ].map((f) => (
+                                        <div key={f.text} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <f.icon className="h-3.5 w-3.5 text-primary/70 shrink-0" />
+                                            {f.text}
+                                        </div>
+                                    ))}
+                                </div>
+                                <Link href="/register" className="block">
+                                    <Button size="sm" className="w-full font-bold rounded-xl text-xs h-9 shadow-sm shadow-primary/10">
+                                        Sign up — it's free
                                     </Button>
+                                </Link>
+                                <Link href="/login" className="block text-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                                    Already have an account? Log in
                                 </Link>
                             </CardContent>
                         </Card>
                     )}
 
-                    {/* Footer Links */}
-                    <div className="px-2 pt-2">
-                        <div className="flex flex-wrap gap-x-3 gap-y-2 text-[11px] text-muted-foreground/70">
-                            <Link href="/about" className="hover:underline hover:text-primary transition-colors">About</Link>
-                            <Link href="/help" className="hover:underline hover:text-primary transition-colors">Help Center</Link>
-                            <Link href="/privacy" className="hover:underline hover:text-primary transition-colors">Privacy & Terms</Link>
+                    <div className="px-2">
+                        <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-muted-foreground/60">
+                            <Link href="/about" className="hover:text-muted-foreground transition-colors">About</Link>
+                            <Link href="/privacy" className="hover:text-muted-foreground transition-colors">Privacy</Link>
+                            <Link href="/terms" className="hover:text-muted-foreground transition-colors">Terms</Link>
+                            <Link href="/feedback" className="hover:text-muted-foreground transition-colors">Feedback</Link>
                         </div>
-                        <p className="text-[11px] text-muted-foreground/50 mt-3">
-                            PrepNiti © 2026
-                        </p>
+                        <p className="text-[11px] text-muted-foreground/40 mt-2">PrepNiti © {new Date().getFullYear()}</p>
                     </div>
                 </div>
 

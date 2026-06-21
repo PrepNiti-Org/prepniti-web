@@ -233,13 +233,15 @@ export default function CreatePostPage() {
                                                                         >
                                                                             <Badge variant="secondary" className="px-3 py-1 text-xs rounded-full flex items-center space-x-1 font-semibold border-primary/10">
                                                                                 <span>#{tag}</span>
-                                                                                <button
+                                                                                <Button
                                                                                     type="button"
+                                                                                    variant="ghost"
+                                                                                    size="icon"
                                                                                     onClick={() => removeTag(tag)}
-                                                                                    className="text-muted-foreground hover:text-destructive focus:outline-none"
+                                                                                    className="h-4 w-4 p-0 ml-1 text-muted-foreground hover:text-destructive hover:bg-transparent"
                                                                                 >
                                                                                     <X className="h-3 w-3" />
-                                                                                </button>
+                                                                                </Button>
                                                                             </Badge>
                                                                         </motion.div>
                                                                     ))}

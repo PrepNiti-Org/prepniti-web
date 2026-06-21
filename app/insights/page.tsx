@@ -445,16 +445,15 @@ export default function InsightsPage() {
 
                 <div className="flex bg-muted/60 p-1.5 rounded-xl border relative z-10 shrink-0 self-stretch md:self-auto justify-center sm:justify-start">
                     {([7, 30, 90] as RangeDays[]).map((d) => (
-                        <button
+                        <Button
                             key={d}
+                            variant={range === d ? "default" : "ghost"}
+                            size="sm"
                             onClick={() => setRange(d)}
-                            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${range === d
-                                ? "bg-background shadow-md text-foreground border border-border/10 font-bold"
-                                : "text-muted-foreground hover:text-foreground"
-                                }`}
+                            className="text-xs font-semibold rounded-lg"
                         >
                             {d} Days
-                        </button>
+                        </Button>
                     ))}
                 </div>
             </motion.div>
@@ -569,24 +568,30 @@ export default function InsightsPage() {
                             </div>
 
                             <div className="flex bg-muted p-1 rounded-lg self-start sm:self-auto border">
-                                <button
+                                <Button
+                                    variant={activeChartTab === "trend" ? "default" : "ghost"}
+                                    size="sm"
                                     onClick={() => setActiveChartTab("trend")}
-                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeChartTab === "trend" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                                    className="flex items-center gap-1 text-xs h-7 rounded-md"
                                 >
                                     <CalendarRange className="h-3.5 w-3.5" /> Trend
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant={activeChartTab === "subjects" ? "default" : "ghost"}
+                                    size="sm"
                                     onClick={() => setActiveChartTab("subjects")}
-                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeChartTab === "subjects" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                                    className="flex items-center gap-1 text-xs h-7 rounded-md"
                                 >
                                     <PieIcon className="h-3.5 w-3.5" /> Subjects
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant={activeChartTab === "types" ? "default" : "ghost"}
+                                    size="sm"
                                     onClick={() => setActiveChartTab("types")}
-                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeChartTab === "types" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                                    className="flex items-center gap-1 text-xs h-7 rounded-md"
                                 >
                                     <BarChart3 className="h-3.5 w-3.5" /> Methods
-                                </button>
+                                </Button>
                             </div>
                         </CardHeader>
 
@@ -676,17 +681,19 @@ export default function InsightsPage() {
                                                 <div className="col-span-2 space-y-2 max-h-[250px] overflow-y-auto pr-2">
                                                     <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Study Distribution</h5>
                                                     {subjectBalanceData.map((sub, i) => (
-                                                        <button
-                                                            key={i}
-                                                            onClick={() => setSelectedDrillSubject(sub.name)}
-                                                            className={`flex items-center justify-between text-xs w-full p-1.5 rounded transition-all hover:bg-muted/40 text-left ${selectedDrillSubject === sub.name ? "bg-muted border border-border/60 font-semibold" : "border border-transparent"}`}
-                                                        >
-                                                            <div className="flex items-center gap-2 min-w-0">
-                                                                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: sub.color }} />
-                                                                <span className="truncate max-w-[120px] font-medium">{sub.name}</span>
-                                                            </div>
-                                                            <span className="font-semibold text-muted-foreground shrink-0">{sub.value}h</span>
-                                                        </button>
+                                                        <Button
+                                                        key={i}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setSelectedDrillSubject(sub.name)}
+                                                        className={`flex items-center justify-between text-xs w-full p-1.5 rounded h-auto transition-all hover:bg-muted/40 text-left ${selectedDrillSubject === sub.name ? "bg-muted border border-border/60 font-semibold" : "border border-transparent"}`}
+                                                    >
+                                                        <div className="flex items-center gap-2 min-w-0">
+                                                            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: sub.color }} />
+                                                            <span className="truncate max-w-[120px] font-medium">{sub.name}</span>
+                                                        </div>
+                                                        <span className="font-semibold text-muted-foreground shrink-0">{sub.value}h</span>
+                                                    </Button>
                                                     ))}
                                                     {selectedDrillSubject !== "ALL" && (
                                                         <Button size="sm" variant="ghost" className="w-full text-xs h-7 text-primary/80 hover:text-primary mt-1" onClick={() => setSelectedDrillSubject("ALL")}>

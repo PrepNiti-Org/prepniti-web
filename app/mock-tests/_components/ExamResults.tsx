@@ -182,46 +182,47 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset, securityVi
                     
                     {/* Filters bar */}
                     <div className="flex flex-wrap gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-border/60">
-                        <button
+                        <Button
+                            variant={filter === "all" ? "default" : "ghost"}
+                            size="sm"
                             onClick={() => setFilter("all")}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                                filter === "all" 
-                                    ? "bg-card text-foreground shadow-sm" 
-                                    : "text-muted-foreground hover:text-foreground"
-                            }`}
+                            className="text-xs h-7 rounded-lg"
                         >
                             All ({totalQuestions})
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            size="sm"
                             onClick={() => setFilter("correct")}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                                filter === "correct" 
-                                    ? "bg-emerald-500 text-white shadow-sm" 
-                                    : "text-muted-foreground hover:text-emerald-500"
+                            className={`text-xs h-7 rounded-lg ${
+                                filter === "correct"
+                                    ? "bg-emerald-500 text-white hover:bg-emerald-500/90"
+                                    : "text-muted-foreground hover:text-emerald-500 bg-transparent hover:bg-emerald-500/10"
                             }`}
                         >
                             Correct ({correctCount})
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            size="sm"
                             onClick={() => setFilter("incorrect")}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                                filter === "incorrect" 
-                                    ? "bg-rose-500 text-white shadow-sm" 
-                                    : "text-muted-foreground hover:text-rose-500"
+                            className={`text-xs h-7 rounded-lg ${
+                                filter === "incorrect"
+                                    ? "bg-rose-500 text-white hover:bg-rose-500/90"
+                                    : "text-muted-foreground hover:text-rose-500 bg-transparent hover:bg-rose-500/10"
                             }`}
                         >
                             Incorrect ({incorrectCount})
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            size="sm"
                             onClick={() => setFilter("unattempted")}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                                filter === "unattempted" 
-                                    ? "bg-slate-500 text-white shadow-sm" 
-                                    : "text-muted-foreground hover:text-foreground"
+                            className={`text-xs h-7 rounded-lg ${
+                                filter === "unattempted"
+                                    ? "bg-slate-500 text-white hover:bg-slate-500/90"
+                                    : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted"
                             }`}
                         >
                             Unattempted ({unattemptedCount})
-                        </button>
+                        </Button>
                     </div>
                 </div>
 

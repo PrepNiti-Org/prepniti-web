@@ -110,29 +110,35 @@ export function TaskDetailsPanel({
         <div className="flex flex-col h-full bg-card border rounded-2xl shadow-sm p-5 overflow-hidden animate-in slide-in-from-right duration-200">
             <div className="flex items-center justify-between border-b pb-3 mb-4 shrink-0">
                 <h3 className="font-bold text-base text-foreground tracking-tight">Edit Target</h3>
-                {showCloseButton && (
-                    <button
+            {showCloseButton && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={onClose}
-                        className="text-muted-foreground hover:text-foreground cursor-pointer p-1 rounded-xl hover:bg-muted transition-colors"
+                        className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground"
                     >
                         <X className="h-4 w-4" />
-                    </button>
+                    </Button>
                 )}
             </div>
 
             <div className="flex bg-muted p-1 rounded-xl shrink-0 mb-4">
-                <button
+                <Button
+                    variant={activeTab === "details" ? "default" : "ghost"}
+                    size="sm"
                     onClick={() => setActiveTab("details")}
-                    className={`flex-1 text-xs font-semibold py-1.5 rounded-lg transition-all cursor-pointer ${activeTab === "details" ? "bg-background shadow-sm text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
+                    className="flex-1 text-xs font-semibold py-1.5 rounded-lg h-8"
                 >
                     Details
-                </button>
-                <button
+                </Button>
+                <Button
+                    variant={activeTab === "timer" ? "default" : "ghost"}
+                    size="sm"
                     onClick={() => setActiveTab("timer")}
-                    className={`flex-1 text-xs font-semibold py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === "timer" ? "bg-background shadow-sm text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
+                    className="flex-1 text-xs font-semibold py-1.5 rounded-lg h-8 gap-1.5"
                 >
-                    <Timer className="h-3.5 w-3.5" /> Timer & Logs
-                </button>
+                    <Timer className="h-3.5 w-3.5" /> Timer &amp; Logs
+                </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto pr-1 -mr-2 space-y-4">

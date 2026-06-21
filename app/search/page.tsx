@@ -56,14 +56,26 @@ function SearchResultsContent() {
 
   if (!query) {
     return (
-      <div className="text-center py-20 space-y-4">
-        <div className="p-4 bg-muted w-fit rounded-full mx-auto">
-          <Search className="h-10 w-10 text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-28 text-center">
+        <div className="relative mb-6">
+          <div className="h-20 w-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/5">
+            <Search className="h-9 w-9 text-primary" />
+          </div>
+          <div className="absolute -top-1 -right-1 h-7 w-7 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+          </div>
         </div>
-        <h2 className="text-xl font-bold">Search PrepNiti</h2>
-        <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          Type your keywords in the top search bar to locate strategy discussions or candidate reviews.
+        <h2 className="text-2xl font-black tracking-tight mb-2">Search PrepNiti</h2>
+        <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
+          Find strategy discussions, exam experiences, or specific topics. Use the search bar at the top to get started.
         </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          {["UPSC Interview", "SBI PO Experience", "Study strategy", "GATE 2024"].map(hint => (
+            <Badge key={hint} variant="outline" className="text-xs cursor-pointer hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors">
+              {hint}
+            </Badge>
+          ))}
+        </div>
       </div>
     );
   }
@@ -93,44 +105,62 @@ function SearchResultsContent() {
 
   return (
     <div className="space-y-6">
-      <div className="pb-4 border-b border-border/40">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Search className="h-5 w-5 text-primary" />
-          Search Results for &ldquo;{query}&rdquo;
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Found {totalResults} match{totalResults !== 1 && "es"} across the platform.
-        </p>
+      <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/8 via-primary/4 to-transparent p-6 shadow-sm">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-dot-pattern opacity-15 pointer-events-none" />
+        <div className="relative z-10 flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Search className="h-4 w-4 text-primary" />
+              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-primary/80">Search Results</p>
+            </div>
+            <h1 className="text-xl font-black tracking-tight text-foreground">
+              &ldquo;{query}&rdquo;
+            </h1>
+            <p className="text-xs text-muted-foreground mt-1">
+              Found <span className="font-bold text-foreground">{totalResults}</span> match{totalResults !== 1 && "es"} across discussions and experiences.
+            </p>
+          </div>
+          <Badge variant="secondary" className="text-sm font-black px-3 py-1.5 shrink-0">
+            {totalResults}
+          </Badge>
+        </div>
       </div>
 
-      <div className="flex gap-2 border-b border-border pb-px">
-        <button
+      <div className="flex gap-1 border-b border-border pb-px">
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setActiveTab("all")}
-          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all ${activeTab === "all"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+          className={`rounded-none border-b-2 -mb-px text-sm font-semibold transition-all h-9 ${activeTab === "all"
+            ? "border-primary text-primary"
+            : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
         >
           All ({totalResults})
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setActiveTab("posts")}
-          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all ${activeTab === "posts"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+          className={`rounded-none border-b-2 -mb-px text-sm font-semibold transition-all h-9 ${activeTab === "posts"
+            ? "border-primary text-primary"
+            : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
         >
           Discussions ({posts.length})
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setActiveTab("experiences")}
-          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all ${activeTab === "experiences"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+          className={`rounded-none border-b-2 -mb-px text-sm font-semibold transition-all h-9 ${activeTab === "experiences"
+            ? "border-primary text-primary"
+            : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
         >
           Experiences ({experiences.length})
-        </button>
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

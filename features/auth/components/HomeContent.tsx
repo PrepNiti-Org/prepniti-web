@@ -4,7 +4,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { FeedClient } from "@/features/experiences/components/FeedClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenSquare, ArrowRight, Lock } from "lucide-react";
+import { PenSquare, ArrowRight, Lock, Layers, ShieldCheck, BarChart3 } from "lucide-react";
 import Link from "next/link";
 
 function AuthedFeed() {
@@ -54,9 +54,9 @@ function AuthedFeed() {
 }
 
 const STATS = [
-    { value: "Focused", label: "No ads, no distractions" },
-    { value: "Anonymous", label: "No real name. No photo" },
-    { value: "All-in-one", label: "Mocks, tracker, community" },
+    { value: "Focused", label: "No ads, no distractions", icon: BarChart3, color: "text-primary" },
+    { value: "Anonymous", label: "No real name. No photo", icon: ShieldCheck, color: "text-emerald-500" },
+    { value: "All-in-one", label: "Mocks, tracker, community", icon: Layers, color: "text-violet-500" },
 ];
 
 const WHY = [
@@ -68,7 +68,7 @@ const WHY = [
     {
         num: "02",
         title: "Fully anonymous",
-        body: "No real name, no photo, no LinkedIn flex. Your username is the only identity here. Share doubts and struggles without worrying who's watching.",
+        body: "No real name, no photo, no LinkedIn flex. Your username is the only identity here. Share doubts and struggles without worrying who&apos;s watching.",
     },
     {
         num: "03",
@@ -87,11 +87,17 @@ function GuestLanding() {
     return (
         <div className="pt-10 space-y-20">
 
-            <div className="grid grid-cols-3 gap-6 max-w-lg">
+            <div className="grid grid-cols-3 gap-4 max-w-xl">
                 {STATS.map(s => (
-                    <div key={s.label}>
-                        <p className="text-2xl md:text-3xl font-black text-foreground tracking-tight">{s.value}</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{s.label}</p>
+                    <div
+                        key={s.label}
+                        className="flex flex-col gap-2 p-4 rounded-2xl border border-border/40 bg-card hover:border-primary/20 hover:bg-card/80 transition-colors"
+                    >
+                        <s.icon className={`h-5 w-5 ${s.color}`} />
+                        <div>
+                            <p className="text-lg md:text-xl font-black text-foreground tracking-tight">{s.value}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{s.label}</p>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -144,8 +150,8 @@ function GuestLanding() {
 
                 <div className="absolute inset-x-0 bottom-0 top-12 flex flex-col items-center justify-center gap-5 bg-gradient-to-t from-background via-background/90 to-transparent rounded-2xl px-6 text-center">
                     <div className="flex flex-col items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-muted/40 border border-border/40 flex items-center justify-center">
-                            <Lock className="h-4 w-4 text-muted-foreground/60" />
+                        <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-sm shadow-primary/10">
+                            <Lock className="h-5 w-5 text-primary" />
                         </div>
                         <p className="text-base font-bold text-foreground">
                             Create a free account to read experiences

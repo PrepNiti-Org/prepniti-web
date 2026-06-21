@@ -102,12 +102,14 @@ export function WelcomeDialog({ open, onOpenChange }: WelcomeDialogProps) {
                 </div>
 
                 <div className="text-center pt-2">
-                    <button
+                    <Button
+                        variant="link"
+                        size="sm"
                         onClick={() => onOpenChange(false)}
-                        className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                        className="text-xs text-muted-foreground hover:text-foreground h-auto p-0"
                     >
                         Dismiss for now
-                    </button>
+                    </Button>
                 </div>
 
             </DialogContent>

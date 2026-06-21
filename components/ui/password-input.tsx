@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Lock, Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -21,17 +22,20 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
           ref={ref}
           {...props}
         />
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3.5 text-muted-foreground/75 hover:text-foreground transition-colors focus:outline-none"
+          className="absolute right-2 h-7 w-7 text-muted-foreground/75 hover:text-foreground"
+          tabIndex={-1}
         >
           {showPassword ? (
             <EyeOff className="h-4 w-4" />
           ) : (
             <Eye className="h-4 w-4" />
           )}
-        </button>
+        </Button>
       </div>
     )
   }

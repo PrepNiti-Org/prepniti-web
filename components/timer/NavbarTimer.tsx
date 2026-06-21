@@ -133,13 +133,17 @@ export function NavbarTimer() {
         <>
             <Popover>
                 <PopoverTrigger asChild>
-                    <button className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-semibold tabular-nums transition-all border ${isRunning
-                        ? "bg-green-500/10 border-green-500/30 text-green-500 animate-pulse"
-                        : "bg-muted/50 border-border text-muted-foreground"
-                        }`}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`flex items-center gap-1.5 px-2.5 py-1 h-7 rounded-full text-xs font-mono font-semibold tabular-nums transition-all border ${isRunning
+                            ? "bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20 animate-pulse"
+                            : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"
+                            }`}
+                    >
                         <Timer className="h-3.5 w-3.5" />
                         {formatTime(elapsed)}
-                    </button>
+                    </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-3" align="end" sideOffset={12}>
                     <div className="space-y-3">
