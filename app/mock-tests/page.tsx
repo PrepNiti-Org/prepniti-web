@@ -37,7 +37,8 @@ export default function MockTestsPage() {
     const [defaultLanguage, setDefaultLanguage] = useState("English");
     const [selectedPaperDuration, setSelectedPaperDuration] = useState(120);
     const [mockInsights, setMockInsights] = useState<MockTestInsights | null>(null);
-    const submitRef = useRef<() => void>(() => { });
+    const [securityViolation, setSecurityViolation] = useState<string | null>(null);
+    const submitRef = useRef<(reason?: string) => void>(() => { });
     const { enterFullscreen, exitFullscreen } = useExamSecurity(step, submitRef);
 
     useEffect(() => {
@@ -114,7 +115,12 @@ export default function MockTestsPage() {
         }
     };
 
-    const handleSubmitExam = async () => {
+    const handleSubmitExam = async (reason?: string) => {
+        if (reason) {
+            setSecurityViolation(reason);
+        } else {
+            setSecurityViolation(null);
+        }
         await exitFullscreen();
 
         let correctCount = 0;
@@ -150,7 +156,7 @@ export default function MockTestsPage() {
     };
 
     useEffect(() => {
-        submitRef.current = handleSubmitExam;
+        submitRef.current = (reason?: string) => handleSubmitExam(reason);
     }, [blueprint, answers, selectedPaperId, papers]);
 
     const activePaper = papers.find(p => p.id === selectedPaperId);
@@ -310,7 +316,11 @@ export default function MockTestsPage() {
                             scoreInfo={scoreInfo}
                             blueprint={blueprint}
                             answers={answers}
-                            onReset={() => setStep("setup")}
+                            onReset={() => {
+                                setSecurityViolation(null);
+                                setStep("setup");
+                            }}
+                            securityViolation={securityViolation}
                         />
                     </motion.div>
                 )}

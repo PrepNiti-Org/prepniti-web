@@ -2,18 +2,19 @@ import React, { useState } from "react";
 import { ScoreInfo, ExamElement } from "./types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, BarChart3, AlertCircle, FileQuestion, Percent } from "lucide-react";
+import { CheckCircle, XCircle, BarChart3, AlertCircle, FileQuestion, Percent, ShieldAlert } from "lucide-react";
 
 interface ExamResultsProps {
     scoreInfo: ScoreInfo;
     blueprint: ExamElement[];
     answers: Record<string, string>;
     onReset: () => void;
+    securityViolation?: string | null;
 }
 
 type FilterType = "all" | "correct" | "incorrect" | "unattempted";
 
-export function ExamResults({ scoreInfo, blueprint, answers, onReset }: ExamResultsProps) {
+export function ExamResults({ scoreInfo, blueprint, answers, onReset, securityViolation }: ExamResultsProps) {
     const [filter, setFilter] = useState<FilterType>("all");
     const flatQuestions = blueprint.flatMap(el => el.questions);
 
@@ -83,6 +84,25 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset }: ExamResu
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto font-sans">
+            {/* Security Violation Alert Banner */}
+            {securityViolation && (
+                <div className="flex items-start gap-4 rounded-xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/30 px-5 py-4 shadow-lg shadow-rose-500/10 animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="shrink-0 mt-0.5">
+                        <div className="h-10 w-10 rounded-full bg-rose-500 flex items-center justify-center shadow-md shadow-rose-500/30">
+                            <ShieldAlert className="h-5 w-5 text-white" />
+                        </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wide mb-1">⚠ Security Violation — Exam Auto-Submitted</p>
+                        <p className="text-sm text-rose-700 dark:text-rose-300 leading-relaxed">
+                            Your exam was automatically submitted because: <strong>{securityViolation}</strong>. Exiting fullscreen mode during an exam is a security violation and is strictly prohibited.
+                        </p>
+                        <p className="text-xs text-rose-500 dark:text-rose-400/70 mt-2 font-medium">
+                            This incident has been recorded. All unanswered questions at the time of submission are counted as skipped.
+                        </p>
+                    </div>
+                </div>
+            )}
             {/* Top Overview Scorecard */}
             <Card className="border-primary/10 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-950/30 overflow-hidden shadow-md">
                 <CardHeader className="text-center pb-2">

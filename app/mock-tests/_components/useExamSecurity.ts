@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
-export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObject<() => void>) {
+export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObject<(reason?: string) => void>) {
     const isExitingIntentionally = useRef(false);
 
     const enterFullscreen = async () => {
@@ -48,8 +48,10 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
         const handleSecurityViolation = (reason: string) => {
             if (isExitingIntentionally.current) return;
             isExitingIntentionally.current = true;
-            toast.error(`Security Violation: ${reason}. Exam submitted automatically.`);
-            onSubmitRef.current();
+            toast.error(`Security Violation: ${reason}. Exam has been submitted automatically.`, {
+                duration: 6000,
+            });
+            onSubmitRef.current(reason);
         };
 
         const handleFullscreenChange = () => {
