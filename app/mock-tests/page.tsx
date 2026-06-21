@@ -20,6 +20,7 @@ import { ExamResults } from "./_components/ExamResults";
 export default function MockTestsPage() {
     const { isLoggedIn, user, isHydrated } = useAuth();
     const [step, setStep] = useState<"setup" | "instructions" | "testing" | "result">("setup");
+    const [useRealisticTheme, setUseRealisticTheme] = useState(true);
     const [papers, setPapers] = useState<Paper[]>([]);
     const [loadingPapers, setLoadingPapers] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -277,6 +278,8 @@ export default function MockTestsPage() {
                         onCancel={() => setStep("setup")}
                         defaultLanguage={defaultLanguage}
                         setDefaultLanguage={setDefaultLanguage}
+                        useRealisticTheme={useRealisticTheme}
+                        setUseRealisticTheme={setUseRealisticTheme}
                     />
                 )}
 
@@ -292,6 +295,7 @@ export default function MockTestsPage() {
                         questionStatuses={questionStatuses}
                         setQuestionStatuses={setQuestionStatuses}
                         onSubmit={handleSubmitExam}
+                        useRealisticTheme={useRealisticTheme}
                     />
                 )}
 

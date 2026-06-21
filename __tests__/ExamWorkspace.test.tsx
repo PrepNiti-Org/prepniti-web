@@ -109,6 +109,8 @@ describe("ExamWorkspace Component", () => {
 
     // Click option choice
     fireEvent.click(screen.getByText("C6H6"));
+    // Click Save & Next to commit the draft answer
+    fireEvent.click(screen.getByRole("button", { name: /Save & Next/i }));
     expect(setAnswers).toHaveBeenCalled();
   });
 
@@ -140,5 +142,79 @@ describe("ExamWorkspace Component", () => {
 
     expect(imageSources).toContain("http://localhost:8080/uploads/passage_diagram.png");
     expect(imageSources).toContain("http://localhost:8080/uploads/question_diagram.png");
+  });
+
+  it("should show confirmation modal when clicking submit and trigger onSubmit only upon confirmation", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ExamWorkspace
+        selectedPaper={mockPaper}
+        timeRemaining={7200}
+        blueprint={mockBlueprint}
+        answers={{}}
+        setAnswers={vi.fn()}
+        currentQuestionIndex={0}
+        setCurrentQuestionIndex={vi.fn()}
+        questionStatuses={{ "q-1": "not_visited", "q-2": "not_visited" }}
+        setQuestionStatuses={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+
+    // Initial state: onSubmit has not been called, and warning is not in document
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.queryByText("Exam Submission Confirmation")).not.toBeInTheDocument();
+
+    // Click "Submit Exam" button
+    fireEvent.click(screen.getByRole("button", { name: /Submit Exam/i }));
+
+    // Modal should be visible
+    expect(screen.getByText("Exam Submission Confirmation")).toBeInTheDocument();
+    expect(screen.getByText(/Are you sure you want to submit the exam now/i)).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    // Click "No, Return to Test" to close modal
+    fireEvent.click(screen.getByRole("button", { name: /No, Return to Test/i }));
+    expect(screen.queryByText("Exam Submission Confirmation")).not.toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    // Click "Submit Exam" again
+    fireEvent.click(screen.getByRole("button", { name: /Submit Exam/i }));
+    expect(screen.getByText("Exam Submission Confirmation")).toBeInTheDocument();
+
+    // Click "Yes, Submit Exam" to submit
+    fireEvent.click(screen.getByRole("button", { name: /Yes, Submit Exam/i }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Exam Submission Confirmation")).not.toBeInTheDocument();
+  });
+
+  it("should render and work correctly under modern theme mode (useRealisticTheme={false})", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ExamWorkspace
+        selectedPaper={mockPaper}
+        timeRemaining={7200}
+        blueprint={mockBlueprint}
+        answers={{}}
+        setAnswers={vi.fn()}
+        currentQuestionIndex={0}
+        setCurrentQuestionIndex={vi.fn()}
+        questionStatuses={{ "q-1": "not_visited" }}
+        setQuestionStatuses={vi.fn()}
+        onSubmit={onSubmit}
+        useRealisticTheme={false}
+      />
+    );
+
+    // Verify option selector is rendered
+    expect(screen.getByText("C6H6")).toBeInTheDocument();
+
+    // Verify submit button is rendered
+    const submitBtn = screen.getByRole("button", { name: /Submit Exam/i });
+    expect(submitBtn).toBeInTheDocument();
+
+    // Click submit button to trigger modal
+    fireEvent.click(submitBtn);
+    expect(screen.getByText("Exam Submission Confirmation")).toBeInTheDocument();
   });
 });

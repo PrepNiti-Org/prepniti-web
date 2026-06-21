@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Paper, ExamElement, Question } from "./types";
 import { getExamName } from "./utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SubmitConfirmationModal } from "./SubmitConfirmationModal";
+import { QuestionPalette } from "./QuestionPalette";
 
 interface ExamWorkspaceProps {
     selectedPaper: Paper | undefined;
@@ -16,6 +18,7 @@ interface ExamWorkspaceProps {
     questionStatuses: Record<string, "not_visited" | "not_answered" | "answered" | "marked_review" | "answered_marked_review">;
     setQuestionStatuses: React.Dispatch<React.SetStateAction<Record<string, "not_visited" | "not_answered" | "answered" | "marked_review" | "answered_marked_review">>>;
     onSubmit: () => void;
+    useRealisticTheme?: boolean;
 }
 
 export function ExamWorkspace({
@@ -28,11 +31,41 @@ export function ExamWorkspace({
     setCurrentQuestionIndex,
     questionStatuses,
     setQuestionStatuses,
-    onSubmit
+    onSubmit,
+    useRealisticTheme = true
 }: ExamWorkspaceProps) {
     const flatQuestions = blueprint.flatMap(el => el.questions);
     const activeQuestion = flatQuestions[currentQuestionIndex];
     const activeElement = blueprint.find(el => el.questions.some(q => q.id === activeQuestion?.id));
+
+    // Local draft state for uncommitted options
+    const [draftAnswers, setDraftAnswers] = useState<Record<string, string>>({});
+    const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+    const prevQuestionIndexRef = useRef(currentQuestionIndex);
+
+    // Keep draft state in sync when overall committed answers load/change
+    useEffect(() => {
+        setDraftAnswers(answers);
+    }, [answers]);
+
+    // Discard draft answers for previous question if user navigated away without saving/reviewing
+    useEffect(() => {
+        const prevIndex = prevQuestionIndexRef.current;
+        if (prevIndex !== currentQuestionIndex && flatQuestions[prevIndex]) {
+            const prevQ = flatQuestions[prevIndex];
+            setDraftAnswers(prev => {
+                const next = { ...prev };
+                const committedVal = answers[prevQ.id];
+                if (committedVal) {
+                    next[prevQ.id] = committedVal;
+                } else {
+                    delete next[prevQ.id];
+                }
+                return next;
+            });
+        }
+        prevQuestionIndexRef.current = currentQuestionIndex;
+    }, [currentQuestionIndex, answers, flatQuestions]);
 
     const countStatus = (status: string) => {
         return flatQuestions.filter(q => questionStatuses[q.id] === status).length;
@@ -51,16 +84,26 @@ export function ExamWorkspace({
     }, [currentQuestionIndex, flatQuestions.length, activeQuestion, setQuestionStatuses]);
 
     const handleSelectOption = (qId: string, optionText: string) => {
-        setAnswers(prev => ({ ...prev, [qId]: optionText }));
+        setDraftAnswers(prev => ({ ...prev, [qId]: optionText }));
     };
 
     const handleSaveAndNext = () => {
         if (!activeQuestion) return;
 
-        const hasAnswer = !!answers[activeQuestion.id];
+        const draftVal = draftAnswers[activeQuestion.id];
+        if (draftVal) {
+            setAnswers(prev => ({ ...prev, [activeQuestion.id]: draftVal }));
+        } else {
+            setAnswers(prev => {
+                const next = { ...prev };
+                delete next[activeQuestion.id];
+                return next;
+            });
+        }
+
         setQuestionStatuses(prev => ({
             ...prev,
-            [activeQuestion.id]: hasAnswer ? "answered" : "not_answered"
+            [activeQuestion.id]: draftVal ? "answered" : "not_answered"
         }));
 
         if (currentQuestionIndex < flatQuestions.length - 1) {
@@ -73,10 +116,20 @@ export function ExamWorkspace({
     const handleMarkForReviewAndNext = () => {
         if (!activeQuestion) return;
 
-        const hasAnswer = !!answers[activeQuestion.id];
+        const draftVal = draftAnswers[activeQuestion.id];
+        if (draftVal) {
+            setAnswers(prev => ({ ...prev, [activeQuestion.id]: draftVal }));
+        } else {
+            setAnswers(prev => {
+                const next = { ...prev };
+                delete next[activeQuestion.id];
+                return next;
+            });
+        }
+
         setQuestionStatuses(prev => ({
             ...prev,
-            [activeQuestion.id]: hasAnswer ? "answered_marked_review" : "marked_review"
+            [activeQuestion.id]: draftVal ? "answered_marked_review" : "marked_review"
         }));
 
         if (currentQuestionIndex < flatQuestions.length - 1) {
@@ -89,6 +142,11 @@ export function ExamWorkspace({
     const handleClearResponse = () => {
         if (!activeQuestion) return;
 
+        setDraftAnswers(prev => {
+            const next = { ...prev };
+            delete next[activeQuestion.id];
+            return next;
+        });
         setAnswers(prev => {
             const next = { ...prev };
             delete next[activeQuestion.id];
@@ -128,7 +186,7 @@ export function ExamWorkspace({
                 </div>
 
                 {q.image_base64 ? (
-                    <div className="border border-border rounded-lg p-2 bg-card max-w-xl">
+                    <div className={`border border-border p-2 bg-card max-w-xl ${useRealisticTheme ? "rounded-lg" : "rounded-2xl shadow-sm"}`}>
                         <img 
                             src={`data:image/png;base64,${q.image_base64}`} 
                             alt="Question illustration" 
@@ -136,7 +194,7 @@ export function ExamWorkspace({
                         />
                     </div>
                 ) : q.image_url ? (
-                    <div className="border border-border rounded-lg p-2 bg-card max-w-xl">
+                    <div className={`border border-border p-2 bg-card max-w-xl ${useRealisticTheme ? "rounded-lg" : "rounded-2xl shadow-sm"}`}>
                         <img 
                             src={q.image_url.startsWith("http") ? q.image_url : `http://localhost:8080${q.image_url}`} 
                             alt="Question illustration" 
@@ -146,35 +204,40 @@ export function ExamWorkspace({
                 ) : null}
 
                 {q.options && q.options.length > 0 ? (
-                    <div className="flex flex-col gap-3 max-w-3xl pt-2">
+                    <div className="flex flex-col gap-2.5 max-w-3xl pt-2 font-sans text-sm text-foreground">
                         {q.options.map((opt) => {
-                            const isSelected = answers[q.id] === opt.option_text;
+                            const isSelected = draftAnswers[q.id] === opt.option_text;
+                            const optionStyle = useRealisticTheme
+                                ? "flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 rounded-md transition-colors border border-transparent"
+                                : `flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-900/60 rounded-xl transition-all border ${
+                                    isSelected 
+                                        ? "bg-primary/5 border-primary/30 dark:bg-primary/10 shadow-sm" 
+                                        : "bg-background border-border/50"
+                                }`;
                             return (
-                                <button
+                                <label
                                     key={opt.id}
                                     onClick={() => handleSelectOption(q.id, opt.option_text)}
-                                    className={`px-5 py-4 rounded-xl text-left text-sm font-medium border flex items-center gap-3 transition-all duration-155 ${
-                                        isSelected 
-                                            ? "bg-primary/10 border-primary text-primary shadow-sm" 
-                                            : "border-border hover:bg-slate-100 hover:border-slate-300 dark:hover:bg-slate-900 dark:hover:border-slate-800 text-muted-foreground hover:text-foreground"
-                                    }`}
+                                    className={optionStyle}
                                 >
-                                    <span className={`h-5 w-5 rounded-full border flex items-center justify-center shrink-0 ${
-                                        isSelected ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40"
-                                    }`}>
-                                        {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-white" />}
-                                    </span>
-                                    <span className="font-sans">{opt.option_text}</span>
-                                </button>
+                                    <input
+                                        type="radio"
+                                        name={`question-${q.id}`}
+                                        checked={isSelected}
+                                        readOnly
+                                        className="h-4.5 w-4.5 text-primary focus:ring-0 cursor-pointer"
+                                    />
+                                    <span>{opt.option_text}</span>
+                                </label>
                             );
                         })}
                     </div>
                 ) : (
                     <div className="pt-2 max-w-3xl">
                         <textarea
-                            className="w-full bg-background border border-input rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary min-h-[150px] font-sans"
+                            className={`w-full bg-background border border-input p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary min-h-[150px] font-sans ${useRealisticTheme ? "rounded-md" : "rounded-xl"}`}
                             placeholder="Type your detailed answer response details here..."
-                            value={answers[q.id] || ""}
+                            value={draftAnswers[q.id] || ""}
                             onChange={e => handleSelectOption(q.id, e.target.value)}
                         />
                     </div>
@@ -186,19 +249,66 @@ export function ExamWorkspace({
     const examName = getExamName(selectedPaper);
     const headerTitle = examName === "Online" ? "Online Examination" : `${examName} Online Examination`;
 
+    const useRealistic = useRealisticTheme;
+
+    // Style helper values
+    const headerClass = useRealistic
+        ? "bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0"
+        : "bg-background/90 text-foreground px-6 py-4 flex items-center justify-between border-b border-border backdrop-blur-md shrink-0";
+
+    const headerDividerClass = useRealistic ? "text-slate-600" : "text-border";
+    const headerPaperClass = useRealistic ? "text-slate-300" : "text-muted-foreground";
+
+    const timeRemainingClass = useRealistic
+        ? `text-xl font-mono font-bold ${timeRemaining < 300 ? "text-red-500 animate-pulse" : "text-emerald-400"}`
+        : `text-xl font-mono font-bold ${timeRemaining < 300 ? "text-red-500 animate-pulse" : "text-primary"}`;
+
+    const timeRemainingLabelClass = useRealistic
+        ? "text-xs text-slate-400 uppercase tracking-wider font-semibold font-sans"
+        : "text-xs text-muted-foreground uppercase tracking-wider font-semibold font-sans";
+
+    const sidebarClass = useRealistic
+        ? "xl:col-span-1 bg-card flex flex-col justify-between p-6 overflow-hidden h-full"
+        : "xl:col-span-1 bg-card border-l border-border flex flex-col justify-between p-6 overflow-hidden h-full shadow-sm";
+
+    const leftBarHeaderClass = useRealistic
+        ? "bg-slate-100 dark:bg-slate-900 border-b border-border px-6 py-3 flex items-center justify-between shrink-0"
+        : "bg-card border-b border-border/60 px-6 py-3 flex items-center justify-between shrink-0";
+
+    // Bottom Action Buttons
+    const btnMarkReviewClass = useRealistic
+        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans"
+        : "px-4 py-2.5 text-xs font-semibold bg-violet-500/10 hover:bg-violet-500/15 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 border border-violet-500/30 rounded-xl transition-all select-none font-sans";
+
+    const btnClearClass = useRealistic
+        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans"
+        : "px-4 py-2.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-muted-foreground border border-border rounded-xl transition-all select-none font-sans";
+
+    const btnPrevClass = useRealistic
+        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-slate-800 transition-colors select-none font-sans"
+        : "px-4 py-2.5 text-xs font-semibold bg-background hover:bg-muted text-foreground border border-input rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all select-none font-sans";
+
+    const btnSaveClass = useRealistic
+        ? "px-5 py-2 text-xs font-bold bg-[#44a037] hover:bg-[#3c8e31] text-white border border-transparent rounded transition-colors select-none font-sans shadow-sm"
+        : "px-5 py-2.5 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground border border-transparent rounded-xl transition-all select-none font-sans shadow-sm shadow-primary/20 hover:shadow-md flex items-center gap-1";
+
+    const btnSubmitClass = useRealistic
+        ? "w-full h-11 font-bold text-sm tracking-wide shadow-md font-sans"
+        : "w-full h-11 font-bold text-sm tracking-wide shadow-lg transition-all rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground";
+
     return (
         <div className="fixed inset-0 z-50 bg-background overflow-hidden flex flex-col select-none" style={{ userSelect: "none" }}>
             {/* CBT Header */}
-            <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0">
+            <div className={headerClass}>
                 <div className="flex items-center gap-4">
                     <span className="font-bold text-lg tracking-wide uppercase font-sans">{headerTitle}</span>
-                    <span className="text-slate-600">|</span>
-                    <span className="text-sm text-slate-300 font-semibold font-sans">{selectedPaper?.exam_name || selectedPaper?.filename.replace(/\.[^/.]+$/, "")}</span>
+                    <span className={headerDividerClass}>|</span>
+                    <span className={`font-semibold font-sans ${headerPaperClass}`}>{selectedPaper?.exam_name || selectedPaper?.filename.replace(/\.[^/.]+$/, "")}</span>
                 </div>
                 <div className="flex items-center gap-6">
                     <div className="text-right">
-                        <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold font-sans">Time Remaining</div>
-                        <div className={`text-xl font-mono font-bold ${timeRemaining < 300 ? "text-red-500 animate-pulse" : "text-emerald-400"}`}>
+                        <div className={timeRemainingLabelClass}>Time Remaining</div>
+                        <div className={timeRemainingClass}>
                             {formatTime(timeRemaining)}
                         </div>
                     </div>
@@ -206,11 +316,11 @@ export function ExamWorkspace({
             </div>
 
             {/* CBT Main Grid Workspace */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 flex-1 overflow-hidden bg-background">
+            <div className="grid grid-cols-1 xl:grid-cols-4 flex-1 overflow-y-auto xl:overflow-hidden bg-background">
                 {/* Left area: Question Content & Action Buttons */}
-                <div className="xl:col-span-3 flex flex-col justify-between border-r border-border bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden">
+                <div className="xl:col-span-3 flex flex-col justify-between border-b xl:border-b-0 xl:border-r border-border bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden">
                     {/* Top question label bar */}
-                    <div className="bg-slate-100 dark:bg-slate-900 border-b border-border px-6 py-3 flex items-center justify-between shrink-0">
+                    <div className={leftBarHeaderClass}>
                         <span className="font-bold text-sm text-muted-foreground uppercase tracking-wider font-sans">
                             Question No. {currentQuestionIndex + 1}
                         </span>
@@ -232,20 +342,20 @@ export function ExamWorkspace({
                         {activeElement?.is_passage ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full min-h-[400px]">
                                 {/* Passage Pane (Left) */}
-                                <div className="border border-border rounded-lg bg-card p-5 overflow-y-auto max-h-[500px]">
+                                <div className={`border border-border bg-card p-5 overflow-y-auto max-h-[500px] ${useRealistic ? "rounded-lg" : "rounded-2xl shadow-sm"}`}>
                                     <div className="text-xs font-bold text-primary uppercase tracking-wider mb-2 font-sans">Passage Reference</div>
                                     <div className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground font-sans">{activeElement.passage_text}</div>
                                     {activeElement.passage_image ? (
                                         <img 
                                             src={`data:image/png;base64,${activeElement.passage_image}`} 
                                             alt="Passage diagram" 
-                                            className="max-h-60 object-contain rounded-md border mt-4 bg-background" 
+                                            className={`max-h-60 object-contain border mt-4 bg-background ${useRealistic ? "rounded-md" : "rounded-xl"}`} 
                                         />
                                     ) : activeElement.passage_image_url ? (
                                         <img 
                                             src={activeElement.passage_image_url.startsWith("http") ? activeElement.passage_image_url : `http://localhost:8080${activeElement.passage_image_url}`} 
                                             alt="Passage diagram" 
-                                            className="max-h-60 object-contain rounded-md border mt-4 bg-background" 
+                                            className={`max-h-60 object-contain border mt-4 bg-background ${useRealistic ? "rounded-md" : "rounded-xl"}`} 
                                         />
                                     ) : null}
                                 </div>
@@ -265,139 +375,105 @@ export function ExamWorkspace({
                     {/* Bottom CBT Action Bar */}
                     <div className="bg-slate-100 dark:bg-slate-900 border-t border-border px-6 py-4 flex flex-wrap gap-3 items-center justify-between shrink-0">
                         <div className="flex gap-2">
-                            <Button 
-                                variant="outline" 
+                            <button
                                 onClick={handleMarkForReviewAndNext}
-                                className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:border-indigo-900 dark:text-indigo-400 font-sans"
+                                className={btnMarkReviewClass}
                             >
                                 Mark for Review & Next
-                            </Button>
-                            <Button 
-                                variant="ghost" 
+                            </button>
+                            <button
                                 onClick={handleClearResponse}
-                                className="hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20 font-sans"
+                                className={btnClearClass}
                             >
                                 Clear Response
-                            </Button>
+                            </button>
                         </div>
                         <div className="flex gap-2">
-                            <Button 
-                                variant="outline" 
-                                onClick={handlePrevious} 
+                            <button
+                                onClick={handlePrevious}
                                 disabled={currentQuestionIndex === 0}
-                                className="font-sans"
+                                className={btnPrevClass}
                             >
                                 Previous
-                            </Button>
-                            <Button 
-                                variant="default" 
+                            </button>
+                            <button
                                 onClick={handleSaveAndNext}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold font-sans"
+                                className={btnSaveClass}
                             >
                                 Save & Next
-                            </Button>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Right area: Candidate info, Legend, Palette, and Submit */}
-                <div className="xl:col-span-1 bg-card flex flex-col justify-between p-6 overflow-y-auto">
-                    <div>
+                <div className={sidebarClass}>
+                    <div className="flex flex-col flex-1 overflow-hidden">
                         {/* Candidate Profile block */}
-                        <div className="flex items-center gap-3 border-b border-border pb-4 mb-4">
-                            <div className="h-14 w-14 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center border border-border text-slate-400 font-bold text-[10px] uppercase text-center leading-none p-1 font-sans">
-                                Dummy Photo
-                            </div>
+                        <div className="flex items-center gap-3 border-b border-border pb-4 mb-4 shrink-0">
+                            {useRealistic ? (
+                                <div className="h-14 w-14 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center border border-border text-slate-400 font-bold text-[10px] uppercase text-center leading-none p-1 font-sans">
+                                    Dummy Photo
+                                </div>
+                            ) : (
+                                <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-primary/10 to-primary/20 flex items-center justify-center border border-primary/20 text-primary font-bold text-sm uppercase shadow-inner shrink-0 font-sans animate-in fade-in duration-200">
+                                    AC
+                                </div>
+                            )}
                             <div>
                                 <div className="font-bold text-sm text-foreground font-sans">Aspirant Candidate</div>
                                 <div className="text-xs text-muted-foreground font-mono font-semibold">ID: PREP-MOCK-2026</div>
                             </div>
                         </div>
 
-                        {/* Palette Legend */}
-                        <div className="grid grid-cols-2 gap-2 text-xs mb-4">
-                            <div className="flex items-center gap-2">
-                                <span className="h-6 w-8 rounded flex items-center justify-center bg-emerald-500 text-white font-bold text-xs font-mono">
-                                    {countStatus("answered")}
-                                </span>
-                                <span className="text-muted-foreground font-sans">Answered</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="h-6 w-8 rounded flex items-center justify-center bg-red-500 text-white font-bold text-xs font-mono">
-                                    {countStatus("not_answered")}
-                                </span>
-                                <span className="text-muted-foreground font-sans">Not Answered</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="h-6 w-8 rounded flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-foreground font-bold text-xs border border-border font-mono">
-                                    {countStatus("not_visited")}
-                                </span>
-                                <span className="text-muted-foreground font-sans">Not Visited</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="h-6 w-8 rounded flex items-center justify-center bg-indigo-500 text-white font-bold text-xs font-mono">
-                                    {countStatus("marked_review")}
-                                </span>
-                                <span className="text-muted-foreground font-sans">Marked for Review</span>
-                            </div>
-                            <div className="flex items-center gap-2 col-span-2">
-                                <span className="h-6 w-8 rounded-full flex items-center justify-center bg-indigo-500 text-white font-bold text-xs relative after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-2 after:w-2 after:bg-emerald-500 after:rounded-full after:border after:border-white font-mono">
-                                    {countStatus("answered_marked_review")}
-                                </span>
-                                <span className="text-muted-foreground font-sans">Answered & Marked for Review</span>
-                            </div>
-                        </div>
-
-                        {/* Question Palette Header */}
-                        <div className="bg-slate-100 dark:bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 rounded border border-border uppercase tracking-wider mb-3 font-sans">
-                            Question Palette
-                        </div>
-
-                        {/* Question Grid list */}
-                        <div className="max-h-[240px] overflow-y-auto pr-1">
-                            <div className="grid grid-cols-5 gap-2">
-                                {flatQuestions.map((q, idx) => {
-                                    const status = questionStatuses[q.id] || "not_visited";
-                                    const isActive = idx === currentQuestionIndex;
-                                    
-                                    let statusStyle = "bg-slate-200 dark:bg-slate-800 text-foreground border-border";
-                                    if (status === "answered") {
-                                        statusStyle = "bg-emerald-500 text-white border-emerald-500";
-                                    } else if (status === "not_answered") {
-                                        statusStyle = "bg-red-500 text-white border-red-500";
-                                    } else if (status === "marked_review") {
-                                        statusStyle = "bg-indigo-500 text-white border-indigo-500 rounded-full";
-                                    } else if (status === "answered_marked_review") {
-                                        statusStyle = "bg-indigo-500 text-white border-indigo-500 rounded-full relative after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-2 after:w-2 after:bg-emerald-500 after:rounded-full after:border after:border-white";
-                                    }
-
-                                    return (
-                                        <button
-                                            key={q.id}
-                                            onClick={() => handleJumpToQuestion(idx)}
-                                            className={`h-9 w-full flex items-center justify-center text-xs font-bold border transition-all duration-200 rounded ${statusStyle} ${
-                                                isActive ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105" : "hover:opacity-90"
-                                            }`}
-                                        >
-                                            {idx + 1}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        {/* Extracted Question Palette grid and legends */}
+                        <QuestionPalette
+                            questionsCount={flatQuestions.length}
+                            currentQuestionIndex={currentQuestionIndex}
+                            onJumpToQuestion={handleJumpToQuestion}
+                            questionStatuses={questionStatuses}
+                            questionIds={flatQuestions.map(q => q.id)}
+                            useRealisticTheme={useRealistic}
+                            counts={{
+                                notVisited: countStatus("not_visited"),
+                                notAnswered: countStatus("not_answered"),
+                                answered: countStatus("answered"),
+                                markedReview: countStatus("marked_review"),
+                                answeredMarkedReview: countStatus("answered_marked_review")
+                            }}
+                        />
                     </div>
 
-                    <div className="border-t border-border pt-4 mt-6">
+                    <div className="border-t border-border pt-4 mt-6 shrink-0">
                         <Button 
-                            onClick={onSubmit} 
-                            variant="destructive"
-                            className="w-full h-11 font-bold text-sm tracking-wide shadow-md font-sans"
+                            onClick={() => setShowSubmitConfirm(true)} 
+                            variant={useRealistic ? "destructive" : "default"}
+                            className={btnSubmitClass}
                         >
                             Submit Exam
                         </Button>
                     </div>
                 </div>
             </div>
+
+            {/* Extracted Submit Confirmation Modal */}
+            <SubmitConfirmationModal
+                isOpen={showSubmitConfirm}
+                onClose={() => setShowSubmitConfirm(false)}
+                onSubmit={() => {
+                    setShowSubmitConfirm(false);
+                    onSubmit();
+                }}
+                useRealisticTheme={useRealistic}
+                counts={{
+                    notVisited: countStatus("not_visited"),
+                    notAnswered: countStatus("not_answered"),
+                    answered: countStatus("answered"),
+                    markedReview: countStatus("marked_review"),
+                    answeredMarkedReview: countStatus("answered_marked_review"),
+                    total: flatQuestions.length
+                }}
+            />
         </div>
     );
 }

@@ -12,6 +12,8 @@ interface ExamInstructionsProps {
     onCancel: () => void;
     defaultLanguage: string;
     setDefaultLanguage: (lang: string) => void;
+    useRealisticTheme: boolean;
+    setUseRealisticTheme: (val: boolean) => void;
 }
 
 export function ExamInstructions({
@@ -20,10 +22,32 @@ export function ExamInstructions({
     onStartExam,
     onCancel,
     defaultLanguage,
-    setDefaultLanguage
+    setDefaultLanguage,
+    useRealisticTheme,
+    setUseRealisticTheme
 }: ExamInstructionsProps) {
     const [instructionStep, setInstructionStep] = useState<1 | 2>(1);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+    const notVisitedClass = useRealisticTheme 
+        ? "h-7 w-8 rounded-sm flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-foreground font-bold text-xs border border-border shrink-0 font-mono"
+        : "h-7 w-7 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-slate-800/80 text-muted-foreground font-bold text-xs border border-border/80 shrink-0 font-mono";
+
+    const notAnsweredClass = useRealisticTheme
+        ? "h-7 w-8 pt-0.5 flex items-center justify-center bg-red-500 text-white font-bold text-xs shrink-0 font-mono"
+        : "h-7 w-7 rounded-lg flex items-center justify-center bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 font-bold text-xs border border-rose-500/30 shrink-0 font-mono";
+
+    const answeredClass = useRealisticTheme
+        ? "h-7 w-8 pb-0.5 flex items-center justify-center bg-emerald-500 text-white font-bold text-xs shrink-0 font-mono"
+        : "h-7 w-7 rounded-lg flex items-center justify-center bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 font-bold text-xs border border-emerald-500/30 shrink-0 font-mono";
+
+    const markedReviewClass = useRealisticTheme
+        ? "h-7 w-8 rounded-full flex items-center justify-center bg-indigo-500 text-white font-bold text-xs shrink-0 font-mono"
+        : "h-7 w-7 rounded-lg flex items-center justify-center bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 font-bold text-xs border border-violet-500/30 shrink-0 font-mono";
+
+    const answeredMarkedReviewClass = useRealisticTheme
+        ? "h-7 w-8 rounded-full flex items-center justify-center bg-indigo-500 text-white font-bold text-xs relative after:content-[''] after:absolute after:bottom-[1.5px] after:right-[1.5px] after:h-2.5 after:w-2.5 after:bg-emerald-500 after:rounded-full after:border after:border-white shrink-0 font-mono"
+        : "h-7 w-7 rounded-lg flex items-center justify-center bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 font-bold text-xs border border-indigo-500/30 shrink-0 font-mono relative after:content-[''] after:absolute after:top-0 after:right-0 after:h-2 after:w-2 after:bg-emerald-500 after:rounded-full";
 
     const examName = getExamName(selectedPaper);
     const headerTitle = examName === "Online" ? "Online Examination System" : `${examName} Examination System`;
@@ -42,9 +66,9 @@ export function ExamInstructions({
             </div>
 
             {/* Instructions Body */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 flex-1 overflow-hidden bg-slate-50 dark:bg-slate-950/20">
+            <div className="grid grid-cols-1 lg:grid-cols-4 flex-1 overflow-y-auto lg:overflow-hidden bg-slate-50 dark:bg-slate-950/20">
                 {/* Left Pane (Scrollable instructions details) */}
-                <div className="lg:col-span-3 flex flex-col justify-between border-r border-border bg-card overflow-hidden">
+                <div className="lg:col-span-3 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border bg-card overflow-hidden">
                     <div className="bg-slate-100 dark:bg-slate-900/60 border-b border-border px-6 py-3 flex items-center justify-between shrink-0">
                         <h2 className="font-bold text-sm text-foreground uppercase tracking-wider font-sans">
                             {instructionStep === 1 ? "General Instructions" : "Other Important Instructions & Candidate Declaration"}
@@ -70,35 +94,45 @@ export function ExamInstructions({
                                     <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Question Status Legend:</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="flex items-start gap-3">
-                                            <span className="h-6 w-8 rounded flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-foreground font-bold text-xs border border-border shrink-0">1</span>
+                                            <span className={notVisitedClass}>1</span>
                                             <div>
                                                 <span className="font-bold text-foreground block text-xs">Not Visited</span>
                                                 <span className="text-xs text-muted-foreground">You have not visited the question yet.</span>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-3">
-                                            <span className="h-6 w-8 rounded flex items-center justify-center bg-red-500 text-white font-bold text-xs shrink-0 font-mono">2</span>
+                                            <span 
+                                                className={notAnsweredClass}
+                                                style={useRealisticTheme ? { clipPath: "polygon(50% 0%, 100% 28%, 100% 100%, 0% 100%, 0% 28%)" } : undefined}
+                                            >
+                                                2
+                                            </span>
                                             <div>
                                                 <span className="font-bold text-foreground block text-xs">Not Answered</span>
                                                 <span className="text-xs text-muted-foreground">You have visited the question but have not answered it.</span>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-3">
-                                            <span className="h-6 w-8 rounded flex items-center justify-center bg-emerald-500 text-white font-bold text-xs shrink-0 font-mono">3</span>
+                                            <span 
+                                                className={answeredClass}
+                                                style={useRealisticTheme ? { clipPath: "polygon(0% 0%, 100% 0%, 100% 72%, 50% 100%, 0% 72%)" } : undefined}
+                                            >
+                                                3
+                                            </span>
                                             <div>
                                                 <span className="font-bold text-foreground block text-xs">Answered</span>
                                                 <span className="text-xs text-muted-foreground">You have answered the question.</span>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-3">
-                                            <span className="h-6 w-8 rounded-full flex items-center justify-center bg-indigo-500 text-white font-bold text-xs shrink-0 font-mono">4</span>
+                                            <span className={markedReviewClass}>4</span>
                                             <div>
                                                 <span className="font-bold text-foreground block text-xs">Marked for Review</span>
                                                 <span className="text-xs text-muted-foreground">You have not answered the question, but have marked it for review.</span>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-3 col-span-1 md:col-span-2">
-                                            <span className="h-6 w-8 rounded-full flex items-center justify-center bg-indigo-500 text-white font-bold text-xs relative after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-2 after:w-2 after:bg-emerald-500 after:rounded-full after:border after:border-white shrink-0 font-mono">5</span>
+                                            <span className={answeredMarkedReviewClass}>5</span>
                                             <div>
                                                 <span className="font-bold text-foreground block text-xs">Answered & Marked for Review</span>
                                                 <span className="text-xs text-muted-foreground">The question(s) answered and marked for review will be considered for evaluation.</span>
@@ -135,7 +169,7 @@ export function ExamInstructions({
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
+                                 <div className="space-y-3">
                                     <label className="text-xs font-bold text-foreground uppercase tracking-wider block font-sans">Choose your default language:</label>
                                     <Select 
                                         value={defaultLanguage} 
@@ -150,6 +184,34 @@ export function ExamInstructions({
                                         </SelectContent>
                                     </Select>
                                     <p className="text-xs text-muted-foreground mt-1">Please note that all questions will be displayed in this language by default, but you can change the view language during the exam.</p>
+                                </div>
+
+                                <div className="space-y-3 pt-4 border-t border-border/60">
+                                    <label className="text-xs font-bold text-foreground uppercase tracking-wider block font-sans">Workspace Theme Preference:</label>
+                                    <div 
+                                        onClick={() => setUseRealisticTheme(!useRealisticTheme)}
+                                        className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer select-none transition-all duration-200 ${
+                                            useRealisticTheme 
+                                                ? "bg-slate-100/60 dark:bg-slate-900/45 border-slate-300 dark:border-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-900/60" 
+                                                : "bg-primary/5 dark:bg-primary/10 border-primary/20 hover:bg-primary/10 dark:hover:bg-primary/15"
+                                        }`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            id="realistic-theme-checkbox"
+                                            checked={useRealisticTheme}
+                                            onChange={() => {}} // Controlled by the card wrapper onClick
+                                            className="mt-1 h-5 w-5 rounded border-input text-primary focus:ring-primary shrink-0 cursor-pointer"
+                                        />
+                                        <div className="space-y-1">
+                                            <span className="font-bold text-foreground block text-sm font-sans">
+                                                Enable Realistic Exam Theme (Recommended)
+                                            </span>
+                                            <span className="text-xs text-muted-foreground block leading-relaxed font-sans">
+                                                Simulates the exact look, sharp frames, flat buttons, and pentagon indicators of official test portals (TCS iON / NTA). Uncheck to use PrepNiti's modern layout.
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="pt-6 border-t border-border flex items-start gap-3">
