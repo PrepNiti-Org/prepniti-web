@@ -9,7 +9,7 @@ import {
 export const metadata: Metadata = {
     title: "PrepNiti — Exam Prep, Honestly",
     description:
-        "Study logs, mock tests, kanban planner, interview experiences and a community — all anonymous. Built for UPSC, PSC, Banking and every serious aspirant.",
+        "Study logs, mock tests, topic planner, interview experiences and a community — all anonymous. Built for UPSC, PSC, Banking and every serious aspirant.",
     openGraph: {
         title: "PrepNiti — Exam Prep, Honestly",
         description: "The prep platform built by aspirants, for aspirants.",
@@ -47,7 +47,7 @@ const FEATURES = [
     },
     {
         icon: Target,
-        label: "Kanban Planner",
+        label: "Topic Planner",
         desc: "Drag topics across Not Started → In Progress → Revised.",
         href: "/tracker",
         color: "text-primary",
@@ -97,7 +97,7 @@ export default function HomePage() {
                     </h1>
 
                     <p className="text-muted-foreground text-base md:text-lg max-w-xl leading-relaxed">
-                        Mock tests, study tracking, kanban planner, interview experiences, and a live community — all in one anonymous space.
+                        Mock tests, study tracking, topic planner, interview experiences, and a live community — all in one anonymous space.
                     </p>
 
                     <HeroCTA />

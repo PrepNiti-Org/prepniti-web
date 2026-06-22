@@ -41,9 +41,8 @@ export default function SubmitPage() {
                             <CardTitle className="text-base">Why Share?</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm text-muted-foreground space-y-2">
-                            <p>• Help future aspirants.</p>
-                            <p>• Document your own journey.</p>
-                            <p>• Earn community karma (Coming soon!).</p>
+                            <p>• Help future aspirants prepare better.</p>
+                            <p>• Document and remember your own journey.</p>
                         </CardContent>
                     </Card>
                 </div>

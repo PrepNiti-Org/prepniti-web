@@ -22,12 +22,6 @@ const itemVariants = {
 };
 
 export default function AboutPage() {
-  const stats = [
-    { label: "Verified Reviews", value: "2,500+" },
-    { label: "Active Aspirants", value: "10,000+" },
-    { label: "Syllabus Completed", value: "150k+ hrs" },
-    { label: "Success Rate", value: "98.2%" },
-  ];
 
   const features = [
     {
@@ -38,12 +32,12 @@ export default function AboutPage() {
     {
       icon: <BookOpen className="h-6 w-6 text-primary" />,
       title: "Syllabus Analytics",
-      description: "Break down civil services and banking syllabus topics. Log daily preparation times and see visual heatmap heat logs.",
+      description: "Log your study time by subject, track how many topics you've covered, and see your study patterns at a glance.",
     },
     {
       icon: <CheckSquare className="h-6 w-6 text-primary" />,
       title: "Self Assessment",
-      description: "Examine your retention with mock questions, interactive option matching, and standard performance metrics.",
+      description: "Test yourself with timed mock questions and see how your scores improve over time.",
     },
     {
       icon: <Users className="h-6 w-6 text-primary" />,
@@ -72,7 +66,7 @@ export default function AboutPage() {
             Empowering Aspirants.<br className="hidden sm:block" /> Sharing Real Journeys.
           </h1>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
-            PrepNiti is an open, candidate-centric community designed for civil service and banking exam preparation. We bridge the gap between aspirants by sharing raw, unedited, and verified interview transcripts.
+            PrepNiti is an open community designed for civil service and banking exam preparation. We bring aspirants together by sharing real, unedited interview experiences so everyone can learn from each other.
           </p>
         </div>
       </motion.div>
@@ -139,12 +133,17 @@ export default function AboutPage() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="grid grid-cols-2 gap-4"
         >
-          {stats.map((stat, idx) => (
+          {[
+            { label: "Always Anonymous", value: "No real names" },
+            { label: "No Hidden Fees", value: "100% Free" },
+            { label: "Exam Coverage", value: "UPSC, PSC, Banking" },
+            { label: "Community", value: "Open to all" },
+          ].map((stat, idx) => (
             <div
               key={idx}
               className="p-6 rounded-2xl border border-border bg-gradient-to-br from-card/30 to-muted/20 text-center space-y-1 hover:border-primary/20 transition-all duration-200"
             >
-              <p className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight">
+              <p className="text-lg md:text-xl font-extrabold text-primary tracking-tight leading-snug">
                 {stat.value}
               </p>
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">

@@ -11,7 +11,7 @@ export default function PrivacyPage() {
       title: "1. Privacy Commitment",
       icon: <EyeOff className="h-4 w-4 text-primary" />,
       content:
-        "PrepNiti is founded on the principle of anonymous information sharing. We build tools that protect your identity while allowing you to contribute helpful preparation reviews and guidelines. We do not sell, trade, or distribute your email or registration credentials.",
+        "PrepNiti is founded on the principle of anonymous information sharing. We build tools that protect your identity while allowing you to contribute helpful preparation reviews and insights. We do not sell, trade, or share your email or personal details with anyone.",
     },
     {
       id: "anonymity",
@@ -25,14 +25,14 @@ export default function PrivacyPage() {
       title: "3. Local Session Cookies",
       icon: <Cookie className="h-4 w-4 text-primary" />,
       content:
-        "We utilize standard HTTP cookies to manage secure authorization sessions (JWT tokens) and user theme preferences. No tracking pixels, third-party profiling systems, or advertising cookies are integrated within our web clients.",
+        "We use standard browser cookies only to keep you logged in and to remember your theme preference. We do not use any advertising trackers, third-party analytics, or profiling tools on this platform.",
     },
     {
       id: "security",
       title: "4. Data Encryption & Security",
       icon: <KeyRound className="h-4 w-4 text-primary" />,
       content:
-        "All credentials, email addresses, and feedback forms are stored securely behind secure PostgreSQL database instances. Transmission is strictly wrapped in HTTPS / TLS, preventing man-in-the-middle sniffing.",
+        "Your password is stored securely and never stored as plain text. All data is transmitted over an encrypted connection so it cannot be intercepted in transit.",
     },
   ];
 

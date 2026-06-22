@@ -290,7 +290,7 @@ export default function InsightsPage() {
                 type: "warning",
                 title: "Boost Revision Focus 🧠",
                 text: `Only ${revisionRatio}% of your study time is dedicated to revision. To build robust retention, target a minimum of 20% revision balance.`,
-                action: "Convert pending board targets to Revision type"
+                action: "Update your Study Tracker topics to Revision type"
             });
         } else {
             advices.push({
@@ -328,7 +328,7 @@ export default function InsightsPage() {
                 type: "info",
                 title: "Start a Daily Streak 🎯",
                 text: "Studying just 20-30 minutes every day is 4x more effective than a massive 4-hour weekend cram session.",
-                action: "Start a study stopwatch from the board"
+                action: "Log a study session in the Study Tracker"
             });
         }
 

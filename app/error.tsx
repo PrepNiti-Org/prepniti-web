@@ -41,14 +41,14 @@ export default function ErrorPage({
           <div className="w-full max-w-md bg-muted/40 backdrop-blur-sm border border-border/60 rounded-xl p-4 text-left font-mono text-xs text-muted-foreground overflow-x-auto relative">
             <div className="flex items-center gap-2 mb-2 text-foreground/70 font-semibold border-b border-border/40 pb-1.5">
               <Terminal className="h-3.5 w-3.5" />
-              <span>Diagnostic Information</span>
+              <span>Error Details</span>
             </div>
             <p className="font-semibold text-destructive/90 select-all">
               Error: {error.message || "Unknown error"}
             </p>
             {error.digest && (
               <p className="mt-1 text-[10px] text-muted-foreground/80 select-all">
-                Digest: {error.digest}
+                Reference ID: {error.digest}
               </p>
             )}
           </div>

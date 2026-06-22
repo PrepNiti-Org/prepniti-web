@@ -18,7 +18,7 @@ export default function TermsPage() {
       title: "2. Account Guidelines",
       icon: <UserCheck className="h-4 w-4 text-primary" />,
       content:
-        "You are responsible for protecting your account password and session authorization states. You must choose usernames that do not impersonate public officials, exam boards, or other users.",
+        "You are responsible for keeping your account password safe. Choose a username that does not impersonate public officials, exam boards, or other users.",
     },
     {
       id: "moderation",
@@ -32,7 +32,7 @@ export default function TermsPage() {
       title: "4. Licensing & Content Rights",
       icon: <HeartHandshake className="h-4 w-4 text-primary" />,
       content:
-        "By publishing content on PrepNiti, you grant the community a non-exclusive, worldwide, royalty-free license to host, index, and display your interview transcripts to other aspirants. Author ownership is retained by you.",
+        "By posting content on PrepNiti, you allow the community to display and share your interview experiences with other aspirants. You keep full ownership of what you write — we never claim it as ours.",
     },
   ];
 

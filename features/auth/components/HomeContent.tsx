@@ -63,24 +63,24 @@ const WHY = [
     {
         num: "01",
         title: "Everything in one place",
-        body: "Most aspirants juggle 4–5 apps for tracking, mocks, and notes. PrepNiti collapses all of that into one focused space so you stop context-switching and start studying.",
+        body: "Most aspirants juggle 4–5 apps for tracking, mocks, and notes. PrepNiti brings all of that into one focused space so you stop switching between tools and start studying.",
     },
     {
         num: "02",
         title: "Fully anonymous",
-        body: "No real name, no photo, no LinkedIn flex. Your username is the only identity here. Share doubts and struggles without worrying who&apos;s watching.",
+        body: "No real name, no photo, no social profile. Your username is the only identity here. Share doubts and struggles without worrying who\'s watching.",
     },
     {
         num: "03",
         title: "Structured practice",
-        body: "From timed mock tests to kanban progress boards, every tool is designed to mimic actual exam conditions and keep you consistent.",
+        body: "From timed mock tests to an easy topic progress board, every tool is designed to mimic actual exam conditions and keep you consistent.",
     },
 ];
 
 const TEASER_CARDS = [
-    { exam: "UPSC CSE 2024", board: "Delhi", result: "Selected", time: "2h ago" },
-    { exam: "SBI PO 2024", board: "Mumbai", result: "Waitlist", time: "5h ago" },
-    { exam: "SSC CGL 2024", board: "Jaipur", result: "Selected", time: "1d ago" },
+    { exam: "UPSC CSE 2024", board: "Delhi", result: "Selected" },
+    { exam: "SBI PO 2024", board: "Mumbai", result: "Waitlist" },
+    { exam: "SSC CGL 2024", board: "Jaipur", result: "Selected" },
 ];
 
 function GuestLanding() {
@@ -142,7 +142,6 @@ function GuestLanding() {
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.result === "Selected" ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"}`}>
                                     {c.result}
                                 </span>
-                                <p className="text-[10px] text-muted-foreground/50">{c.time}</p>
                             </div>
                         </div>
                     ))}

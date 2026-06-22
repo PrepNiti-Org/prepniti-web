@@ -305,7 +305,7 @@ export default function CreatePostPage() {
                             </div>
                             <div>
                                 <h4 className="font-bold text-foreground mb-0.5">Use Specific Tags</h4>
-                                <p>Add tags like `#upsc`, `#history`, `#notes` so users filtering topics can locate and reply to your discussions.</p>
+                                <p>Add topic tags like #upsc, #history, or #notes to help others find your post easily.</p>
                             </div>
                         </CardContent>
                     </Card>
