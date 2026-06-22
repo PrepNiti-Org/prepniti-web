@@ -9,7 +9,7 @@ import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookm
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -73,8 +73,10 @@ export function Navbar({ }: NavbarProps) {
                                     <Menu className="h-5 w-5" />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="p-0 w-72 flex flex-col">
-                                <Sidenav onItemClick={() => setIsMobileOpen(false)} className="border-r-0" />
+                            <SheetContent side="left" className="p-0 w-80 max-w-[320px] flex flex-col bg-sidebar border-r-0">
+                                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                                <SheetDescription className="sr-only">Access site sections, profile, bookmarks, and settings</SheetDescription>
+                                <Sidenav onItemClick={() => setIsMobileOpen(false)} className="border-r-0 w-full" isMobile={true} />
                             </SheetContent>
                         </Sheet>
                     </div>

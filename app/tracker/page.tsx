@@ -155,7 +155,7 @@ export default function TrackerDashboard() {
             </div>
 
             <Sheet open={!!activeTask && !isLargeScreen} onOpenChange={(open) => { if (!open) setSelectedTask(null); }}>
-                <SheetContent className="w-full sm:max-w-[540px] overflow-y-auto border-l shadow-2xl flex flex-col p-6 h-full">
+                <SheetContent className="w-full sm:max-w-[540px] overflow-y-auto border-l shadow-2xl flex flex-col p-4 sm:p-6 h-full">
                     <SheetTitle className="sr-only">Edit Target Details</SheetTitle>
                     {activeTask && (
                         <TaskDetailsPanel

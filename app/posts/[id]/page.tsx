@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getPostById, deletePost, toggleLike, getComments, createComment, toggleCommentLike, toggleBookmark, getUserBookmarks, Comment } from "@/features/posts/api";
+import { getPostById, deletePost, toggleLike, getComments, createComment, toggleCommentLike, toggleBookmark, getUserBookmarks, Comment, getUserLikes } from "@/features/posts/api";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { toast } from "sonner";
@@ -161,6 +161,12 @@ export default function SinglePostPage() {
         enabled: isLoggedIn,
     });
 
+    const { data: likedIds } = useQuery({
+        queryKey: ["userLikes"],
+        queryFn: getUserLikes,
+        enabled: isLoggedIn,
+    });
+
     const deleteMutation = useMutation({
         mutationFn: deletePost,
         onSuccess: () => {
@@ -178,6 +184,7 @@ export default function SinglePostPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["post", id] });
             queryClient.invalidateQueries({ queryKey: ["posts"] });
+            queryClient.invalidateQueries({ queryKey: ["userLikes"] });
         }
     });
 
@@ -242,6 +249,7 @@ export default function SinglePostPage() {
                     <PostCard
                         post={post}
                         isBookmarked={!!bookmarkedIds?.includes(post.id)}
+                        isLiked={!!likedIds?.includes(post.id)}
                         onLike={() => toggleLikeMutation.mutate()}
                         isLikePending={toggleLikeMutation.isPending}
                         onBookmark={() => toggleBookmarkMutation.mutate()}

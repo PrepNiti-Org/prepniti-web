@@ -66,9 +66,9 @@ export function ExamInstructions({
             </div>
 
             {/* Instructions Body */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 flex-1 overflow-y-auto lg:overflow-hidden bg-slate-50 dark:bg-slate-950/20">
+            <div className="grid grid-cols-1 lg:grid-cols-4 flex-1 overflow-hidden bg-slate-50 dark:bg-slate-950/20">
                 {/* Left Pane (Scrollable instructions details) */}
-                <div className="lg:col-span-3 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border bg-card overflow-hidden">
+                <div className="lg:col-span-3 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border bg-card overflow-hidden h-full">
                     <div className="bg-slate-100 dark:bg-slate-900/60 border-b border-border px-6 py-3 flex items-center justify-between shrink-0">
                         <h2 className="font-bold text-sm text-foreground uppercase tracking-wider font-sans">
                             {instructionStep === 1 ? "General Instructions" : "Other Important Instructions & Candidate Declaration"}
@@ -260,7 +260,7 @@ export function ExamInstructions({
                 </div>
 
                 {/* Right Pane (Candidate Card) */}
-                <div className="lg:col-span-1 bg-card flex flex-col justify-between p-6">
+                <div className="hidden lg:flex lg:col-span-1 bg-card flex-col justify-between p-6">
                     <div className="space-y-6">
                         <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border font-sans">Candidate Profile</h3>
                         

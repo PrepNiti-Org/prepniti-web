@@ -107,7 +107,7 @@ export function TaskDetailsPanel({
     const timeLogs = timeLogData?.data || [];
 
     return (
-        <div className="flex flex-col h-full bg-card border rounded-2xl shadow-sm p-5 overflow-hidden animate-in slide-in-from-right duration-200">
+        <div className="flex flex-col h-full lg:bg-card lg:border lg:rounded-2xl lg:shadow-sm lg:p-5 p-1 bg-transparent border-none shadow-none overflow-hidden animate-in slide-in-from-right duration-200">
             <div className="flex items-center justify-between border-b pb-3 mb-4 shrink-0">
                 <h3 className="font-bold text-base text-foreground tracking-tight">Edit Target</h3>
             {showCloseButton && (
@@ -162,7 +162,7 @@ export function TaskDetailsPanel({
                                 <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-9 text-sm rounded-xl" />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Subject</label>
                                     <Input value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} className="h-9 text-sm rounded-xl" />
@@ -181,7 +181,7 @@ export function TaskDetailsPanel({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</label>
                                     <Select value={form.status} onValueChange={(v: Status) => setForm({ ...form, status: v })}>

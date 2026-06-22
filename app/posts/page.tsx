@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { getPosts, Post, toggleLike, toggleBookmark, getUserBookmarks } from "@/features/posts/api";
+import { getPosts, Post, toggleLike, toggleBookmark, getUserBookmarks, getUserLikes } from "@/features/posts/api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +34,12 @@ export default function PostsPage() {
         enabled: isLoggedIn,
     });
 
+    const { data: likedIds } = useQuery({
+        queryKey: ["userLikes"],
+        queryFn: getUserLikes,
+        enabled: isLoggedIn,
+    });
+
     const {
         data,
         fetchNextPage,
@@ -53,6 +59,7 @@ export default function PostsPage() {
         mutationFn: (postId: string) => toggleLike(postId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["posts"] });
+            queryClient.invalidateQueries({ queryKey: ["userLikes"] });
         }
     });
 
@@ -147,6 +154,7 @@ export default function PostsPage() {
                                             key={post.id}
                                             post={post}
                                             isBookmarked={!!bookmarkedIds?.includes(post.id)}
+                                            isLiked={!!likedIds?.includes(post.id)}
                                             onLike={() => toggleLikeMutation.mutate(post.id)}
                                             isLikePending={toggleLikeMutation.isPending}
                                             onBookmark={() => toggleBookmarkMutation.mutate(post.id)}

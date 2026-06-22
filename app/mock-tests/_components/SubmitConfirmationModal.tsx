@@ -65,19 +65,39 @@ export function SubmitConfirmationModal({
     const styleMarkedReview = getStatusStyle("marked_review");
     const styleAnsweredMarked = getStatusStyle("answered_marked_review");
 
+    const cancelBtnClass = useRealistic
+        ? "px-5 py-2.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans"
+        : "px-5 py-2.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-muted-foreground border border-border rounded-xl transition-all select-none font-sans";
+
+    const submitBtnClass = useRealistic
+        ? "px-6 py-2.5 text-xs font-bold bg-[#44a037] hover:bg-[#3c8e31] text-white border border-transparent rounded transition-colors select-none font-sans shadow-md"
+        : "px-6 py-2.5 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground border border-transparent rounded-xl transition-all select-none font-sans shadow-md shadow-primary/15";
+
+    const modalHeaderClass = useRealistic
+        ? "bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0"
+        : "bg-muted/40 text-foreground px-6 py-4 flex items-center justify-between border-b border-border shrink-0";
+
+    const modalTitleClass = useRealistic
+        ? "text-base font-bold uppercase tracking-wider font-sans"
+        : "text-base font-extrabold font-sans text-foreground";
+
+    const closeBtnClass = useRealistic
+        ? "text-slate-400 hover:text-white transition-colors"
+        : "text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800";
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col transform animate-in zoom-in-95 duration-200 animate-duration-200">
                 {/* Modal Header */}
-                <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0">
-                    <h3 className="text-base font-bold uppercase tracking-wider font-sans">
+                <div className={modalHeaderClass}>
+                    <h3 className={modalTitleClass}>
                         Exam Submission Confirmation
                     </h3>
                     <button
                         onClick={onClose}
-                        className="text-slate-400 hover:text-white transition-colors"
+                        className={closeBtnClass}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -159,7 +179,7 @@ export function SubmitConfirmationModal({
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                             </table>
                         </div>
                     </div>
 
@@ -172,13 +192,13 @@ export function SubmitConfirmationModal({
                 <div className="bg-slate-50 dark:bg-slate-950/20 px-6 py-4 flex items-center justify-end gap-3 border-t border-border shrink-0">
                     <button
                         onClick={onClose}
-                        className="px-5 py-2.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans"
+                        className={cancelBtnClass}
                     >
                         No, Return to Test
                     </button>
                     <button
                         onClick={onSubmit}
-                        className="px-6 py-2.5 text-xs font-bold bg-[#44a037] hover:bg-[#3c8e31] text-white border border-transparent rounded transition-colors select-none font-sans shadow-md"
+                        className={submitBtnClass}
                     >
                         Yes, Submit Exam
                     </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Post } from "@/features/posts/api";
 import { formatDistanceToNow } from "date-fns";
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2 } from "lucide-react";
@@ -29,6 +30,7 @@ export interface PostCardProps {
     isBookmarked: boolean;
     onLike: () => void;
     onBookmark: () => void;
+    isLiked?: boolean;
     isLikePending?: boolean;
     isBookmarkPending?: boolean;
     viewMode?: "feed" | "detail";
@@ -45,6 +47,7 @@ export function PostCard({
     isBookmarked,
     onLike,
     onBookmark,
+    isLiked = false,
     isLikePending = false,
     isBookmarkPending = false,
     viewMode = "feed",
@@ -55,6 +58,17 @@ export function PostCard({
     delay = 0,
     className,
 }: PostCardProps) {
+    const [localLiked, setLocalLiked] = useState(isLiked);
+    const [localUpvotes, setLocalUpvotes] = useState(post.upvotes);
+
+    useEffect(() => {
+        setLocalLiked(isLiked);
+    }, [isLiked]);
+
+    useEffect(() => {
+        setLocalUpvotes(post.upvotes);
+    }, [post.upvotes]);
+
     const handleShare = (e: React.MouseEvent) => {
         e.preventDefault();
         const url = `${window.location.origin}/posts/${post.id}`;
@@ -78,6 +92,7 @@ export function PostCard({
     );
 
     const mediaUrl = post.media_url ? `${BACKEND_URL}${post.media_url}` : null;
+    const finalCommentCount = commentCount !== undefined ? commentCount : post.comment_count;
 
     const renderCardContentInner = () => (
         <>
@@ -211,43 +226,47 @@ export function PostCard({
 
                 <CardFooter className={cn("px-5 py-3 border-t border-muted/20", viewMode === "detail" && "bg-muted/5")}>
                     <div className="flex items-center justify-between w-full text-muted-foreground">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={(e) => {
                                     e.preventDefault();
+                                    const nextLiked = !localLiked;
+                                    setLocalLiked(nextLiked);
+                                    setLocalUpvotes((prev) => prev + (nextLiked ? 1 : -1));
                                     onLike();
                                 }}
-                                disabled={isLikePending}
-                                className="flex items-center gap-2 hover:text-rose-500 px-2 h-8 rounded-lg"
+                                className={cn(
+                                    "flex items-center gap-1.5 px-2.5 h-8 rounded-lg transition-colors",
+                                    localLiked ? "text-red-500 hover:text-red-600" : "hover:text-rose-500"
+                                )}
                             >
-                                <Heart className="h-4 w-4" />
-                                <span className="text-sm font-medium">{post.upvotes > 0 ? post.upvotes : 'Like'}</span>
+                                <Heart className={cn("h-4 w-4 transition-all", localLiked ? "fill-red-500 text-red-500 scale-110" : "")} />
+                                <span className="text-xs font-semibold">{localUpvotes}</span>
                             </Button>
 
                             {viewMode === "feed" ? (
                                 <Link href={`/posts/${post.id}`}>
-                                    <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:text-primary px-2 h-8 rounded-lg">
-                                        <MessageCircle className="h-4 w-4" />
-                                        <span className="text-sm font-medium">Discuss</span>
+                                    <Button variant="ghost" size="sm" className={cn("flex items-center gap-1.5 px-2.5 h-8 rounded-lg transition-colors", finalCommentCount && finalCommentCount > 0 ? "text-primary hover:text-primary/95" : "hover:text-primary")}>
+                                        <MessageCircle className={cn("h-4 w-4", finalCommentCount && finalCommentCount > 0 ? "fill-primary/20 text-primary" : "")} />
+                                        <span className="text-xs font-semibold">{finalCommentCount || 0}</span>
                                     </Button>
                                 </Link>
                             ) : (
-                                <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:text-primary px-2 h-8 rounded-lg text-primary">
+                                <Button variant="ghost" size="sm" className="flex items-center gap-1.5 hover:text-primary px-2.5 h-8 rounded-lg text-primary">
                                     <MessageCircle className="h-4 w-4 fill-primary/20" />
-                                    <span className="text-sm font-medium">{commentCount}</span>
+                                    <span className="text-xs font-semibold">{finalCommentCount || 0}</span>
                                 </Button>
                             )}
 
                             <Button
                                 variant="ghost"
-                                size="sm"
+                                size="icon"
                                 onClick={handleShare}
-                                className="flex items-center gap-2 hover:text-primary px-2 h-8 rounded-lg"
+                                className="h-8 w-8 rounded-lg hover:text-primary"
                             >
                                 <Send className="h-4 w-4" />
-                                <span className="text-sm font-medium">Share</span>
                             </Button>
                         </div>
 

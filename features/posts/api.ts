@@ -12,6 +12,7 @@ export interface Post {
     user: {
         username: string;
     };
+    comment_count?: number;
 }
 
 export interface CreatePostDTO {
@@ -102,6 +103,11 @@ export const toggleBookmark = async (postId: string): Promise<{ message: string;
 
 export const getUserBookmarks = async (): Promise<string[]> => {
     const res = await api.get('/bookmarks');
+    return res.data.data;
+};
+
+export const getUserLikes = async (): Promise<string[]> => {
+    const res = await api.get('/likes');
     return res.data.data;
 };
 
