@@ -11,11 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
     Loader2, Mail, Calendar, Target, Award, Flame, BookOpen,
-    BarChart3, FileText, Sparkles, Clock, ArrowUpRight, GraduationCap
+    BarChart3, FileText, Sparkles, Clock, ArrowUpRight, GraduationCap, Users, Share2, Lock
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -103,6 +104,25 @@ export default function ProfilePage() {
                                 <h1 className="text-2xl font-black tracking-tight text-foreground">
                                     @{user.username}
                                 </h1>
+                                {user.is_public ? (
+                                    <Badge 
+                                        variant="outline" 
+                                        className="text-[9px] bg-green-500/5 text-green-500 border-green-500/20 cursor-pointer hover:bg-green-500/10 font-bold flex items-center gap-1"
+                                        onClick={() => {
+                                            const shareUrl = `${window.location.origin}/profile/${user.username}`;
+                                            navigator.clipboard.writeText(shareUrl);
+                                            toast.success("Link Copied!", {
+                                                description: "Shareable profile URL copied to clipboard.",
+                                            });
+                                        }}
+                                    >
+                                        <Share2 className="h-2.5 w-2.5" /> Share Profile
+                                    </Badge>
+                                ) : (
+                                    <Badge variant="outline" className="text-[9px] bg-amber-500/5 text-amber-500 border-amber-500/20 font-bold flex items-center gap-1">
+                                        <Lock className="h-2.5 w-2.5" /> Private Profile
+                                    </Badge>
+                                )}
                                 {user.target_exam && (
                                     <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest border border-primary/20 bg-primary/10 text-primary">
                                         <Target className="h-3 w-3 mr-1" />
@@ -179,6 +199,7 @@ export default function ProfilePage() {
                                 { href: "/tracker", icon: Target, label: "Study Tracker", desc: "View your targets", color: "text-violet-500" },
                                 { href: "/insights", icon: BarChart3, label: "Insights", desc: "Charts & analytics", color: "text-blue-500" },
                                 { href: "/mock-tests", icon: GraduationCap, label: "Mock Tests", desc: "Take a test", color: "text-emerald-500" },
+                                { href: "/buddies", icon: Users, label: "Accountability Buddies", desc: "Manage buddies & tracks", color: "text-rose-500" },
                                 { href: "/bookmarks", icon: BookOpen, label: "Bookmarks", desc: "Saved posts", color: "text-amber-500" },
                             ].map((item) => (
                                 <Link

@@ -4,7 +4,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { BACKEND_URL } from "@/lib/api";
 
 export const useNotifications = () => {
-    const { isLoggedIn, user } = useAuth();
+    const { isLoggedIn } = useAuth();
     const queryClient = useQueryClient();
 
     useEffect(() => {
@@ -16,13 +16,26 @@ export const useNotifications = () => {
         const eventSource = new EventSource(`${BACKEND_URL}/api/notifications/stream?token=${token}`);
 
         eventSource.onmessage = (event) => {
-            const newNotification = JSON.parse(event.data);
+            try {
+                const newNotification = JSON.parse(event.data);
 
-            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+                queryClient.invalidateQueries({ queryKey: ["notifications"] });
+                queryClient.invalidateQueries({ queryKey: ["notificationsList"] });
+
+
+                if (newNotification?.type === "buddy_request") {
+                    queryClient.invalidateQueries({ queryKey: ["buddy-requests"] });
+                }
+
+                if (newNotification?.type === "buddy_accepted") {
+                    queryClient.invalidateQueries({ queryKey: ["buddies"] });
+                    queryClient.invalidateQueries({ queryKey: ["buddy-requests"] });
+                }
+            } catch {
+            }
         };
 
-        eventSource.onerror = (error) => {
-            console.error("SSE Error:", error);
+        eventSource.onerror = () => {
             eventSource.close();
         };
 

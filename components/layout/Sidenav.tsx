@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
+import { useQuery } from "@tanstack/react-query";
 
 import {
     HomeIcon,
@@ -16,18 +17,21 @@ import {
     GraduationCap,
     Sun,
     Moon,
-    Monitor
+    Monitor,
+    Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { getPendingRequests } from "@/features/profile/api";
 
 export const navLinks = [
-    { name: "Home", href: "/", icon: HomeIcon },
-    { name: "Tracker", href: "/tracker", icon: LayoutDashboard },
-    { name: "Discussions", href: "/posts", icon: MessageSquare },
-    { name: "Insights", href: "/insights", icon: TrendingUp },
-    { name: "Mock Tests", href: "/mock-tests", icon: GraduationCap },
+    { name: "Home", href: "/", icon: HomeIcon, showBadge: false },
+    { name: "Tracker", href: "/tracker", icon: LayoutDashboard, showBadge: false },
+    { name: "Discussions", href: "/posts", icon: MessageSquare, showBadge: false },
+    { name: "Buddies", href: "/buddies", icon: Users, showBadge: true },
+    { name: "Insights", href: "/insights", icon: TrendingUp, showBadge: false },
+    { name: "Mock Tests", href: "/mock-tests", icon: GraduationCap, showBadge: false },
 ];
 
 interface SidenavProps {
@@ -89,6 +93,15 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
     const pathname = usePathname();
     const { isLoggedIn, user } = useAuth();
 
+    const { data: buddyRequests } = useQuery({
+        queryKey: ["buddy-requests"],
+        queryFn: getPendingRequests,
+        enabled: isLoggedIn,
+        refetchInterval: 60_000,
+        staleTime: 30_000,
+    });
+    const incomingCount = buddyRequests?.incoming?.length ?? 0;
+
     const hiddenRoutes = ["/login", "/register"];
     if (hiddenRoutes.includes(pathname)) return null;
 
@@ -114,6 +127,7 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
                 {navLinks.map((link) => {
                     const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
                     const Icon = link.icon;
+                    const badgeCount = link.showBadge ? incomingCount : 0;
 
                     const LinkContent = (
                         <Link
@@ -133,7 +147,13 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
                                 />
                             )}
 
-                            <Icon className={`relative z-10 h-5 w-5 shrink-0 transition-all duration-300 ${isActive ? "scale-110 drop-shadow-sm" : "group-hover:scale-110"}`} />
+                            <span className="relative z-10 shrink-0">
+                                <Icon className={`h-5 w-5 transition-all duration-300 ${isActive ? "scale-110 drop-shadow-sm" : "group-hover:scale-110"}`} />
+                                {isCollapsed && badgeCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 border border-sidebar ring-1 ring-sidebar" />
+                                )}
+
+                            </span>
 
                             <AnimatePresence initial={false}>
                                 {!isCollapsed && (
@@ -142,9 +162,18 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
                                         animate={{ width: "auto", opacity: 1 }}
                                         exit={{ width: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="relative z-10 whitespace-nowrap overflow-hidden tracking-wide"
+                                        className="relative z-10 whitespace-nowrap overflow-hidden tracking-wide flex items-center gap-2"
                                     >
                                         {link.name}
+                                        {badgeCount > 0 && (
+                                            <motion.span
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                className="h-4 min-w-4 px-1 text-[9px] font-black bg-red-500 text-white rounded-full flex items-center justify-center leading-none"
+                                            >
+                                                {badgeCount > 9 ? "9+" : badgeCount}
+                                            </motion.span>
+                                        )}
                                     </motion.span>
                                 )}
                             </AnimatePresence>
@@ -160,6 +189,11 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
                                     </TooltipTrigger>
                                     <TooltipContent side="right" className="flex items-center gap-4">
                                         {link.name}
+                                        {badgeCount > 0 && (
+                                            <span className="h-4 min-w-4 px-1 text-[9px] font-black bg-red-500 text-white rounded-full flex items-center justify-center">
+                                                {badgeCount > 9 ? "9+" : badgeCount}
+                                            </span>
+                                        )}
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>

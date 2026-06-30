@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getNotifications, markNotificationsAsRead, Notification } from "@/features/notifications/api";
+import { getNotifications, markNotificationsAsRead, markSingleNotificationAsRead, Notification } from "@/features/notifications/api";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,8 +30,18 @@ export function NotificationBell() {
         mutationFn: markNotificationsAsRead,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["notificationsList"] });
         }
     });
+
+    const markSingleAsReadMutation = useMutation({
+        mutationFn: (id: string) => markSingleNotificationAsRead(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["notificationsList"] });
+        }
+    });
+
 
     const unreadCount = data?.unreadCount || 0;
     const notifications = data?.data || [];
@@ -93,6 +103,9 @@ export function NotificationBell() {
                                                 e.preventDefault();
                                                 setIsOpen(false);
                                                 setWelcomeOpen(true);
+                                                if (!notif.is_read) {
+                                                    markSingleAsReadMutation.mutate(notif.id);
+                                                }
                                             }}
                                         >
                                             <div className="flex gap-3 items-start w-full">
@@ -121,13 +134,20 @@ export function NotificationBell() {
                                     ? (notif.type === "comment_post" || notif.type === "reply_comment" || notif.type === "like_comment"
                                         ? `/posts/${notif.post_id}#comments`
                                         : `/posts/${notif.post_id}`)
-                                    : "#";
+                                    : (notif.type === "buddy_request" || notif.type === "buddy_accepted" ? "/buddies" : "#");
 
                                 const snippet = notif.comment?.content || notif.post?.content;
 
                                 return (
                                     <DropdownMenuItem key={notif.id} className="cursor-pointer p-3 focus:bg-muted/50" asChild>
-                                        <Link href={href}>
+                                        <Link 
+                                            href={href}
+                                            onClick={() => {
+                                                if (!notif.is_read) {
+                                                    markSingleAsReadMutation.mutate(notif.id);
+                                                }
+                                            }}
+                                        >
                                             <div className="flex gap-3 items-start w-full">
                                                 <Avatar className="h-8 w-8">
                                                     <AvatarFallback className="bg-primary/10 text-primary text-xs">
@@ -141,7 +161,10 @@ export function NotificationBell() {
                                                         {notif.type === "comment_post" && "commented on your post."}
                                                         {notif.type === "like_comment" && "liked your comment."}
                                                         {notif.type === "reply_comment" && "replied to your comment."}
+                                                        {notif.type === "buddy_request" && "sent you a buddy request."}
+                                                        {notif.type === "buddy_accepted" && "accepted your buddy request."}
                                                     </p>
+
                                                     {snippet && (
                                                         <p className="text-[11px] text-muted-foreground italic mt-0.5 line-clamp-1 border-l-2 border-border/40 pl-1.5 text-left">
                                                             "{snippet}"
