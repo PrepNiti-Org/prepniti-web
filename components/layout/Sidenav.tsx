@@ -18,7 +18,8 @@ import {
     Sun,
     Moon,
     Monitor,
-    Users
+    Users,
+    MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,6 +30,7 @@ export const navLinks = [
     { name: "Home", href: "/", icon: HomeIcon, showBadge: false },
     { name: "Tracker", href: "/tracker", icon: LayoutDashboard, showBadge: false },
     { name: "Discussions", href: "/posts", icon: MessageSquare, showBadge: false },
+    { name: "Chat", href: "/chat", icon: MessageCircle, showBadge: false },
     { name: "Buddies", href: "/buddies", icon: Users, showBadge: true },
     { name: "Insights", href: "/insights", icon: TrendingUp, showBadge: false },
     { name: "Mock Tests", href: "/mock-tests", icon: GraduationCap, showBadge: false },
