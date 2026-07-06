@@ -1,44 +1,28 @@
-export const TIMER_STORAGE_KEY = "prepniti_study_timer";
-
-export interface TimerState {
+export interface ActiveSession {
+    sessionId: string;
     taskId: string;
     taskTitle: string;
-    elapsed: number; // seconds accumulated before the current running window
-    isRunning: boolean;
-    startedAt: number | null; // unix ms timestamp of when current run window started
-}
-
-export function getStoredTimer(): TimerState | null {
-    if (typeof window === "undefined") return null;
-    try {
-        const raw = localStorage.getItem(TIMER_STORAGE_KEY);
-        if (!raw) return null;
-        return JSON.parse(raw);
-    } catch {
-        return null;
-    }
-}
-
-export function storeTimer(state: TimerState | null) {
-    if (typeof window === "undefined") return;
-    if (state) {
-        localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(state));
-    } else {
-        localStorage.removeItem(TIMER_STORAGE_KEY);
-    }
+    /** Unix-ms timestamp of when the current run window started. null if paused. */
+    startedAt: number | null;
+    /** Seconds accumulated from all previous run windows (confirmed by server). */
+    accumulatedSeconds: number;
+    isPaused: boolean;
 }
 
 /**
- * Compute the TRUE elapsed seconds from the stored timer state using
- * wall-clock arithmetic (Date.now - startedAt). This is immune to
- * browser setInterval throttling in background tabs.
+ * Returns the TRUE elapsed seconds for a session using wall-clock arithmetic.
+ *
+ *   - Running : accumulatedSeconds + floor((Date.now() - startedAt) / 1000)
+ *   - Paused  : accumulatedSeconds
+ *
+ * This is NEVER affected by setInterval throttling or browser background-tab
+ * slowdowns because it always computes from a raw timestamp.
  */
-export function getActualElapsed(state: TimerState): number {
-    if (state.isRunning && state.startedAt !== null) {
-        const windowSeconds = Math.floor((Date.now() - state.startedAt) / 1000);
-        return state.elapsed + windowSeconds;
+export function getDisplayElapsed(session: ActiveSession): number {
+    if (!session.isPaused && session.startedAt !== null) {
+        return session.accumulatedSeconds + Math.floor((Date.now() - session.startedAt) / 1000);
     }
-    return state.elapsed;
+    return session.accumulatedSeconds;
 }
 
 export function formatTime(totalSeconds: number): string {
@@ -48,9 +32,16 @@ export function formatTime(totalSeconds: number): string {
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-// Dispatch a custom event so other components react to timer changes
-export function dispatchTimerUpdate() {
+/**
+ * Dispatch a session-update event so every mounted timer component
+ * (NavbarTimer, StudyTimer) instantly reflects the new state without
+ * requiring a round-trip API call.
+ *
+ * Consumers: window.addEventListener("session-update", handler)
+ * The event detail is ActiveSession | null.
+ */
+export function dispatchSessionUpdate(session: ActiveSession | null): void {
     if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("timer-update"));
+        window.dispatchEvent(new CustomEvent<ActiveSession | null>("session-update", { detail: session }));
     }
 }

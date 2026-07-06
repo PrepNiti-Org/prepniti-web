@@ -3,8 +3,20 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createTimeLog } from "@/features/kanban/api";
-import { getStoredTimer, storeTimer, formatTime, dispatchTimerUpdate, getActualElapsed, TimerState } from "@/features/kanban/timerUtils";
+import {
+    getActiveSession,
+    pauseSession,
+    resumeSession,
+    stopSession,
+    discardSession,
+    SessionResponseData
+} from "@/features/kanban/api";
+import {
+    formatTime,
+    getDisplayElapsed,
+    dispatchSessionUpdate,
+    ActiveSession
+} from "@/features/kanban/timerUtils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Play, Pause, Square, Save, Timer } from "lucide-react";
@@ -23,120 +35,152 @@ import {
 
 export function NavbarTimer() {
     const queryClient = useQueryClient();
-    const [timerState, setTimerState] = useState<TimerState | null>(null);
+    const [session, setSession] = useState<ActiveSession | null>(null);
     const [elapsed, setElapsed] = useState(0);
     const [showLogDialog, setShowLogDialog] = useState(false);
     const [note, setNote] = useState("");
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Sync from localStorage using wall-clock elapsed (immune to setInterval throttling)
-    const syncFromStorage = () => {
-        const stored = getStoredTimer();
-        setTimerState(stored);
-        if (stored) {
-            setElapsed(getActualElapsed(stored));
-        } else {
-            setElapsed(0);
+    const mapSessionData = (data: SessionResponseData | null): ActiveSession | null => {
+        if (!data) return null;
+        return {
+            sessionId: data.id,
+            taskId: data.task_id,
+            taskTitle: data.task_title,
+            startedAt: data.started_at ? new Date(data.started_at).getTime() : null,
+            accumulatedSeconds: data.accumulated_seconds,
+            isPaused: data.is_paused,
+        };
+    };
+
+    const fetchSession = async () => {
+        try {
+            const data = await getActiveSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            if (active) {
+                setElapsed(getDisplayElapsed(active));
+            } else {
+                setElapsed(0);
+            }
+        } catch {
+            console.error("Failed to load active study session");
         }
     };
 
     useEffect(() => {
-        syncFromStorage();
-        window.addEventListener("timer-update", syncFromStorage);
-        // Resync from wall-clock when user returns to this tab after being away.
-        // This corrects elapsed that drifted due to browser background tab throttling.
-        document.addEventListener("visibilitychange", syncFromStorage);
+        fetchSession();
+
+        const handleSessionUpdateEvent = (e: Event) => {
+            const customEvent = e as CustomEvent<ActiveSession | null>;
+            const newSession = customEvent.detail;
+            setSession(newSession);
+            if (newSession) {
+                setElapsed(getDisplayElapsed(newSession));
+            } else {
+                setElapsed(0);
+            }
+        };
+
+        window.addEventListener("session-update", handleSessionUpdateEvent);
+        document.addEventListener("visibilitychange", fetchSession);
+
         return () => {
-            window.removeEventListener("timer-update", syncFromStorage);
-            document.removeEventListener("visibilitychange", syncFromStorage);
+            window.removeEventListener("session-update", handleSessionUpdateEvent);
+            document.removeEventListener("visibilitychange", fetchSession);
         };
     }, []);
 
-    // Tick every second when running — always recompute from wall-clock startedAt
-    // so background throttling cannot accumulate drift in the displayed value.
     useEffect(() => {
-        if (timerState?.isRunning) {
+        if (session && !session.isPaused) {
             intervalRef.current = setInterval(() => {
-                const stored = getStoredTimer();
-                if (stored) setElapsed(getActualElapsed(stored));
+                setElapsed(getDisplayElapsed(session));
             }, 1000);
         } else {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
+            if (session) {
+                setElapsed(session.accumulatedSeconds);
+            }
         }
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [timerState?.isRunning]);
+    }, [session]);
 
-    const handlePause = () => {
-        if (!timerState) return;
-        // Snapshot true wall-clock elapsed before pausing so no time is lost
-        const trueElapsed = getActualElapsed(timerState);
-        setElapsed(trueElapsed);
-        storeTimer({ ...timerState, elapsed: trueElapsed, isRunning: false, startedAt: null });
-        dispatchTimerUpdate();
+    const handlePause = async () => {
+        try {
+            const data = await pauseSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            dispatchSessionUpdate(active);
+            toast.info("Timer paused");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to pause timer");
+        }
     };
 
-    const handleResume = () => {
-        if (!timerState) return;
-        storeTimer({ ...timerState, elapsed, isRunning: true, startedAt: Date.now() });
-        dispatchTimerUpdate();
+    const handleResume = async () => {
+        try {
+            const data = await resumeSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            dispatchSessionUpdate(active);
+            toast.info("Timer resumed");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to resume timer");
+        }
     };
 
     const handleStop = () => {
-        if (!timerState) return;
-        // Always use wall-clock elapsed — never the potentially throttled state value
-        const trueElapsed = getActualElapsed(timerState);
-        setElapsed(trueElapsed);
-        if (trueElapsed < 60) {
-            storeTimer(null);
-            dispatchTimerUpdate();
-            toast.info("Timer discarded (less than 1 minute)");
+        if (!session) return;
+        const currentElapsed = getDisplayElapsed(session);
+        if (currentElapsed < 60) {
+            toast.error("Session must be at least 1 minute long to log");
             return;
         }
-        // Pause and show log dialog
-        storeTimer({ ...timerState, elapsed: trueElapsed, isRunning: false, startedAt: null });
-        dispatchTimerUpdate();
         setShowLogDialog(true);
     };
 
-    const handleDiscard = () => {
-        storeTimer(null);
-        dispatchTimerUpdate();
-        toast.info("Timer discarded");
+    const handleDiscard = async () => {
+        try {
+            await discardSession();
+            setSession(null);
+            dispatchSessionUpdate(null);
+            toast.info("Study session discarded");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to discard session");
+        }
     };
 
     const logMutation = useMutation({
-        mutationFn: (data: { duration_minutes: number; note?: string }) =>
-            createTimeLog(timerState!.taskId, data),
+        mutationFn: (noteText: string) => stopSession(noteText),
         onSuccess: () => {
             toast.success("Study session logged!");
-            queryClient.invalidateQueries({ queryKey: ["taskTimeLogs", timerState?.taskId] });
+            queryClient.invalidateQueries({ queryKey: ["taskTimeLogs", session?.taskId] });
             queryClient.invalidateQueries({ queryKey: ["userTimeLogs"] });
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
-            storeTimer(null);
-            dispatchTimerUpdate();
+            setSession(null);
+            dispatchSessionUpdate(null);
             setShowLogDialog(false);
             setNote("");
         },
-        onError: () => {
-            toast.error("Failed to log session");
+        onError: (err: any) => {
+            toast.error(err?.response?.data?.error || "Failed to log session");
         },
     });
 
     const confirmLog = () => {
-        const durationMinutes = Math.max(1, Math.round(elapsed / 60));
-        logMutation.mutate({ duration_minutes: durationMinutes, note: note.trim() || undefined });
+        logMutation.mutate(note.trim());
     };
 
-    const isRunning = timerState?.isRunning || false;
-    const hasTimer = timerState !== null;
-    const durationMinutes = Math.round(elapsed / 60);
+    const isRunning = session && !session.isPaused;
+    const hasSession = session !== null;
+    const durationMinutes = Math.max(1, Math.round(elapsed / 60));
 
-    if (!hasTimer) return null;
+    if (!hasSession) return null;
 
     return (
         <>
@@ -159,7 +203,7 @@ export function NavbarTimer() {
                         <div className="text-center">
                             <div className="text-2xl font-mono font-bold tabular-nums">{formatTime(elapsed)}</div>
                             <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                                {timerState?.taskTitle || "Study session"}
+                                {session?.taskTitle || "Study session"}
                             </p>
                         </div>
                         <div className="flex items-center justify-center gap-2">
@@ -193,7 +237,7 @@ export function NavbarTimer() {
                         <div className="text-center">
                             <div className="text-3xl font-mono font-bold">{formatTime(elapsed)}</div>
                             <p className="text-sm text-muted-foreground mt-1">
-                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} — {timerState?.taskTitle}
+                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} — {session?.taskTitle}
                             </p>
                         </div>
                         <div className="space-y-2">
@@ -221,3 +265,4 @@ export function NavbarTimer() {
         </>
     );
 }
+

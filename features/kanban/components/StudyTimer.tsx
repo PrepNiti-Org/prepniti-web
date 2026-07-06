@@ -1,10 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createTimeLog } from "../api";
-import { getStoredTimer, storeTimer, formatTime, dispatchTimerUpdate } from "../timerUtils";
+import {
+    getActiveSession,
+    startSession,
+    pauseSession,
+    resumeSession,
+    stopSession,
+    discardSession,
+    SessionResponseData
+} from "../api";
+import {
+    formatTime,
+    getDisplayElapsed,
+    dispatchSessionUpdate,
+    ActiveSession
+} from "../timerUtils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Play, Pause, RotateCcw, Save } from "lucide-react";
@@ -23,124 +36,183 @@ interface StudyTimerProps {
 
 export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
     const queryClient = useQueryClient();
+    const [session, setSession] = useState<ActiveSession | null>(null);
     const [elapsed, setElapsed] = useState(0);
-    const [isRunning, setIsRunning] = useState(false);
     const [showLogDialog, setShowLogDialog] = useState(false);
     const [note, setNote] = useState("");
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Restore timer state on mount
-    useEffect(() => {
-        const stored = getStoredTimer();
-        if (stored && stored.taskId === taskId) {
-            if (stored.isRunning && stored.startedAt) {
-                const now = Date.now();
-                const additionalSeconds = Math.floor((now - stored.startedAt) / 1000);
-                setElapsed(stored.elapsed + additionalSeconds);
-                setIsRunning(true);
-            } else {
-                setElapsed(stored.elapsed);
-                setIsRunning(false);
-            }
-        }
-    }, [taskId]);
+    const mapSessionData = (data: SessionResponseData | null): ActiveSession | null => {
+        if (!data) return null;
+        return {
+            sessionId: data.id,
+            taskId: data.task_id,
+            taskTitle: data.task_title,
+            startedAt: data.started_at ? new Date(data.started_at).getTime() : null,
+            accumulatedSeconds: data.accumulated_seconds,
+            isPaused: data.is_paused,
+        };
+    };
 
-    // Listen for external timer updates (from NavbarTimer)
-    useEffect(() => {
-        const handleExternalUpdate = () => {
-            const stored = getStoredTimer();
-            if (!stored || stored.taskId !== taskId) {
-                setElapsed(0);
-                setIsRunning(false);
+    const fetchSession = async () => {
+        try {
+            const data = await getActiveSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            if (active && active.taskId === taskId) {
+                setElapsed(getDisplayElapsed(active));
             } else {
-                if (stored.isRunning && stored.startedAt) {
-                    const additionalSeconds = Math.floor((Date.now() - stored.startedAt) / 1000);
-                    setElapsed(stored.elapsed + additionalSeconds);
-                    setIsRunning(true);
-                } else {
-                    setElapsed(stored.elapsed);
-                    setIsRunning(stored.isRunning);
-                }
+                setElapsed(0);
+            }
+        } catch {
+            console.error("Failed to load active study session");
+        }
+    };
+
+    useEffect(() => {
+        fetchSession();
+
+        const handleSessionUpdateEvent = (e: Event) => {
+            const customEvent = e as CustomEvent<ActiveSession | null>;
+            const newSession = customEvent.detail;
+            setSession(newSession);
+            if (newSession && newSession.taskId === taskId) {
+                setElapsed(getDisplayElapsed(newSession));
+            } else {
+                setElapsed(0);
             }
         };
-        window.addEventListener("timer-update", handleExternalUpdate);
-        return () => window.removeEventListener("timer-update", handleExternalUpdate);
+
+        window.addEventListener("session-update", handleSessionUpdateEvent);
+        document.addEventListener("visibilitychange", fetchSession);
+
+        return () => {
+            window.removeEventListener("session-update", handleSessionUpdateEvent);
+            document.removeEventListener("visibilitychange", fetchSession);
+        };
     }, [taskId]);
 
-    // Persist timer state
-    const persistState = useCallback((running: boolean, currentElapsed: number) => {
-        storeTimer({
-            taskId,
-            taskTitle,
-            elapsed: currentElapsed,
-            isRunning: running,
-            startedAt: running ? Date.now() : null,
-        });
-        dispatchTimerUpdate();
-    }, [taskId, taskTitle]);
-
-    // Timer interval
     useEffect(() => {
-        if (isRunning) {
+        if (session && session.taskId === taskId && !session.isPaused) {
             intervalRef.current = setInterval(() => {
-                setElapsed(prev => prev + 1);
+                setElapsed(getDisplayElapsed(session));
             }, 1000);
         } else {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
+            if (session && session.taskId === taskId) {
+                setElapsed(session.accumulatedSeconds);
+            }
         }
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [isRunning]);
+    }, [session, taskId]);
 
-    // Persist on state changes
-    useEffect(() => {
-        persistState(isRunning, elapsed);
-    }, [isRunning, elapsed, persistState]);
+    const handleStart = async () => {
+        try {
+            const data = await startSession(taskId);
+            const active = mapSessionData(data);
+            setSession(active);
+            dispatchSessionUpdate(active);
+            toast.success("Timer started!");
+        } catch (err: any) {
+            if (err?.response?.status === 409) {
+                toast.error(err?.response?.data?.error || "A session is already active.");
+            } else {
+                toast.error("Failed to start timer");
+            }
+        }
+    };
 
-    const handleStart = () => setIsRunning(true);
-    const handlePause = () => setIsRunning(false);
-    const handleReset = () => {
-        setIsRunning(false);
-        setElapsed(0);
-        storeTimer(null);
-        dispatchTimerUpdate();
+    const handlePause = async () => {
+        try {
+            const data = await pauseSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            dispatchSessionUpdate(active);
+            toast.info("Timer paused");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to pause timer");
+        }
+    };
+
+    const handleResume = async () => {
+        try {
+            const data = await resumeSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            dispatchSessionUpdate(active);
+            toast.info("Timer resumed");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to resume timer");
+        }
+    };
+
+    const handleReset = async () => {
+        try {
+            await discardSession();
+            setSession(null);
+            dispatchSessionUpdate(null);
+            toast.info("Study session discarded");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to discard session");
+        }
+    };
+
+    const handleLog = () => {
+        if (!session) return;
+        const currentElapsed = getDisplayElapsed(session);
+        if (currentElapsed < 60) {
+            toast.error("Session must be at least 1 minute long to log");
+            return;
+        }
+        setShowLogDialog(true);
     };
 
     const logMutation = useMutation({
-        mutationFn: (data: { duration_minutes: number; note?: string }) => createTimeLog(taskId, data),
+        mutationFn: (noteText: string) => stopSession(noteText),
         onSuccess: () => {
             toast.success("Study session logged!");
             queryClient.invalidateQueries({ queryKey: ["taskTimeLogs", taskId] });
             queryClient.invalidateQueries({ queryKey: ["userTimeLogs"] });
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
-            handleReset();
+            setSession(null);
+            dispatchSessionUpdate(null);
             setShowLogDialog(false);
             setNote("");
         },
-        onError: () => {
-            toast.error("Failed to log session");
+        onError: (err: any) => {
+            toast.error(err?.response?.data?.error || "Failed to log session");
         },
     });
 
-    const handleLog = () => {
-        if (elapsed < 60) {
-            toast.error("Session must be at least 1 minute");
-            return;
-        }
-        setIsRunning(false);
-        setShowLogDialog(true);
-    };
-
     const confirmLog = () => {
-        const durationMinutes = Math.max(1, Math.round(elapsed / 60));
-        logMutation.mutate({ duration_minutes: durationMinutes, note: note.trim() || undefined });
+        logMutation.mutate(note.trim());
     };
 
-    const durationMinutes = Math.round(elapsed / 60);
+    const isRunning = session && session.taskId === taskId && !session.isPaused;
+    const hasSession = session !== null;
+    const isThisTaskSession = session && session.taskId === taskId;
+    const durationMinutes = Math.max(1, Math.round(elapsed / 60));
+
+    if (hasSession && !isThisTaskSession) {
+        return (
+            <div className="rounded-lg border border-dashed p-4 text-center space-y-2 bg-muted/30">
+                <p className="text-xs text-muted-foreground">
+                    You have an active timer running for another target:
+                </p>
+                <p className="text-xs font-semibold text-foreground truncate max-w-[280px] mx-auto">
+                    "{session.taskTitle}"
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                    Stop or discard it from the navbar timer to track effort here.
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
@@ -159,7 +231,7 @@ export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
                 {!isRunning ? (
                     <Button
                         size="sm"
-                        onClick={handleStart}
+                        onClick={elapsed > 0 ? handleResume : handleStart}
                         className="gap-2 rounded-full px-6 shadow-sm"
                     >
                         <Play className="h-4 w-4" />
@@ -186,7 +258,7 @@ export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
                             className="gap-2 rounded-full"
                         >
                             <RotateCcw className="h-4 w-4" />
-                            Reset
+                            Discard
                         </Button>
                         <Button
                             size="sm"
@@ -211,7 +283,7 @@ export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
                         <div className="text-center">
                             <div className="text-3xl font-mono font-bold">{formatTime(elapsed)}</div>
                             <p className="text-sm text-muted-foreground mt-1">
-                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""}
+                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} — {taskTitle}
                             </p>
                         </div>
                         <div className="space-y-2">
@@ -239,3 +311,4 @@ export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
         </div>
     );
 }
+
