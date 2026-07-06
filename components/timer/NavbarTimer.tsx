@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createTimeLog } from "@/features/kanban/api";
-import { getStoredTimer, storeTimer, formatTime, dispatchTimerUpdate, TimerState } from "@/features/kanban/timerUtils";
+import { getStoredTimer, storeTimer, formatTime, dispatchTimerUpdate, getActualElapsed, TimerState } from "@/features/kanban/timerUtils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Play, Pause, Square, Save, Timer } from "lucide-react";
@@ -29,17 +29,12 @@ export function NavbarTimer() {
     const [note, setNote] = useState("");
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Sync from localStorage + listen for cross-component events
+    // Sync from localStorage using wall-clock elapsed (immune to setInterval throttling)
     const syncFromStorage = () => {
         const stored = getStoredTimer();
         setTimerState(stored);
         if (stored) {
-            if (stored.isRunning && stored.startedAt) {
-                const additionalSeconds = Math.floor((Date.now() - stored.startedAt) / 1000);
-                setElapsed(stored.elapsed + additionalSeconds);
-            } else {
-                setElapsed(stored.elapsed);
-            }
+            setElapsed(getActualElapsed(stored));
         } else {
             setElapsed(0);
         }
@@ -48,14 +43,22 @@ export function NavbarTimer() {
     useEffect(() => {
         syncFromStorage();
         window.addEventListener("timer-update", syncFromStorage);
-        return () => window.removeEventListener("timer-update", syncFromStorage);
+        // Resync from wall-clock when user returns to this tab after being away.
+        // This corrects elapsed that drifted due to browser background tab throttling.
+        document.addEventListener("visibilitychange", syncFromStorage);
+        return () => {
+            window.removeEventListener("timer-update", syncFromStorage);
+            document.removeEventListener("visibilitychange", syncFromStorage);
+        };
     }, []);
 
-    // Tick every second when running
+    // Tick every second when running — always recompute from wall-clock startedAt
+    // so background throttling cannot accumulate drift in the displayed value.
     useEffect(() => {
         if (timerState?.isRunning) {
             intervalRef.current = setInterval(() => {
-                setElapsed(prev => prev + 1);
+                const stored = getStoredTimer();
+                if (stored) setElapsed(getActualElapsed(stored));
             }, 1000);
         } else {
             if (intervalRef.current) {
@@ -70,7 +73,10 @@ export function NavbarTimer() {
 
     const handlePause = () => {
         if (!timerState) return;
-        storeTimer({ ...timerState, elapsed, isRunning: false, startedAt: null });
+        // Snapshot true wall-clock elapsed before pausing so no time is lost
+        const trueElapsed = getActualElapsed(timerState);
+        setElapsed(trueElapsed);
+        storeTimer({ ...timerState, elapsed: trueElapsed, isRunning: false, startedAt: null });
         dispatchTimerUpdate();
     };
 
@@ -82,14 +88,17 @@ export function NavbarTimer() {
 
     const handleStop = () => {
         if (!timerState) return;
-        if (elapsed < 60) {
+        // Always use wall-clock elapsed — never the potentially throttled state value
+        const trueElapsed = getActualElapsed(timerState);
+        setElapsed(trueElapsed);
+        if (trueElapsed < 60) {
             storeTimer(null);
             dispatchTimerUpdate();
             toast.info("Timer discarded (less than 1 minute)");
             return;
         }
         // Pause and show log dialog
-        storeTimer({ ...timerState, elapsed, isRunning: false, startedAt: null });
+        storeTimer({ ...timerState, elapsed: trueElapsed, isRunning: false, startedAt: null });
         dispatchTimerUpdate();
         setShowLogDialog(true);
     };
