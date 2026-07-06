@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { getNotifications, markNotificationsAsRead, Notification } from "@/features/notifications/api";
+import { getNotifications, markNotificationsAsRead, markSingleNotificationAsRead, Notification } from "@/features/notifications/api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,6 +41,15 @@ export default function NotificationsPage() {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
         }
     });
+
+    const markSingleAsReadMutation = useMutation({
+        mutationFn: (id: string) => markSingleNotificationAsRead(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["notificationsList"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        }
+    });
+
 
     if (!isLoggedIn) {
         return (
@@ -110,7 +119,7 @@ export default function NotificationsPage() {
                                             ? (notif.type === "comment_post" || notif.type === "reply_comment" || notif.type === "like_comment"
                                                 ? `/posts/${notif.post_id}#comments`
                                                 : `/posts/${notif.post_id}`)
-                                            : "#";
+                                            : (notif.type === "buddy_request" || notif.type === "buddy_accepted" ? "/buddies" : "#");
 
                                         const renderContent = () => (
                                             <div className="flex gap-4 items-start w-full text-left">
@@ -132,6 +141,8 @@ export default function NotificationsPage() {
                                                                 {notif.type === "comment_post" && "commented on your post."}
                                                                 {notif.type === "like_comment" && "liked your comment."}
                                                                 {notif.type === "reply_comment" && "replied to your comment."}
+                                                                {notif.type === "buddy_request" && "sent you a buddy request."}
+                                                                {notif.type === "buddy_accepted" && "accepted your buddy request."}
                                                             </span>
                                                         )}
                                                     </p>
@@ -162,12 +173,24 @@ export default function NotificationsPage() {
                                                         {isWelcome ? (
                                                             <div
                                                                 className="cursor-pointer"
-                                                                onClick={() => setWelcomeOpen(true)}
+                                                                onClick={() => {
+                                                                    setWelcomeOpen(true);
+                                                                    if (!notif.is_read) {
+                                                                        markSingleAsReadMutation.mutate(notif.id);
+                                                                    }
+                                                                }}
                                                             >
                                                                 {renderContent()}
                                                             </div>
                                                         ) : (
-                                                            <Link href={href}>
+                                                            <Link 
+                                                                href={href}
+                                                                onClick={() => {
+                                                                    if (!notif.is_read) {
+                                                                        markSingleAsReadMutation.mutate(notif.id);
+                                                                    }
+                                                                }}
+                                                            >
                                                                 {renderContent()}
                                                             </Link>
                                                         )}

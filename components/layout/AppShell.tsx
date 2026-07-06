@@ -27,7 +27,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto relative py-8 px-4 sm:px-8">
+                <main className={pathname.startsWith("/chat") ? "flex-1 relative overflow-hidden flex flex-col" : "flex-1 overflow-y-auto relative py-8 px-4 sm:px-8"}>
                     {children}
                 </main>
             </div>
