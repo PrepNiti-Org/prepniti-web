@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Trash2, Save, Calendar, AlertTriangle, Clock, Timer, X } from "lucide-react";
+import { Loader2, Trash2, Save, Calendar, AlertTriangle, Clock, Timer, X, BookOpen, PenTool, Target, BrainCircuit } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
 
@@ -141,7 +141,7 @@ export function TaskDetailsPanel({
                 </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-1 -mr-2 space-y-4">
+            <div className="flex-1 overflow-y-auto pr-1 -mr-2 space-y-4 pb-4">
                 {activeTab === "details" ? (
                     <div className="space-y-4">
                         <div className="bg-muted/30 rounded-xl p-3 border">
@@ -172,10 +172,30 @@ export function TaskDetailsPanel({
                                     <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
                                         <SelectTrigger className="h-9 text-sm rounded-xl"><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="READING">📖 Reading</SelectItem>
-                                            <SelectItem value="PRACTICE">✍️ Practice</SelectItem>
-                                            <SelectItem value="MOCK_TEST">🎯 Mock Test</SelectItem>
-                                            <SelectItem value="REVISION">🧠 Revision</SelectItem>
+                                            <SelectItem value="READING">
+                                                <div className="flex items-center gap-2">
+                                                    <BookOpen className="w-4 h-4 text-muted-foreground" />
+                                                    <span>Reading</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="PRACTICE">
+                                                <div className="flex items-center gap-2">
+                                                    <PenTool className="w-4 h-4 text-muted-foreground" />
+                                                    <span>Practice</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="MOCK_TEST">
+                                                <div className="flex items-center gap-2">
+                                                    <Target className="w-4 h-4 text-red-500" />
+                                                    <span>Mock Test</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="REVISION">
+                                                <div className="flex items-center gap-2">
+                                                    <BrainCircuit className="w-4 h-4 text-purple-500" />
+                                                    <span>Revision</span>
+                                                </div>
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -284,7 +304,7 @@ export function TaskDetailsPanel({
                 )}
             </div>
 
-            <div className="flex justify-between border-t pt-4 bg-background shrink-0 mt-4">
+            <div className="flex justify-between border-t border-border/50 pt-4 bg-transparent shrink-0 mt-4">
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive" size="sm" disabled={deleteMutation.isPending} className="cursor-pointer rounded-xl h-9 text-xs">

@@ -52,21 +52,21 @@ export function KanbanBoardView({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                 <BoardColumn 
                     id="TODO" 
-                    title="To Study 📚" 
+                    title="To Study" 
                     tasks={tasks.filter((t) => t.status === "TODO")} 
                     selectedTaskId={selectedTaskId}
                     onSelectTask={onSelectTask}
                 />
                 <BoardColumn 
                     id="IN_PROGRESS" 
-                    title="In Revision 🧠" 
+                    title="In Revision" 
                     tasks={tasks.filter((t) => t.status === "IN_PROGRESS")} 
                     selectedTaskId={selectedTaskId}
                     onSelectTask={onSelectTask}
                 />
                 <BoardColumn 
                     id="DONE" 
-                    title="Completed ✅" 
+                    title="Completed" 
                     tasks={tasks.filter((t) => t.status === "DONE")} 
                     selectedTaskId={selectedTaskId}
                     onSelectTask={onSelectTask}

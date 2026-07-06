@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Loader2, Calendar } from "lucide-react";
+import { Plus, Loader2, Calendar, BookOpen, PenTool, Target, BrainCircuit } from "lucide-react";
 import { createTask, Task, Priority, Status } from "../api";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -72,10 +72,30 @@ export function AddTaskModal() {
                             <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="READING">📖 Reading</SelectItem>
-                                    <SelectItem value="PRACTICE">✍️ Practice</SelectItem>
-                                    <SelectItem value="MOCK_TEST">🎯 Mock Test</SelectItem>
-                                    <SelectItem value="REVISION">🧠 Revision</SelectItem>
+                                    <SelectItem value="READING">
+                                        <div className="flex items-center gap-2">
+                                            <BookOpen className="w-4 h-4 text-muted-foreground" />
+                                            <span>Reading</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="PRACTICE">
+                                        <div className="flex items-center gap-2">
+                                            <PenTool className="w-4 h-4 text-muted-foreground" />
+                                            <span>Practice</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="MOCK_TEST">
+                                        <div className="flex items-center gap-2">
+                                            <Target className="w-4 h-4 text-red-500" />
+                                            <span>Mock Test</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="REVISION">
+                                        <div className="flex items-center gap-2">
+                                            <BrainCircuit className="w-4 h-4 text-purple-500" />
+                                            <span>Revision</span>
+                                        </div>
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
