@@ -9,7 +9,7 @@ import Link from "next/link";
 
 function AuthedFeed() {
     return (
-        <div className="pt-10 grid grid-cols-1 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
             <div className="lg:col-span-3">
                 <div className="flex items-center justify-between mb-6">
                     <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-muted-foreground/60">

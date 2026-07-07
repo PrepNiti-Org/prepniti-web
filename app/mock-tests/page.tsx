@@ -199,7 +199,7 @@ export default function MockTestsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -15 }}
                     >
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                             <div className="flex items-center gap-3">
                                 <GraduationCap className="h-8 w-8 text-primary" />
                                 <div>
@@ -207,7 +207,7 @@ export default function MockTestsPage() {
                                     <p className="text-muted-foreground text-sm font-sans">Attempt mock papers and evaluate your performance under realistic exam constraints.</p>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 bg-card border border-border p-4 rounded-2xl shadow-sm">
                             <div className="relative w-full md:max-w-xs">
@@ -235,7 +235,7 @@ export default function MockTestsPage() {
                                     className={`text-xs font-bold rounded-lg whitespace-nowrap ${activeTab === "full"
                                         ? "bg-amber-500 text-slate-950 hover:bg-amber-500/90 shadow-sm"
                                         : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
-                                    }`}
+                                        }`}
                                 >
                                     Full-Length Mocks
                                 </Button>
@@ -245,7 +245,7 @@ export default function MockTestsPage() {
                                     className={`text-xs font-bold rounded-lg whitespace-nowrap ${activeTab === "practice"
                                         ? "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 hover:bg-emerald-600/90 shadow-sm"
                                         : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
-                                    }`}
+                                        }`}
                                 >
                                     Practice Sheets
                                 </Button>

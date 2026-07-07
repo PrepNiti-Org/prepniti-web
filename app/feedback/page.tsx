@@ -128,23 +128,24 @@ export default function FeedbackPage() {
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-semibold">
-                        Email Address {!isLoggedIn && <span className="text-destructive">*</span>}
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="yourname@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isLoggedIn}
-                        className="border-primary/30 focus-visible:ring-primary/40 focus-visible:border-primary disabled:opacity-75"
-                      />
-                      <p className="text-[11px] text-muted-foreground">
-                        {isLoggedIn ? "Linked to your PrepNiti account email." : "Email is required for contact updates."}
-                      </p>
-                    </div>
+                    {!isLoggedIn && (
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-semibold">
+                          Email Address <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="yourname@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="border-primary/30 focus-visible:ring-primary/40 focus-visible:border-primary"
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          Email is required for contact updates.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label htmlFor="message" className="text-sm font-semibold">Message</Label>

@@ -236,11 +236,11 @@ export default function ProfilePage() {
                                 <span className="text-muted-foreground text-xs">Username</span>
                                 <span className="font-bold text-xs text-foreground">@{user.username}</span>
                             </div>
-                            <Separator />
+                            {/* <Separator />
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground text-xs">Role</span>
                                 <Badge variant="outline" className="text-[10px] capitalize">{user.role}</Badge>
-                            </div>
+                            </div> */}
                             <Separator />
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground text-xs">Joined</span>

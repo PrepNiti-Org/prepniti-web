@@ -65,7 +65,7 @@ export default function TrackerDashboard() {
     return (
         <div className="container max-w-7xl mx-auto space-y-6">
 
-            <div className="relative overflow-hidden border border-primary/15 rounded-2xl p-6 bg-gradient-to-r from-primary/[0.08] via-primary/[0.03] to-transparent shadow-sm">
+            {/* <div className="relative overflow-hidden border border-primary/15 rounded-2xl p-6 bg-gradient-to-r from-primary/[0.08] via-primary/[0.03] to-transparent shadow-sm">
                 <div className="absolute inset-0 bg-dot-pattern opacity-25 pointer-events-none" />
                 <div className="relative z-10">
                     <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2.5 text-foreground">
@@ -76,7 +76,7 @@ export default function TrackerDashboard() {
                     </p>
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
-            </div>
+            </div> */}
 
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 bg-card border rounded-lg p-2 shadow-sm">
 
