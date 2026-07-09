@@ -24,7 +24,7 @@ function AuthedFeed() {
                 <FeedClient />
             </div>
 
-            <aside className="hidden lg:block space-y-8 pt-9">
+            <aside className="hidden lg:block space-y-8 pt-9 lg:sticky lg:top-0 lg:self-start">
                 <Card className="border-border/50 bg-card/50 rounded-2xl shadow-none">
                     <CardHeader className="pb-3 pt-5 px-5">
                         <CardTitle className="text-sm font-bold">Share your experience</CardTitle>

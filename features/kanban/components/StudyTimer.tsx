@@ -20,7 +20,7 @@ import {
 } from "../timerUtils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Play, Pause, RotateCcw, Save } from "lucide-react";
+import { Play, Pause, RotateCcw, Check } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -227,51 +227,58 @@ export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-3">
-                {!isRunning ? (
+            {elapsed > 0 ? (
+                <div className="grid grid-cols-3 gap-2.5 w-full max-w-[340px] mx-auto">
                     <Button
-                        size="sm"
-                        onClick={elapsed > 0 ? handleResume : handleStart}
-                        className="gap-2 rounded-full px-6 shadow-sm"
-                    >
-                        <Play className="h-4 w-4" />
-                        {elapsed > 0 ? "Resume" : "Start"}
-                    </Button>
-                ) : (
-                    <Button
-                        size="sm"
                         variant="secondary"
-                        onClick={handlePause}
-                        className="gap-2 rounded-full px-6 shadow-sm"
+                        size="sm"
+                        onClick={handleReset}
+                        className="rounded-xl h-9 text-xs font-semibold bg-destructive/10 hover:bg-destructive/20 text-destructive border-none shadow-sm cursor-pointer w-full"
                     >
-                        <Pause className="h-4 w-4" />
-                        Pause
+                        <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                        Discard
                     </Button>
-                )}
 
-                {elapsed > 0 && (
-                    <>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleReset}
-                            className="gap-2 rounded-full"
-                        >
-                            <RotateCcw className="h-4 w-4" />
-                            Discard
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="default"
-                            onClick={handleLog}
-                            className="gap-2 rounded-full px-6 shadow-sm bg-green-600 hover:bg-green-700 text-white"
-                        >
-                            <Save className="h-4 w-4" />
-                            Log
-                        </Button>
-                    </>
-                )}
-            </div>
+                    <Button
+                        size="sm"
+                        variant={isRunning ? "secondary" : "default"}
+                        onClick={!isRunning ? handleResume : handlePause}
+                        className="rounded-xl h-9 text-xs font-semibold cursor-pointer transition-all duration-200 w-full"
+                    >
+                        {!isRunning ? (
+                            <>
+                                <Play className="h-3.5 w-3.5 mr-1 fill-current" />
+                                Resume
+                            </>
+                        ) : (
+                            <>
+                                <Pause className="h-3.5 w-3.5 mr-1 fill-current" />
+                                Pause
+                            </>
+                        )}
+                    </Button>
+
+                    <Button
+                        size="sm"
+                        onClick={handleLog}
+                        className="rounded-xl h-9 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white border-none shadow-sm cursor-pointer w-full"
+                    >
+                        <Check className="h-3.5 w-3.5 mr-1" />
+                        Stop &amp; Log
+                    </Button>
+                </div>
+            ) : (
+                <div className="flex justify-center w-full">
+                    <Button
+                        size="sm"
+                        onClick={handleStart}
+                        className="rounded-xl h-9 text-xs font-semibold cursor-pointer w-[140px]"
+                    >
+                        <Play className="h-3.5 w-3.5 mr-1 fill-current" />
+                        Start
+                    </Button>
+                </div>
+            )}
 
             {/* Log Confirmation Dialog */}
             <Dialog open={showLogDialog} onOpenChange={setShowLogDialog}>
@@ -303,7 +310,7 @@ export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
                             disabled={logMutation.isPending}
                             className="bg-green-600 hover:bg-green-700 text-white"
                         >
-                            {logMutation.isPending ? "Saving..." : "Save Session"}
+                            {logMutation.isPending ? "Logging..." : "Log Session"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

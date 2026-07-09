@@ -19,7 +19,7 @@ import {
 } from "@/features/kanban/timerUtils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Play, Pause, Square, Save, Timer } from "lucide-react";
+import { Play, Pause, RotateCcw, Check, Timer } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -206,21 +206,40 @@ export function NavbarTimer() {
                                 {session?.taskTitle || "Study session"}
                             </p>
                         </div>
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="grid grid-cols-3 gap-1.5 w-full">
+                            <Button
+                                size="sm"
+                                onClick={handleDiscard}
+                                className="rounded-xl h-8 text-[11px] font-semibold bg-destructive/10 hover:bg-destructive/20 text-destructive border-none shadow-sm cursor-pointer w-full"
+                            >
+                                <RotateCcw className="h-3.5 w-3.5 mr-0.5" /> Discard
+                            </Button>
+
                             {isRunning ? (
-                                <Button size="sm" variant="secondary" onClick={handlePause} className="gap-1.5 rounded-full h-8 text-xs">
-                                    <Pause className="h-3.5 w-3.5" /> Pause
+                                <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={handlePause}
+                                    className="rounded-xl h-8 text-[11px] font-semibold cursor-pointer w-full"
+                                >
+                                    <Pause className="h-3.5 w-3.5 mr-0.5" /> Pause
                                 </Button>
                             ) : (
-                                <Button size="sm" onClick={handleResume} className="gap-1.5 rounded-full h-8 text-xs">
-                                    <Play className="h-3.5 w-3.5" /> Resume
+                                <Button
+                                    size="sm"
+                                    onClick={handleResume}
+                                    className="rounded-xl h-8 text-[11px] font-semibold cursor-pointer w-full"
+                                >
+                                    <Play className="h-3.5 w-3.5 mr-0.5 fill-current" /> Resume
                                 </Button>
                             )}
-                            <Button size="sm" variant="default" onClick={handleStop} className="gap-1.5 rounded-full h-8 text-xs bg-green-600 hover:bg-green-700 text-white">
-                                <Save className="h-3.5 w-3.5" /> Log
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={handleDiscard} className="gap-1.5 rounded-full h-8 text-xs text-destructive hover:text-destructive">
-                                <Square className="h-3.5 w-3.5" /> Discard
+
+                            <Button
+                                size="sm"
+                                onClick={handleStop}
+                                className="rounded-xl h-8 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm cursor-pointer w-full"
+                            >
+                                <Check className="h-3.5 w-3.5 mr-0.5" /> Log
                             </Button>
                         </div>
                     </div>
@@ -251,13 +270,13 @@ export function NavbarTimer() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setShowLogDialog(false)}>Cancel</Button>
+                        <Button variant="ghost" className="rounded-xl text-xs h-9 cursor-pointer" onClick={() => setShowLogDialog(false)}>Cancel</Button>
                         <Button
                             onClick={confirmLog}
                             disabled={logMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs h-9 font-semibold cursor-pointer"
                         >
-                            {logMutation.isPending ? "Saving..." : "Save Session"}
+                            {logMutation.isPending ? "Logging..." : "Log Session"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-table";
 import { ChevronsUpDown, ChevronUp, ChevronDown, Play, Pause, Loader2 } from "lucide-react";
 import { dispatchSessionUpdate, ActiveSession } from "../timerUtils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function TaskListView({ 
     tasks, 
@@ -114,27 +115,41 @@ export function TaskListView({
                 const isRunning = isCurrentSession && !session.isPaused;
                 const isPending = pendingTaskId === targetTask.id;
 
+                const tooltipLabel = isCurrentSession 
+                    ? isRunning 
+                        ? "Pause Session" 
+                        : "Resume Session" 
+                    : "Start Session";
+
                 return (
-                    <button
-                        onClick={(e) => handleTimerClick(e, targetTask)}
-                        disabled={pendingTaskId !== null}
-                        className={`p-1.5 rounded-full border transition-all cursor-pointer ${
-                            isCurrentSession
-                                ? isRunning
-                                    ? "bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20 animate-pulse"
-                                    : "bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20"
-                                : "bg-muted border-border text-muted-foreground hover:bg-muted-foreground hover:text-background"
-                        }`}
-                        title={isCurrentSession ? (isRunning ? "Pause Session" : "Resume Session") : "Start Session"}
-                    >
-                        {isPending ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : isCurrentSession && isRunning ? (
-                            <Pause className="w-3.5 h-3.5 fill-current" />
-                        ) : (
-                            <Play className="w-3.5 h-3.5 fill-current" />
-                        )}
-                    </button>
+                    <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button
+                                    onClick={(e) => handleTimerClick(e, targetTask)}
+                                    disabled={pendingTaskId !== null}
+                                    className={`p-1.5 rounded-full border transition-all cursor-pointer ${
+                                        isCurrentSession
+                                            ? isRunning
+                                                ? "bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20 animate-pulse"
+                                                : "bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20"
+                                            : "bg-muted border-border text-muted-foreground hover:bg-muted-foreground hover:text-background"
+                                    }`}
+                                >
+                                    {isPending ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : isCurrentSession && isRunning ? (
+                                        <Pause className="w-3.5 h-3.5 fill-current" />
+                                    ) : (
+                                        <Play className="w-3.5 h-3.5 fill-current" />
+                                    )}
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center">
+                                {tooltipLabel}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 );
             }
         },

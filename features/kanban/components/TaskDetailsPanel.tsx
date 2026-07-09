@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Trash2, Save, Calendar, AlertTriangle, Clock, Timer, X, BookOpen, PenTool, Target, BrainCircuit } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import {
     AlertDialog,
@@ -107,20 +108,67 @@ export function TaskDetailsPanel({
     const timeLogs = timeLogData?.data || [];
 
     return (
-        <div className="flex flex-col h-full lg:bg-card lg:border lg:rounded-2xl lg:shadow-sm lg:p-5 p-1 bg-transparent border-none shadow-none overflow-hidden animate-in slide-in-from-right duration-200">
-            <div className="flex items-center justify-between border-b pb-3 mb-4 shrink-0">
-                <h3 className="font-bold text-base text-foreground tracking-tight">Edit Target</h3>
-            {showCloseButton && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={onClose}
-                        className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground"
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
-                )}
-            </div>
+        <TooltipProvider delayDuration={200}>
+            <div className="flex flex-col h-full bg-transparent border-none rounded-none shadow-none p-4 sm:p-5 overflow-hidden">
+                <div className="flex items-center justify-between border-b pb-3 mb-4 shrink-0">
+                    <h3 className="font-bold text-base text-foreground tracking-tight">Edit Target</h3>
+                    <div className="flex items-center gap-1.5">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                disabled={deleteMutation.isPending} 
+                                                className="h-8 w-8 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                                            >
+                                                {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="rounded-2xl">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle className="flex items-center gap-2 text-destructive font-bold text-base">
+                                                    <AlertTriangle className="w-5 h-5" /> Delete this target?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription className="text-sm">
+                                                    Are you sure you want to permanently delete <strong>&quot;{task.title}&quot;</strong>? This action cannot be undone.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel className="cursor-pointer rounded-xl text-xs h-9">Cancel</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer rounded-xl text-xs h-9"
+                                                    onClick={() => deleteMutation.mutate()}
+                                                >
+                                                    Yes, delete it
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete Target</TooltipContent>
+                        </Tooltip>
+
+                        {showCloseButton && (
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={onClose}
+                                        className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Close Panel</TooltipContent>
+                            </Tooltip>
+                        )}
+                    </div>
+                </div>
 
             <div className="flex bg-muted p-1 rounded-xl shrink-0 mb-4">
                 <Button
@@ -158,83 +206,87 @@ export function TaskDetailsPanel({
 
                         <div className="space-y-4 py-1">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Title</label>
-                                <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-9 text-sm rounded-xl" />
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Target Title</label>
+                                <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-9.5 text-sm font-semibold rounded-xl" />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Subject</label>
-                                    <Input value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} className="h-9 text-sm rounded-xl" />
+                            <div className="bg-muted/15 border border-border/50 rounded-xl p-4 space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Subject</label>
+                                        <Input value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} className="h-9 text-sm rounded-xl bg-card" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Task Type</label>
+                                        <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
+                                            <SelectTrigger className="h-9 text-sm rounded-xl bg-card"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="READING">
+                                                    <div className="flex items-center gap-2">
+                                                        <BookOpen className="w-4 h-4 text-muted-foreground" />
+                                                        <span>Reading</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="PRACTICE">
+                                                    <div className="flex items-center gap-2">
+                                                        <PenTool className="w-4 h-4 text-muted-foreground" />
+                                                        <span>Practice</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="MOCK_TEST">
+                                                    <div className="flex items-center gap-2">
+                                                        <Target className="w-4 h-4 text-red-500" />
+                                                        <span>Mock Test</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="REVISION">
+                                                    <div className="flex items-center gap-2">
+                                                        <BrainCircuit className="w-4 h-4 text-purple-500" />
+                                                        <span>Revision</span>
+                                                    </div>
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Task Type</label>
-                                    <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
-                                        <SelectTrigger className="h-9 text-sm rounded-xl"><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="READING">
-                                                <div className="flex items-center gap-2">
-                                                    <BookOpen className="w-4 h-4 text-muted-foreground" />
-                                                    <span>Reading</span>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="PRACTICE">
-                                                <div className="flex items-center gap-2">
-                                                    <PenTool className="w-4 h-4 text-muted-foreground" />
-                                                    <span>Practice</span>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="MOCK_TEST">
-                                                <div className="flex items-center gap-2">
-                                                    <Target className="w-4 h-4 text-red-500" />
-                                                    <span>Mock Test</span>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="REVISION">
-                                                <div className="flex items-center gap-2">
-                                                    <BrainCircuit className="w-4 h-4 text-purple-500" />
-                                                    <span>Revision</span>
-                                                </div>
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</label>
-                                    <Select value={form.status} onValueChange={(v: Status) => setForm({ ...form, status: v })}>
-                                        <SelectTrigger className="h-9 text-sm rounded-xl"><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="TODO">To Study</SelectItem>
-                                            <SelectItem value="IN_PROGRESS">In Revision</SelectItem>
-                                            <SelectItem value="DONE">Completed</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</label>
+                                        <Select value={form.status} onValueChange={(v: Status) => setForm({ ...form, status: v })}>
+                                            <SelectTrigger className="h-9 text-sm rounded-xl bg-card"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="TODO">To Study</SelectItem>
+                                                <SelectItem value="IN_PROGRESS">In Revision</SelectItem>
+                                                <SelectItem value="DONE">Completed</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Priority</label>
+                                        <Select value={form.priority} onValueChange={(v: Priority) => setForm({ ...form, priority: v })}>
+                                            <SelectTrigger className="h-9 text-sm rounded-xl bg-card"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="HIGH">High</SelectItem>
+                                                <SelectItem value="MEDIUM">Medium</SelectItem>
+                                                <SelectItem value="LOW">Low</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Priority</label>
-                                    <Select value={form.priority} onValueChange={(v: Priority) => setForm({ ...form, priority: v })}>
-                                        <SelectTrigger className="h-9 text-sm rounded-xl"><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="HIGH">High</SelectItem>
-                                            <SelectItem value="MEDIUM">Medium</SelectItem>
-                                            <SelectItem value="LOW">Low</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Est. Hours</label>
-                                    <Input type="number" value={form.estimated_hours} onChange={e => setForm({ ...form, estimated_hours: e.target.value })} className="h-9 text-sm rounded-xl" />
-                                </div>
-                            </div>
 
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Target Date</label>
-                                <div className="relative">
-                                    <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                    <Input type="date" className="pl-9 h-9 text-sm rounded-xl" value={form.target_date} onChange={e => setForm({ ...form, target_date: e.target.value })} />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Est. Hours</label>
+                                        <Input type="number" value={form.estimated_hours} onChange={e => setForm({ ...form, estimated_hours: e.target.value })} className="h-9 text-sm rounded-xl bg-card" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Target Date</label>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <Input type="date" className="pl-9 h-9 text-sm rounded-xl bg-card" value={form.target_date} onChange={e => setForm({ ...form, target_date: e.target.value })} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -286,15 +338,20 @@ export function TaskDetailsPanel({
                                                     <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{log.note}</p>
                                                 )}
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive cursor-pointer"
-                                                onClick={() => deleteLogMutation.mutate(log.id)}
-                                                disabled={deleteLogMutation.isPending}
-                                            >
-                                                <Trash2 className="h-3.5 w-3.5" />
-                                            </Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive cursor-pointer"
+                                                        onClick={() => deleteLogMutation.mutate(log.id)}
+                                                        disabled={deleteLogMutation.isPending}
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>Delete Session Log</TooltipContent>
+                                            </Tooltip>
                                         </div>
                                     ))}
                                 </div>
@@ -304,41 +361,15 @@ export function TaskDetailsPanel({
                 )}
             </div>
 
-            <div className="flex justify-between border-t border-border/50 pt-4 bg-transparent shrink-0 mt-4">
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" disabled={deleteMutation.isPending} className="cursor-pointer rounded-xl h-9 text-xs">
-                            {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Trash2 className="w-4 h-4 mr-1.5" /> Delete</>}
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-2xl">
-                        <AlertDialogHeader>
-                            <AlertDialogTitle className="flex items-center gap-2 text-destructive font-bold text-base">
-                                <AlertTriangle className="w-5 h-5" /> Delete this target?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription className="text-sm">
-                                Are you sure you want to permanently delete <strong>&quot;{task.title}&quot;</strong>? This action cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel className="cursor-pointer rounded-xl text-xs h-9">Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer rounded-xl text-xs h-9"
-                                onClick={() => deleteMutation.mutate()}
-                            >
-                                Yes, delete it
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-
-                <div className="flex gap-2">
+            {activeTab === "details" && (
+                <div className="flex justify-end gap-2 border-t border-border/50 pt-4 bg-transparent shrink-0 mt-4">
                     <Button variant="ghost" size="sm" onClick={onClose} className="cursor-pointer rounded-xl h-9 text-xs">Cancel</Button>
                     <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending} className="cursor-pointer rounded-xl h-9 text-xs">
                         {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-1.5" /> Save</>}
                     </Button>
                 </div>
-            </div>
+            )}
         </div>
+        </TooltipProvider>
     );
 }

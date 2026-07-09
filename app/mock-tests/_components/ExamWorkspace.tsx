@@ -316,24 +316,24 @@ export function ExamWorkspace({
 
     // Bottom Action Buttons
     const btnMarkReviewClass = useRealistic
-        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans"
-        : "px-4 py-2.5 text-xs font-semibold bg-violet-500/10 hover:bg-violet-500/15 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 border border-violet-500/30 rounded-xl transition-all select-none font-sans";
+        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans cursor-pointer"
+        : "px-4 py-2.5 text-xs font-semibold bg-violet-500/10 hover:bg-violet-500/15 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 border border-violet-500/30 rounded-xl transition-all select-none font-sans cursor-pointer";
 
     const btnClearClass = useRealistic
-        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans"
-        : "px-4 py-2.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-muted-foreground border border-border rounded-xl transition-all select-none font-sans";
+        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans cursor-pointer"
+        : "px-4 py-2.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-muted-foreground border border-border rounded-xl transition-all select-none font-sans cursor-pointer";
 
     const btnPrevClass = useRealistic
-        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-slate-800 transition-colors select-none font-sans"
-        : "px-4 py-2.5 text-xs font-semibold bg-background hover:bg-muted text-foreground border border-input rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all select-none font-sans";
+        ? "px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-slate-800 transition-colors select-none font-sans cursor-pointer"
+        : "px-4 py-2.5 text-xs font-semibold bg-background hover:bg-muted text-foreground border border-input rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all select-none font-sans cursor-pointer";
 
     const btnSaveClass = useRealistic
-        ? "px-5 py-2 text-xs font-bold bg-[#44a037] hover:bg-[#3c8e31] text-white border border-transparent rounded transition-colors select-none font-sans shadow-sm"
-        : "px-5 py-2.5 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground border border-transparent rounded-xl transition-all select-none font-sans shadow-sm shadow-primary/20 hover:shadow-md flex items-center gap-1";
+        ? "px-5 py-2 text-xs font-bold bg-[#44a037] hover:bg-[#3c8e31] text-white border border-transparent rounded transition-colors select-none font-sans shadow-sm cursor-pointer"
+        : "px-5 py-2.5 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground border border-transparent rounded-xl transition-all select-none font-sans shadow-sm shadow-primary/20 hover:shadow-md flex items-center gap-1 cursor-pointer";
 
     const btnSubmitClass = useRealistic
-        ? "w-full h-11 font-bold text-sm tracking-wide shadow-md font-sans"
-        : "w-full h-11 font-bold text-sm tracking-wide shadow-lg transition-all rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground";
+        ? "w-full h-11 font-bold text-sm tracking-wide shadow-md font-sans cursor-pointer"
+        : "w-full h-11 font-bold text-sm tracking-wide shadow-lg transition-all rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground cursor-pointer";
 
     return (
         <div className="fixed inset-0 z-50 bg-background overflow-hidden flex flex-col select-none" style={{ userSelect: "none" }}>
@@ -348,7 +348,7 @@ export function ExamWorkspace({
                 <div className="flex items-center gap-2 sm:gap-4 md:gap-6 shrink-0">
                     <button
                         onClick={() => setShowCalculator(prev => !prev)}
-                        className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none ${useRealistic
+                        className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none cursor-pointer ${useRealistic
                                 ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 rounded-none shadow-sm font-sans"
                                 : "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 rounded-xl font-sans"
                             }`}
@@ -360,8 +360,8 @@ export function ExamWorkspace({
                     </button>
                     <button
                         onClick={() => setShowPaletteMobile(prev => !prev)}
-                        className={`xl:hidden flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none ${useRealistic
-                                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 rounded-none shadow-sm font-sans"
+                        className={`xl:hidden flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none cursor-pointer ${useRealistic
+                                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-750 rounded-none shadow-sm font-sans"
                                 : "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 rounded-xl font-sans"
                             }`}
                     >
@@ -403,7 +403,7 @@ export function ExamWorkspace({
                                                 setCurrentQuestionIndex(firstQIdx);
                                             }
                                         }}
-                                        className={`transition-all select-none font-sans ${tabBtnClass}`}
+                                        className={`transition-all select-none font-sans cursor-pointer ${tabBtnClass}`}
                                     >
                                         {sec}
                                     </button>
@@ -589,7 +589,7 @@ export function ExamWorkspace({
                                     <span className="font-bold text-sm text-foreground font-sans">Exam Navigation</span>
                                     <button
                                         onClick={() => setShowPaletteMobile(false)}
-                                        className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800"
+                                        className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
                                     >
                                         <X className="h-5 w-5" />
                                     </button>

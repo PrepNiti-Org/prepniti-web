@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Task, getTaskTimeLogs, startSession, pauseSession, resumeSession, getActiveSession } from "../api";
 import { Clock, CalendarDays, BookOpen, PenTool, Target, BrainCircuit, Timer, Play, Pause, Loader2 } from "lucide-react";
 import { dispatchSessionUpdate, ActiveSession } from "../timerUtils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const TypeIcon = ({ type }: { type: string }) => {
     switch (type) {
@@ -148,26 +149,34 @@ export function TaskCard({
                     </div>
                     <div className="flex items-center gap-2">
                         {task.priority === "HIGH" && <span className="text-[10px] text-red-500 font-bold uppercase tracking-wider">High</span>}
-                        <button
-                            onClick={handleTimerClick}
-                            disabled={isPending}
-                            className={`p-1 rounded-full border transition-all cursor-pointer ${
-                                isCurrentSession
-                                    ? isRunning
-                                        ? "bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20 animate-pulse"
-                                        : "bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20"
-                                    : "bg-muted border-border text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted-foreground hover:text-background"
-                            }`}
-                            title={isCurrentSession ? (isRunning ? "Pause Session" : "Resume Session") : "Start Session"}
-                        >
-                            {isPending ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : isCurrentSession && isRunning ? (
-                                <Pause className="w-3 h-3 fill-current" />
-                            ) : (
-                                <Play className="w-3 h-3 fill-current" />
-                            )}
-                        </button>
+                        <TooltipProvider delayDuration={200}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        onClick={handleTimerClick}
+                                        disabled={isPending}
+                                        className={`p-1 rounded-full border transition-all cursor-pointer ${
+                                            isCurrentSession
+                                                ? isRunning
+                                                    ? "bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20 animate-pulse"
+                                                    : "bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20"
+                                                : "bg-muted border-border text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted-foreground hover:text-background"
+                                        }`}
+                                    >
+                                        {isPending ? (
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        ) : isCurrentSession && isRunning ? (
+                                            <Pause className="w-3 h-3 fill-current" />
+                                        ) : (
+                                            <Play className="w-3 h-3 fill-current" />
+                                        )}
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" align="center">
+                                    {isCurrentSession ? (isRunning ? "Pause Session" : "Resume Session") : "Start Session"}
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </div>
                 </div>
 
