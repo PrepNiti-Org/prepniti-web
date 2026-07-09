@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRegisterMutation } from "../hooks/useRegisterMutation";
@@ -9,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Mail, Loader2, BookOpen } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:8080";
 
@@ -35,18 +36,19 @@ export function RegisterForm() {
 	const password = form.watch("password") || "";
 
 	const mutation = useRegisterMutation();
+	const [passwordFocused, setPasswordFocused] = useState(false);
 
 	function onSubmit(values: RegisterInput) {
 		mutation.mutate(values);
 	}
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-3 sm:space-y-4">
 			{/* Google SSO Button */}
 			<a
 				href={`${BACKEND_URL}/api/auth/google`}
 				id="google-sso-register-btn"
-				className="flex items-center justify-center gap-2.5 w-full h-10 rounded-xl border border-border/60 bg-background/40 hover:bg-background/70 transition-all duration-200 text-sm font-semibold text-foreground hover:shadow-md active:scale-[0.98]"
+				className="flex items-center justify-center gap-2.5 w-full h-9 sm:h-10 rounded-xl border border-border/60 bg-background/40 hover:bg-background/70 transition-all duration-200 text-xs sm:text-sm font-semibold text-foreground hover:shadow-md active:scale-[0.98]"
 			>
 				<GoogleIcon />
 				Continue with Google
@@ -60,81 +62,83 @@ export function RegisterForm() {
 			</div>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-				<FormField
-					control={form.control}
-					name="username"
-					render={({ field }) => (
-						<FormItem className="space-y-1.5">
-							<FormLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Username</FormLabel>
-							<FormControl>
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+				<div className="grid grid-cols-2 gap-3">
+					<FormField
+						control={form.control}
+						name="username"
+						render={({ field }) => (
+							<FormItem className="space-y-1">
+								<FormLabel className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">Username</FormLabel>
+								<FormControl>
+									<div className="relative flex items-center">
+										<User className="absolute left-3 sm:left-3.5 text-muted-foreground/75 h-3.5 w-3.5 sm:h-4 w-4 pointer-events-none" />
+										<Input
+											placeholder="UPSC_Warrior"
+											className="pl-8 sm:pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-9 sm:h-10 text-xs sm:text-sm transition-all rounded-xl"
+											{...field}
+										/>
+									</div>
+								</FormControl>
+								<FormMessage className="text-[10px]" />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="target_exam"
+						render={({ field }) => (
+							<FormItem className="space-y-1">
+								<FormLabel className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">Target Exam</FormLabel>
 								<div className="relative flex items-center">
-									<User className="absolute left-3.5 text-muted-foreground/75 h-4 w-4 pointer-events-none" />
-									<Input
-										placeholder="UPSC_Warrior"
-										className="pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-10 transition-all rounded-xl"
-										{...field}
-									/>
+									<BookOpen className="absolute left-3 sm:left-3.5 text-muted-foreground/75 h-3.5 w-3.5 sm:h-4 w-4 pointer-events-none z-10" />
+									<Select onValueChange={field.onChange} defaultValue={field.value}>
+										<FormControl>
+											<SelectTrigger className="w-full pl-8 sm:pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-9 sm:h-10 text-xs sm:text-sm transition-all rounded-xl text-left">
+												<SelectValue placeholder="Select..." />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											<SelectItem value="UPSC">UPSC</SelectItem>
+											<SelectItem value="JEE">JEE</SelectItem>
+											<SelectItem value="NEET">NEET</SelectItem>
+											<SelectItem value="GATE">GATE</SelectItem>
+											<SelectItem value="CAT">CAT</SelectItem>
+											<SelectItem value="SSC">SSC CGL</SelectItem>
+											<SelectItem value="Bank">Bank</SelectItem>
+											<SelectItem value="Teaching">Teaching</SelectItem>
+											<SelectItem value="State PCS">State PCS</SelectItem>
+											<SelectItem value="Defence">Defence</SelectItem>
+											<SelectItem value="Law">Law</SelectItem>
+											<SelectItem value="Nursing">Nursing</SelectItem>
+											<SelectItem value="Other">Other</SelectItem>
+										</SelectContent>
+									</Select>
 								</div>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+								<FormMessage className="text-[10px]" />
+							</FormItem>
+						)}
+					/>
+				</div>
 
 				<FormField
 					control={form.control}
 					name="email"
 					render={({ field }) => (
-						<FormItem className="space-y-1.5">
-							<FormLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email</FormLabel>
+						<FormItem className="space-y-1">
+							<FormLabel className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">Email</FormLabel>
 							<FormControl>
 								<div className="relative flex items-center">
-									<Mail className="absolute left-3.5 text-muted-foreground/75 h-4 w-4 pointer-events-none" />
+									<Mail className="absolute left-3 sm:left-3.5 text-muted-foreground/75 h-3.5 w-3.5 sm:h-4 w-4 pointer-events-none" />
 									<Input
 										placeholder="aspirant@example.com"
-										className="pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-10 transition-all rounded-xl"
+										className="pl-8 sm:pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-9 sm:h-10 text-xs sm:text-sm transition-all rounded-xl"
 										{...field}
 									/>
 								</div>
 							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="target_exam"
-					render={({ field }) => (
-						<FormItem className="space-y-1.5">
-							<FormLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Target Exam</FormLabel>
-							<div className="relative flex items-center">
-								<BookOpen className="absolute left-3.5 text-muted-foreground/75 h-4 w-4 pointer-events-none z-10" />
-								<Select onValueChange={field.onChange} defaultValue={field.value}>
-									<FormControl>
-										<SelectTrigger className="w-full pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-10 transition-all rounded-xl text-left">
-											<SelectValue placeholder="Select target exam" />
-										</SelectTrigger>
-									</FormControl>
-									<SelectContent>
-										<SelectItem value="UPSC">UPSC</SelectItem>
-										<SelectItem value="JEE">JEE</SelectItem>
-										<SelectItem value="NEET">NEET</SelectItem>
-										<SelectItem value="GATE">GATE</SelectItem>
-										<SelectItem value="CAT">CAT</SelectItem>
-										<SelectItem value="SSC">SSC CGL</SelectItem>
-										<SelectItem value="Bank">Bank</SelectItem>
-										<SelectItem value="Teaching">Teaching</SelectItem>
-										<SelectItem value="State PCS">State PCS</SelectItem>
-										<SelectItem value="Defence">Defence</SelectItem>
-										<SelectItem value="Law">Law</SelectItem>
-										<SelectItem value="Nursing">Nursing</SelectItem>
-										<SelectItem value="Other">Other</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<FormMessage />
+							<FormMessage className="text-[10px]" />
 						</FormItem>
 					)}
 				/>
@@ -143,20 +147,39 @@ export function RegisterForm() {
 					control={form.control}
 					name="password"
 					render={({ field }) => (
-						<FormItem className="space-y-1.5">
-							<FormLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Password</FormLabel>
-							<FormControl>
-								<PasswordInput {...field} />
-							</FormControl>
-							<PasswordStrengthMeter password={password} />
-							<FormMessage />
+						<FormItem className="space-y-1">
+							<FormLabel className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">Password</FormLabel>
+							<TooltipProvider delayDuration={0}>
+								<Tooltip open={passwordFocused}>
+									<TooltipTrigger asChild>
+										<FormControl>
+											<PasswordInput 
+												{...field} 
+												onFocus={() => setPasswordFocused(true)}
+												onBlur={() => {
+													field.onBlur();
+													setPasswordFocused(false);
+												}}
+											/>
+										</FormControl>
+									</TooltipTrigger>
+									<TooltipContent 
+										side="top" 
+										align="center" 
+										className="w-[280px] p-3.5 bg-card/95 backdrop-blur-md border border-border/80 shadow-2xl rounded-2xl"
+									>
+										<PasswordStrengthMeter password={password} />
+									</TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
+							<FormMessage className="text-[10px]" />
 						</FormItem>
 					)}
 				/>
 
 				<Button
 					type="submit"
-					className="w-full font-bold h-10 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98] mt-2"
+					className="w-full font-bold h-9 sm:h-10 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98] mt-1 sm:mt-2 text-xs sm:text-sm"
 					disabled={mutation.isPending}
 				>
 					{mutation.isPending ? (

@@ -167,3 +167,11 @@
 .btn-elevated:disabled::after {
   box-shadow: 0 2px 0 0 var(--btn-shadow-color) !important;
 }
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}

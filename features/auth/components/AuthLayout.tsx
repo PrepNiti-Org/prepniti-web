@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Target, Shield, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -22,7 +21,7 @@ export function AuthLayout({
     children,
 }: AuthLayoutProps) {
     return (
-        <div className="w-full min-h-screen lg:h-screen grid lg:grid-cols-2 bg-background relative overflow-hidden font-sans">
+        <div className="w-full min-h-screen lg:h-screen grid lg:grid-cols-2 bg-background relative overflow-y-auto no-scrollbar overflow-x-hidden lg:overflow-hidden font-sans">
             {/* Background elements */}
             <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -86,23 +85,23 @@ export function AuthLayout({
             </div>
 
             {/* Right form pane */}
-            <div className="flex items-center justify-center p-8 sm:p-12 relative z-10">
+            <div className="flex items-center justify-center p-4 sm:p-8 lg:p-12 relative z-10 lg:h-full lg:overflow-y-auto no-scrollbar">
                 <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="mx-auto w-full max-w-[380px] space-y-6"
+                    className="mx-auto w-full max-w-[380px] space-y-4 sm:space-y-6"
                 >
-                    <div className="flex flex-col space-y-2 text-center lg:text-left">
-                        <h1 className="text-3xl font-black tracking-tight text-foreground">
+                    <div className="flex flex-col space-y-1 sm:space-y-2 text-center lg:text-left">
+                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
                             {pageTitle}
                         </h1>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                             {pageSubtitle}
                         </p>
                     </div>
 
-                    <div className="bg-card/45 backdrop-blur-xl border border-border/80 p-6 rounded-2xl shadow-xl">
+                    <div className="bg-card/45 backdrop-blur-xl border border-border/80 p-4 sm:p-6 rounded-2xl shadow-xl">
                         {children}
                     </div>
 
