@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 
 interface User {
+    id?: string | number;
     username: string;
     email: string;
     target_exam?: string;
