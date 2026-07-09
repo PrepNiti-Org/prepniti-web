@@ -31,7 +31,7 @@ describe("Global Error Boundary Page", () => {
     // Assert title and error message
     expect(screen.getByText("Something went wrong!")).toBeInTheDocument();
     expect(screen.getByText("Error: Failed to load page asset context")).toBeInTheDocument();
-    expect(screen.getByText("Digest: DIGEST-12345")).toBeInTheDocument();
+    expect(screen.getByText("Reference ID: DIGEST-12345")).toBeInTheDocument();
 
     // Trigger reset callback
     fireEvent.click(screen.getByText("Try Again"));
