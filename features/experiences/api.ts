@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 import { CreateExperienceDTO } from "./types";
 
 export interface Experience {
-    id: number;
+    id: string;
     exam_name: string;
     year: number;
     verdict: string;
@@ -10,14 +10,22 @@ export interface Experience {
     description: string;
     is_anonymous: boolean;
     created_at: string;
-    user: {
+    user_id: string;
+    user?: {
         username: string;
     };
+    like_count?: number;
+    feed_score?: number;
 }
 
-interface GetExperiencesParams {
+export interface GetExperiencesParams {
     pageParam?: number;
-    sortBy?: "latest" | "top";
+    sort?: "feed" | "newest" | "popular";
+    examName?: string;
+    verdict?: string;
+    difficulty?: string;
+    year?: string;
+    search?: string;
 }
 
 interface FetchExperiencesResponse {
@@ -27,11 +35,21 @@ interface FetchExperiencesResponse {
 
 export const getExperiences = async ({
     pageParam = 1,
-    sortBy = "latest"
+    sort = "feed",
+    examName,
+    verdict,
+    difficulty,
+    year,
+    search,
 }: GetExperiencesParams): Promise<FetchExperiencesResponse> => {
+    let url = `/experiences?page=${pageParam}&limit=10&sort=${sort}`;
+    if (examName) url += `&exam_name=${encodeURIComponent(examName)}`;
+    if (verdict) url += `&verdict=${encodeURIComponent(verdict)}`;
+    if (difficulty) url += `&difficulty=${encodeURIComponent(difficulty)}`;
+    if (year) url += `&year=${encodeURIComponent(year)}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
 
-    const res = await api.get(`/experiences?page=${pageParam}&limit=10&sort=${sortBy}`);
-
+    const res = await api.get(url);
     return {
         data: res.data.data || [],
         nextPage: res.data.next_page || null,
@@ -43,7 +61,14 @@ export const getExperienceById = async (id: string): Promise<Experience> => {
     return res.data.data;
 };
 
-export const updateExperience = async ({ id, data }: { id: string, data: Partial<CreateExperienceDTO> }) => {
+export const updateExperience = async ({ id, data }: { id: string; data: Partial<CreateExperienceDTO> }) => {
     const res = await api.patch(`/experiences/${id}`, data);
+    return res.data;
+};
+
+export const toggleExperienceLike = async (
+    id: string
+): Promise<{ message: string; liked: boolean; like_count: number }> => {
+    const res = await api.post(`/experiences/${id}/like`);
     return res.data;
 };

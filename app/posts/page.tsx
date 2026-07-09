@@ -84,7 +84,7 @@ export default function PostsPage() {
     const [selectedTag, setSelectedTag] = useState<string>("");
     const [searchVal, setSearchVal] = useState<string>("");
     const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-    const [sortBy, setSortBy] = useState<string>("newest");
+    const [sortBy, setSortBy] = useState<string>("feed");
 
     // Modal Create Post States
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -361,12 +361,13 @@ export default function PostsPage() {
                                 )}
                             </div>
                             <Select value={sortBy} onValueChange={setSortBy}>
-                                <SelectTrigger className="h-8.5 text-xs w-[110px] rounded-xl bg-card border-border/60 cursor-pointer">
+                                <SelectTrigger className="h-8.5 text-xs w-[120px] rounded-xl bg-card border-border/60 cursor-pointer">
                                     <SelectValue placeholder="Sort by" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="newest" className="cursor-pointer">Newest</SelectItem>
-                                    <SelectItem value="popular" className="cursor-pointer">Popular</SelectItem>
+                                    <SelectItem value="feed" className="cursor-pointer">Trending</SelectItem>
+                                    <SelectItem value="newest" className="cursor-pointer">Latest</SelectItem>
+                                    <SelectItem value="popular" className="cursor-pointer">Top (7 days)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

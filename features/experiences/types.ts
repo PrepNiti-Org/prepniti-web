@@ -1,10 +1,18 @@
 export interface Experience {
-    id: number;
+    id: string;
     exam_name: string;
     year: number;
     verdict: "Selected" | "Rejected" | "Waitlist";
     difficulty: "Easy" | "Medium" | "Hard";
-    user_id: number;
+    description: string;
+    is_anonymous: boolean;
+    user_id: string;
+    user?: {
+        username: string;
+    };
+    like_count?: number;
+    feed_score?: number;
+    created_at: string;
 }
 
 export interface CreateExperienceDTO {
@@ -13,4 +21,5 @@ export interface CreateExperienceDTO {
     verdict: string;
     difficulty: string;
     description: string;
+    is_anonymous?: boolean;
 }

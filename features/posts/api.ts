@@ -13,6 +13,9 @@ export interface Post {
         username: string;
     };
     comment_count?: number;
+    like_count?: number;
+    bookmark_count?: number;
+    feed_score?: number;
 }
 
 export interface CreatePostDTO {
@@ -47,7 +50,8 @@ export const getPosts = async ({
     if (tag) url += `&tag=${encodeURIComponent(tag)}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     if (userId) url += `&user_id=${encodeURIComponent(userId)}`;
-    if (sort) url += `&sort=${encodeURIComponent(sort)}`;
+    // Default to ranked feed algorithm
+    url += `&sort=${encodeURIComponent(sort ?? "feed")}`;
 
     const res = await api.get(url);
     return {
