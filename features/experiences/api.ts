@@ -15,6 +15,8 @@ export interface Experience {
         username: string;
     };
     like_count?: number;
+    is_liked?: boolean;
+    is_bookmarked?: boolean;
     feed_score?: number;
 }
 
@@ -71,4 +73,21 @@ export const toggleExperienceLike = async (
 ): Promise<{ message: string; liked: boolean; like_count: number }> => {
     const res = await api.post(`/experiences/${id}/like`);
     return res.data;
+};
+
+export const toggleExperienceBookmark = async (
+    id: string
+): Promise<{ message: string; bookmarked: boolean }> => {
+    const res = await api.post(`/experiences/${id}/bookmark`);
+    return res.data;
+};
+
+export const getBookmarkedExperiences = async ({
+    pageParam = 1,
+}: { pageParam?: number }): Promise<FetchExperiencesResponse> => {
+    const res = await api.get(`/experiences/bookmarked?page=${pageParam}&limit=10`);
+    return {
+        data: res.data.data || [],
+        nextPage: res.data.next_page || null,
+    };
 };
