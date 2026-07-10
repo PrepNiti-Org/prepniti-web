@@ -9,19 +9,17 @@ import Link from "next/link";
 
 function AuthedFeed() {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-10">
             <div className="lg:col-span-3">
-                <div className="flex items-center justify-between mb-6">
-                    <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-muted-foreground/60">
-                        Recent experiences
-                    </p>
-                    <Link href="/submit">
-                        <Button variant="ghost" size="sm" className="text-xs font-bold gap-1.5 h-7 px-3 rounded-lg">
-                            <PenSquare className="h-3 w-3" /> Share yours
-                        </Button>
-                    </Link>
-                </div>
-                <FeedClient />
+                <FeedClient 
+                    action={
+                        <Link href="/submit" className="lg:hidden">
+                            <Button variant="ghost" size="sm" className="text-[11px] font-bold gap-1.5 h-7 px-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 shrink-0">
+                                <PenSquare className="h-3 w-3" /> Share
+                            </Button>
+                        </Link>
+                    }
+                />
             </div>
 
             <aside className="hidden lg:block space-y-8 pt-9 lg:sticky lg:top-0 lg:self-start">
@@ -85,9 +83,9 @@ const TEASER_CARDS = [
 
 function GuestLanding() {
     return (
-        <div className="pt-10 space-y-20">
+        <div className="pt-8 sm:pt-10 space-y-16 sm:space-y-20">
 
-            <div className="grid grid-cols-3 gap-4 max-w-xl">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl">
                 {STATS.map(s => (
                     <div
                         key={s.label}

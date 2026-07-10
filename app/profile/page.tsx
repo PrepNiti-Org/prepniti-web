@@ -80,7 +80,7 @@ export default function ProfilePage() {
             animate="visible"
         >
             <motion.div variants={itemVariants}>
-                <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-violet-500/10 p-8 shadow-sm">
+                <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-violet-500/10 p-5 sm:p-8 shadow-sm">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3" />
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl pointer-events-none translate-y-1/2 -translate-x-1/3" />
                     <div className="absolute inset-0 bg-dot-pattern opacity-20 pointer-events-none" />
@@ -88,7 +88,7 @@ export default function ProfilePage() {
                     <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                         <div className="relative shrink-0">
                             <Avatar className="h-20 w-20 border-4 border-background shadow-xl ring-2 ring-primary/20">
-                                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.username}&backgroundColor=6d28d9`} />
+                                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.username}`} />
                                 <AvatarFallback className="bg-primary/20 text-primary text-xl font-black">{initials}</AvatarFallback>
                             </Avatar>
                             {streak >= 7 && (
@@ -130,7 +130,7 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
-                    <div className="relative z-10 flex flex-wrap gap-3 mt-6 pt-6 border-t border-border/40">
+                    <div className="relative z-10 flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/40">
                         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm">
                             <Flame className={`h-4 w-4 ${streak > 0 ? 'text-amber-500' : 'text-muted-foreground/40'}`} />
                             <div>

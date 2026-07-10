@@ -252,7 +252,7 @@ export default function PostsPage() {
     };
 
     return (
-        <div className="container max-w-7xl mx-auto space-y-8">
+        <div className="container max-w-7xl mx-auto space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
                 <div className="lg:col-span-3 space-y-5">
@@ -276,7 +276,7 @@ export default function PostsPage() {
                                 </div>
                             </div>
                             <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/30">
-                                <div className="flex items-center gap-1 ml-12">
+                                <div className="flex items-center gap-1 ml-10 sm:ml-12">
                                     <Button onClick={triggerCreateModal} variant="ghost" size="sm" className="text-muted-foreground hover:text-emerald-500 gap-1.5 px-2 rounded-lg h-8 text-xs font-semibold cursor-pointer">
                                         <ImageIcon className="h-3.5 w-3.5 text-emerald-500" />
                                         <span className="hidden sm:inline">Photo</span>

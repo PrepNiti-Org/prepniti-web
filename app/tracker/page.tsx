@@ -78,43 +78,52 @@ export default function TrackerDashboard() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
             </div> */}
 
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 bg-card border rounded-lg p-2 shadow-sm">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-3 bg-card border rounded-lg p-2 shadow-sm">
 
-                <div className="flex flex-col sm:flex-row w-full gap-2 opacity-100">
-                    <div className="relative flex-1">
+                {/* Search & Filters */}
+                <div className="flex flex-col sm:flex-row w-full lg:w-auto flex-1 gap-2">
+                    <div className="relative w-full sm:flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Search targets..." className="pl-9 h-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                        <Input placeholder="Search targets..." className="pl-9 h-9 w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     </div>
-                    <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                        <SelectTrigger className="w-full sm:w-[160px] h-9"><SelectValue placeholder="All Subjects" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">All Subjects</SelectItem>
-                            {uniqueSubjects.map((subject) => (
-                                <SelectItem key={subject} value={subject}>{subject}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                        <SelectTrigger className="w-full sm:w-[140px] h-9"><SelectValue placeholder="Any Priority" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">Any Priority</SelectItem>
-                            <SelectItem value="HIGH">High Priority</SelectItem>
-                            <SelectItem value="MEDIUM">Medium Priority</SelectItem>
-                            <SelectItem value="LOW">Low Priority</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    
+                    {/* Subject & Priority: Share same line on mobile */}
+                    <div className="flex gap-2 w-full sm:w-auto shrink-0">
+                        <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                            <SelectTrigger className="flex-1 sm:w-[150px] h-9"><SelectValue placeholder="All Subjects" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL">All Subjects</SelectItem>
+                                {uniqueSubjects.map((subject) => (
+                                    <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                            <SelectTrigger className="flex-1 sm:w-[130px] h-9"><SelectValue placeholder="Any Priority" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL">Any Priority</SelectItem>
+                                <SelectItem value="HIGH">High Priority</SelectItem>
+                                <SelectItem value="MEDIUM">Medium Priority</SelectItem>
+                                <SelectItem value="LOW">Low Priority</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
-                <div className="flex bg-muted p-1 rounded-md shrink-0 w-full lg:w-auto justify-center">
-                    <Button variant={view === "BOARD" ? "default" : "ghost"} size="sm" onClick={() => setView("BOARD")} className="h-7 text-xs">
-                        <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Board
-                    </Button>
-                    <Button variant={view === "LIST" ? "default" : "ghost"} size="sm" onClick={() => setView("LIST")} className="h-7 text-xs">
-                        <ListTodo className="w-3.5 h-3.5 mr-1.5" /> List
-                    </Button>
+                {/* Actions: View Toggle & Add Task share same line on mobile */}
+                <div className="flex items-center w-full lg:w-auto gap-2 shrink-0">
+                    <div className="flex bg-muted p-1 rounded-md flex-1 sm:flex-none justify-center h-9 items-center">
+                        <Button variant={view === "BOARD" ? "default" : "ghost"} size="sm" onClick={() => setView("BOARD")} className="h-7 text-xs flex-1 px-3">
+                            <LayoutDashboard className="w-3.5 h-3.5 mr-1.5 hidden xs:block" /> Board
+                        </Button>
+                        <Button variant={view === "LIST" ? "default" : "ghost"} size="sm" onClick={() => setView("LIST")} className="h-7 text-xs flex-1 px-3">
+                            <ListTodo className="w-3.5 h-3.5 mr-1.5 hidden xs:block" /> List
+                        </Button>
+                    </div>
+                    <div className="shrink-0 flex items-center h-9">
+                        <AddTaskModal />
+                    </div>
                 </div>
-
-                <AddTaskModal />
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6 mt-6 items-start">

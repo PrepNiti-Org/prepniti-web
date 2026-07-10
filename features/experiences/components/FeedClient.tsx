@@ -43,7 +43,7 @@ const SORT_OPTIONS = [
     { value: "popular", label: "Top (30 days)", icon: Star },
 ] as const;
 
-export function FeedClient() {
+export function FeedClient({ action }: { action?: React.ReactNode } = {}) {
     const [sort, setSort] = useState<"feed" | "newest" | "popular">("feed");
     const [examName, setExamName] = useState("");
     const [verdict, setVerdict] = useState("");
@@ -110,13 +110,15 @@ export function FeedClient() {
     return (
         <div className="space-y-5">
             {/* Header row */}
-            <div className="flex items-center justify-between gap-3">
-                <h2 className="text-base font-bold flex items-center gap-2 shrink-0">
-                    <SortIcon className="h-4 w-4 text-primary" />
-                    {currentSort.label} Experiences
-                </h2>
+            <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-2">
+                <div className="flex items-center gap-3 shrink-0">
+                    <h2 className="text-lg font-bold">
+                        Experiences
+                    </h2>
+                    {action}
+                </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                     {/* Sort toggle pills */}
                     <div className="hidden sm:flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/50">
                         {SORT_OPTIONS.map(({ value, label, icon: Icon }) => (

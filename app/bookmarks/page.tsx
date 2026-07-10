@@ -116,17 +116,17 @@ export default function BookmarksPage() {
     }
 
     return (
-        <div className="container max-w-4xl mx-auto space-y-8">
+        <div className="container max-w-4xl mx-auto space-y-6 sm:space-y-8">
             <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-amber-500/10 p-8 shadow-sm"
+                className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-amber-500/10 p-5 sm:p-8 shadow-sm"
             >
                 <div className="absolute top-0 right-0 w-56 h-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3" />
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none translate-y-1/2 -translate-x-1/3" />
                 <div className="absolute inset-0 bg-dot-pattern opacity-20 pointer-events-none" />
-                <div className="relative z-10 flex items-center gap-5">
+                <div className="relative z-10 flex items-center gap-3 sm:gap-5">
                     <div className="h-14 w-14 rounded-2xl bg-background/60 backdrop-blur-sm border border-border/50 flex items-center justify-center shadow-sm shrink-0">
                         <Bookmark className="h-6 w-6 text-primary" />
                     </div>
@@ -138,7 +138,7 @@ export default function BookmarksPage() {
             </motion.div>
 
             {/* Tabs */}
-            <div className="flex gap-2 border-b border-border/50">
+            <div className="flex gap-0 sm:gap-2 border-b border-border/50 w-full">
                 <button
                     onClick={() => setActiveTab("posts")}
                     className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${

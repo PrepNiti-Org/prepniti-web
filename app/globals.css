@@ -175,3 +175,8 @@
     display: none; /* Chrome, Safari and Opera */
   }
 }
+
+/* iOS safe area support for bottom nav */
+@utility safe-area-pb {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}

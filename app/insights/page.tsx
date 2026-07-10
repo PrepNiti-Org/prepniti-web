@@ -422,7 +422,7 @@ export default function InsightsPage() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="container max-w-7xl mx-auto space-y-8 pb-20 px-4 sm:px-6 py-6"
+            className="container max-w-7xl mx-auto space-y-8 pb-20 px-3 sm:px-6 py-4 sm:py-6"
         >
 
             <motion.div
@@ -810,7 +810,7 @@ export default function InsightsPage() {
                         <CardDescription>Personalized study advice based on your study patterns and mock test performance.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {coachRecommendations.map((adv, idx) => (
                                 <motion.div
                                     key={idx}
@@ -852,7 +852,7 @@ export default function InsightsPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="pt-6 space-y-8">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <motion.div whileHover={{ y: -3, scale: 1.01 }} className="transition-all">
                                 <div className="p-4 rounded-xl border bg-gradient-to-br from-violet-500/5 to-violet-500/10 hover:border-violet-500/30 transition-all">
                                     <div className="flex items-center justify-between mb-2">
