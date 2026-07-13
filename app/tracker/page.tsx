@@ -63,7 +63,7 @@ export default function TrackerDashboard() {
     });
 
     return (
-        <div className="container max-w-7xl mx-auto space-y-6">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
 
             {/* <div className="relative overflow-hidden border border-primary/15 rounded-2xl p-6 bg-gradient-to-r from-primary/[0.08] via-primary/[0.03] to-transparent shadow-sm">
                 <div className="absolute inset-0 bg-dot-pattern opacity-25 pointer-events-none" />

@@ -96,7 +96,7 @@ export default function BookmarksPage() {
 
     if (!isLoggedIn) {
         return (
-            <div className="container max-w-4xl mx-auto">
+            <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 <div className="flex flex-col items-center justify-center py-28 text-center">
                     <div className="h-20 w-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 shadow-lg shadow-primary/5">
                         <Bookmark className="h-9 w-9 text-primary" />
@@ -116,7 +116,7 @@ export default function BookmarksPage() {
     }
 
     return (
-        <div className="container max-w-4xl mx-auto space-y-6 sm:space-y-8">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
             <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}

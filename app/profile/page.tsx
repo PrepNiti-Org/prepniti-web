@@ -44,7 +44,7 @@ export default function ProfilePage() {
 
     if (isUserLoading || isStatsLoading || isActivityLoading) {
         return (
-            <div className="max-w-6xl mx-auto space-y-8">
+            <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
                 <Skeleton className="h-56 w-full rounded-2xl" />
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <Skeleton className="h-80 rounded-2xl" />
@@ -74,7 +74,7 @@ export default function ProfilePage() {
 
     return (
         <motion.div
-            className="max-w-6xl mx-auto space-y-8"
+            className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8"
             variants={containerVariants}
             initial="hidden"
             animate="visible"

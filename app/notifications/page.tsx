@@ -44,7 +44,7 @@ export default function NotificationsPage() {
 
     if (!isLoggedIn) {
         return (
-            <div className="container py-20 text-center">
+            <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 text-center">
                 <Bell className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                 <h3 className="text-xl font-semibold">Please log in to view notifications</h3>
                 <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
@@ -62,7 +62,7 @@ export default function NotificationsPage() {
     const unreadCount = data?.pages[0]?.unreadCount || 0;
 
     return (
-        <div className="container max-w-7xl mx-auto space-y-8">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
                 <div className="lg:col-span-3 space-y-6">

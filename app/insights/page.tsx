@@ -422,7 +422,7 @@ export default function InsightsPage() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="container max-w-7xl mx-auto space-y-8 pb-20 px-3 sm:px-6 py-4 sm:py-6"
+            className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8"
         >
 
             <motion.div
