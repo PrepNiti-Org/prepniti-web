@@ -37,12 +37,12 @@ export function LoginForm() {
 	}
 
 	return (
-		<div className="space-y-3 sm:space-y-4">
+		<div className="space-y-4">
 			{/* Google SSO Button */}
 			<a
 				href={`${BACKEND_URL}/api/auth/google`}
 				id="google-sso-login-btn"
-				className="flex items-center justify-center gap-2.5 w-full h-9 sm:h-10 rounded-xl border border-border/60 bg-background/40 hover:bg-background/70 transition-all duration-200 text-xs sm:text-sm font-semibold text-foreground hover:shadow-md active:scale-[0.98]"
+				className="flex items-center justify-center gap-2.5 w-full h-10 rounded-xl border border-border/50 bg-background/40 hover:bg-background/80 hover:border-primary/30 transition-all duration-300 text-xs sm:text-sm font-semibold text-foreground hover:shadow-md active:scale-[0.98] cursor-pointer"
 			>
 				<GoogleIcon />
 				Continue with Google
@@ -51,13 +51,13 @@ export function LoginForm() {
 			{/* Divider */}
 			<div className="relative flex items-center gap-3">
 				<div className="flex-1 h-px bg-border/50" />
-				<span className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest">or</span>
+				<span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">or</span>
 				<div className="flex-1 h-px bg-border/50" />
 			</div>
 
 			{/* Email / Password Form */}
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5 sm:space-y-5">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
 					<FormField
 						control={form.control}
 						name="email"
@@ -69,7 +69,7 @@ export function LoginForm() {
 										<Mail className="absolute left-3 sm:left-3.5 text-muted-foreground/75 h-3.5 w-3.5 sm:h-4 w-4 pointer-events-none" />
 										<Input 
 											placeholder="aspirant@example.com" 
-											className="pl-8 sm:pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-9 sm:h-10 text-xs sm:text-sm transition-all rounded-xl"
+											className="pl-8 sm:pl-10 bg-background/30 border-border/50 focus-visible:ring-primary/10 focus-visible:border-primary/50 h-10 text-xs sm:text-sm transition-all duration-300 rounded-xl focus:shadow-[0_0_12px_rgba(255,87,34,0.05)]"
 											{...field} 
 										/>
 									</div>
@@ -88,13 +88,16 @@ export function LoginForm() {
 									<FormLabel className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">Password</FormLabel>
 									<Link 
 										href="/forgot-password" 
-										className="text-[9px] sm:text-[10px] font-bold text-primary hover:underline underline-offset-4"
+										className="text-[9px] sm:text-[10px] font-bold text-primary hover:underline underline-offset-4 transition-all"
 									>
 										Forgot password?
 									</Link>
 								</div>
 								<FormControl>
-									<PasswordInput {...field} />
+									<PasswordInput 
+										className="bg-background/30 border-border/50 focus-visible:ring-primary/10 focus-visible:border-primary/50 h-10 text-xs sm:text-sm transition-all duration-300 rounded-xl focus:shadow-[0_0_12px_rgba(255,87,34,0.05)]"
+										{...field} 
+									/>
 								</FormControl>
 								<FormMessage className="text-[10px]" />
 							</FormItem>
@@ -103,7 +106,7 @@ export function LoginForm() {
 
 					<Button 
 						type="submit" 
-						className="w-full font-bold h-9 sm:h-10 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98] mt-1 sm:mt-2 text-xs sm:text-sm" 
+						className="w-full font-bold h-10 rounded-xl bg-gradient-to-r from-primary to-orange-600 hover:from-primary/95 hover:to-orange-600/95 transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] mt-2 text-xs sm:text-sm text-white shadow-md hover:translate-y-[-1px] active:translate-y-[1px] cursor-pointer" 
 						disabled={mutation.isPending}
 					>
 						{mutation.isPending ? (

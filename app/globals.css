@@ -180,3 +180,32 @@
 @utility safe-area-pb {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
+
+@keyframes blob-float-one {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes blob-float-two {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-40px, 40px) scale(1.05);
+  }
+}
+
+@utility animate-blob-one {
+  animation: blob-float-one 20s infinite ease-in-out;
+}
+
+@utility animate-blob-two {
+  animation: blob-float-two 15s infinite ease-in-out;
+}

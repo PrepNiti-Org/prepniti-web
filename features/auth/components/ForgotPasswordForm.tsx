@@ -23,7 +23,7 @@ export function ForgotPasswordForm() {
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5 sm:space-y-5">
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
 				<FormField
 					control={form.control}
 					name="email"
@@ -35,7 +35,7 @@ export function ForgotPasswordForm() {
 									<Mail className="absolute left-3 sm:left-3.5 text-muted-foreground/75 h-3.5 w-3.5 sm:h-4 w-4 pointer-events-none" />
 									<Input 
 										placeholder="aspirant@example.com" 
-										className="pl-8 sm:pl-10 bg-background/40 border-border/60 focus-visible:ring-primary/20 h-9 sm:h-10 text-xs sm:text-sm transition-all rounded-xl"
+										className="pl-8 sm:pl-10 bg-background/30 border-border/50 focus-visible:ring-primary/10 focus-visible:border-primary/50 h-10 text-xs sm:text-sm transition-all duration-300 rounded-xl focus:shadow-[0_0_12px_rgba(255,87,34,0.05)]"
 										{...field} 
 									/>
 								</div>
@@ -47,7 +47,7 @@ export function ForgotPasswordForm() {
 
 				<Button 
 					type="submit" 
-					className="w-full font-bold h-9 sm:h-10 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98] mt-1 sm:mt-2 text-xs sm:text-sm" 
+					className="w-full font-bold h-10 rounded-xl bg-gradient-to-r from-primary to-orange-600 hover:from-primary/95 hover:to-orange-600/95 transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] mt-2 text-xs sm:text-sm text-white shadow-md hover:translate-y-[-1px] active:translate-y-[1px] cursor-pointer" 
 					disabled={mutation.isPending}
 				>
 					{mutation.isPending ? (
