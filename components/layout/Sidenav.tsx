@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -96,7 +97,16 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
         <aside className={`flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 ${isMobile ? "w-full border-r-0" : (isCollapsed ? "w-16" : "w-64")} ${className}`}>
             {isMobile ? (
                 <div className="h-16 flex items-center justify-between px-6 border-b border-sidebar-border/30 shrink-0">
-                    <Link href="/" onClick={onItemClick} className="flex items-center gap-2">
+                    <Link href="/" onClick={onItemClick} className="flex items-center gap-2.5">
+                        <div className="relative w-7 h-7 flex-shrink-0">
+                            <Image
+                                src="/logo.svg"
+                                alt="PrepNiti Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
                         <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent font-black text-xl select-none font-sans tracking-tight">
                             PrepNiti
                         </span>

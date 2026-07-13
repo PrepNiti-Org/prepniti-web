@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
@@ -65,10 +66,18 @@ export function Navbar({ }: NavbarProps) {
 
                 {/* Left Section: Logo */}
                 <div className="flex items-center gap-2">
-                    <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-                        <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent flex items-center gap-1.5 font-extrabold">
-                            <span className="hidden sm:inline-block">PrepNiti</span>
-                            <span className="inline-block sm:hidden">PN</span>
+                    <Link href="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight group">
+                        <div className="relative w-8 h-8 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+                            <Image
+                                src="/logo.svg"
+                                alt="PrepNiti Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent items-center gap-1.5 font-extrabold hidden sm:flex">
+                            PrepNiti
                         </span>
                     </Link>
                 </div>

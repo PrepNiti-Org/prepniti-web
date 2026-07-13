@@ -11,6 +11,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "PrepNiti",
   description: "Anonymous Community for Aspirants",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({

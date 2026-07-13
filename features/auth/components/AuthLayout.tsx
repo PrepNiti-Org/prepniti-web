@@ -2,6 +2,7 @@
 
 import { Target, Shield, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface AuthLayoutProps {
     sidebarTitle: React.ReactNode;
@@ -32,9 +33,16 @@ export function AuthLayout({
                 <div className="absolute top-1/4 right-0 w-[300px] h-[300px] bg-gradient-to-tr from-primary/20 to-violet-500/20 rounded-full blur-[80px] opacity-70 pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
 
                 {/* Logo / Header */}
-                <div className="flex items-center gap-2 relative z-10">
-                    <div className="bg-primary/10 border border-primary/20 p-2 rounded-2xl">
-                        <Target className="h-6 w-6 text-primary" />
+                <div className="flex items-center gap-2.5 relative z-10">
+                    <div className="bg-primary/10 border border-primary/20 p-1.5 rounded-2xl w-10 h-10 relative flex-shrink-0 flex items-center justify-center">
+                        <Image
+                            src="/logo.svg"
+                            alt="PrepNiti Logo"
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                            priority
+                        />
                     </div>
                     <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-primary to-violet-500 bg-clip-text text-transparent">
                         PrepNiti
