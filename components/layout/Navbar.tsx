@@ -66,8 +66,8 @@ export function Navbar({ }: NavbarProps) {
 
                 {/* Left Section: Logo */}
                 <div className="flex items-center gap-2">
-                    <Link href="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight group">
-                        <div className="relative w-8 h-8 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+                    <Link href="/" className="flex items-center gap-2.5 font-bold text-xl tracking-tight group">
+                        <div className="relative w-7 h-7 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
                             <Image
                                 src="/logo.svg"
                                 alt="PrepNiti Logo"
@@ -76,7 +76,7 @@ export function Navbar({ }: NavbarProps) {
                                 priority
                             />
                         </div>
-                        <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent items-center gap-1.5 font-extrabold hidden sm:flex">
+                        <span className="bg-gradient-to-r from-primary via-primary/90 to-orange-400 bg-clip-text text-transparent items-center gap-1.5 font-extrabold hidden sm:flex">
                             PrepNiti
                         </span>
                     </Link>

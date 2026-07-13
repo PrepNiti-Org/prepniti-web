@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, Shield, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -22,15 +22,15 @@ export function AuthLayout({
     children,
 }: AuthLayoutProps) {
     return (
-        <div className="w-full min-h-screen lg:h-screen grid lg:grid-cols-2 bg-background relative overflow-y-auto no-scrollbar overflow-x-hidden lg:overflow-hidden font-sans">
+        <div className="w-full min-h-screen lg:h-screen grid lg:grid-cols-2 bg-background relative overflow-y-auto no-scrollbar overflow-x-hidden lg:overflow-hidden">
             {/* Background elements */}
             <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/8 rounded-full blur-[130px] pointer-events-none animate-blob-one" />
-            <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-violet-500/8 rounded-full blur-[130px] pointer-events-none animate-blob-two" />
+            <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-accent/8 rounded-full blur-[130px] pointer-events-none animate-blob-two" />
 
             {/* Left sidebar pane (Hidden on mobile) */}
             <div className="hidden bg-muted/20 border-r border-border/40 lg:flex flex-col justify-between lg:py-8 lg:px-10 xl:p-12 text-foreground relative overflow-y-auto no-scrollbar">
                 <div className="absolute inset-0 bg-dot-pattern opacity-40 pointer-events-none" />
-                <div className="absolute top-1/4 right-0 w-[300px] h-[300px] bg-gradient-to-tr from-primary/10 to-violet-500/10 rounded-full blur-[80px] opacity-70 pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
+                <div className="absolute top-1/4 right-0 w-[300px] h-[300px] bg-gradient-to-tr from-primary/10 to-accent/10 rounded-full blur-[80px] opacity-70 pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
 
                 {/* Logo / Header */}
                 <div className="flex items-center gap-2.5 relative z-10">
@@ -43,7 +43,7 @@ export function AuthLayout({
                             priority
                         />
                     </div>
-                    <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-primary to-violet-500 bg-clip-text text-transparent">
+                    <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-primary via-primary/90 to-orange-400 bg-clip-text text-transparent">
                         PrepNiti
                     </span>
                 </div>
@@ -116,7 +116,7 @@ export function AuthLayout({
                     className="mx-auto w-full max-w-[390px] space-y-4 sm:space-y-6"
                 >
                     <div className="flex flex-col space-y-1 sm:space-y-2 text-center lg:text-left">
-                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text">
+                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
                             {pageTitle}
                         </h1>
                         <p className="text-xs sm:text-sm text-muted-foreground">
