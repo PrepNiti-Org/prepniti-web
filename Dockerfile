@@ -23,7 +23,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080/api}
 RUN npm run build
 
 # ==============================================================================
-# Stage 2: Minimal Secure Runtime
+# Stage 2: Minimal Secure Runtime (Standalone Output)
 # ==============================================================================
 FROM node:20-alpine AS runner
 
@@ -31,10 +31,11 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy necessary runtime assets from the builder stage
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
+# Copy standalone server (includes only necessary node_modules)
+COPY --from=builder /app/.next/standalone ./
+
+# Copy static assets (not included in standalone output)
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 # Ensure the runner directory is owned by the node user
@@ -46,5 +47,5 @@ USER node
 # Document container port
 EXPOSE 3000
 
-# Start Next.js
-CMD ["npm", "run", "start"]
+# Start Next.js standalone server
+CMD ["node", "server.js"]

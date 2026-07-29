@@ -1,0 +1,47 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output (rebuilt in Docker)
+.next
+out
+build
+dist
+
+# Tests
+__tests__
+*.test.*
+*.spec.*
+vitest.*
+vitest.setup.*
+coverage
+
+# Development
+.env
+.env.local
+.env.development*
+.env.test*
+
+# Version control
+.git
+.gitignore
+
+# Editor/IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+*.md
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Sentry config (not needed in Docker build context)
+sentry.*.config.ts
