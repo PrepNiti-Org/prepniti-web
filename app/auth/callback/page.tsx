@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
+import Cookies from "js-cookie";
+
 const ERROR_MESSAGES: Record<string, string> = {
     invalid_state: "Security check failed. Please try signing in again.",
     missing_code: "Authorization code missing. Please try again.",
@@ -23,14 +25,17 @@ function AuthCallbackContent() {
 
     useEffect(() => {
         const success = searchParams.get("success");
+        const token = searchParams.get("token");
         const error = searchParams.get("error");
 
         if (success === "true") {
+            if (token) {
+                Cookies.set("token", token, { expires: 7 });
+            }
             setStatus("success");
-            // Short delay so the user sees the success state
             const timer = setTimeout(() => {
                 router.replace("/");
-            }, 1500);
+            }, 1000);
             return () => clearTimeout(timer);
         }
 
