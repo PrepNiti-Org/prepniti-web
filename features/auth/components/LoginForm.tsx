@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import Link from "next/link";
 import { Mail, Loader2 } from "lucide-react";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:8080";
+import { BACKEND_URL } from "@/lib/api";
 
 function GoogleIcon() {
 	return (
