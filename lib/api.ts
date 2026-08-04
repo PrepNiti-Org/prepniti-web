@@ -15,7 +15,10 @@ const normalizedApiUrl = rawApiUrl.startsWith("http") ? rawApiUrl : `https://${r
 export const BACKEND_URL = normalizedApiUrl.replace(/\/api\/?$/, "");
 
 api.interceptors.request.use((config) => {
-    const token = Cookies.get("token");
+    let token = Cookies.get("token");
+    if (!token && typeof window !== "undefined") {
+        token = localStorage.getItem("token") || undefined;
+    }
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

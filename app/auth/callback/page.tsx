@@ -30,7 +30,16 @@ function AuthCallbackContent() {
 
         if (success === "true") {
             if (token) {
-                Cookies.set("token", token, { expires: 7 });
+                const isProd = typeof window !== "undefined" && window.location.hostname.includes("prepniti.com");
+                Cookies.set("token", token, {
+                    expires: 7,
+                    domain: isProd ? ".prepniti.com" : undefined,
+                    secure: isProd,
+                    sameSite: "lax",
+                });
+                if (typeof window !== "undefined") {
+                    localStorage.setItem("token", token);
+                }
             }
             setStatus("success");
             const timer = setTimeout(() => {
