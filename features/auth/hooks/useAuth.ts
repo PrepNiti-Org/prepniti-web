@@ -60,6 +60,7 @@ export function useAuth() {
             console.error("Logout request failed:", err);
         }
         Cookies.remove("token");
+        localStorage.removeItem("token");
         localStorage.removeItem("user");
 
         setIsLoggedIn(false);
