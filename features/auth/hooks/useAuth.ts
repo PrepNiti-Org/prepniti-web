@@ -44,10 +44,10 @@ export function useAuth() {
 
     const login = useCallback((token: string, userData: User) => {
         // Fallback for non-HttpOnly context or API references
-        Cookies.set("token", token, {
-            expires: 7,
-            secure: window.location.protocol === 'https:'
-        });
+        // Cookies.set("token", token, {
+        //     expires: 7,
+        //     secure: window.location.protocol === 'https:'
+        // });
         localStorage.setItem("user", JSON.stringify(userData));
         setIsLoggedIn(true);
         setUser(userData);
@@ -59,10 +59,10 @@ export function useAuth() {
         } catch (err) {
             console.error("Logout request failed:", err);
         }
-        Cookies.remove("token", {
-            path: '/',
-            secure: window.location.protocol === 'https:'
-        });
+        // Cookies.remove("token", {
+        //     path: '/',
+        //     secure: window.location.protocol === 'https:'
+        // });
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
