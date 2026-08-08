@@ -59,7 +59,10 @@ export function useAuth() {
         } catch (err) {
             console.error("Logout request failed:", err);
         }
-        Cookies.remove("token");
+        Cookies.remove("token", {
+            path: '/',
+            secure: window.location.protocol === 'https:'
+        });
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
