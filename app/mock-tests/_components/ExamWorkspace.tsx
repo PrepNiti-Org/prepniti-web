@@ -349,8 +349,8 @@ export function ExamWorkspace({
                     <button
                         onClick={() => setShowCalculator(prev => !prev)}
                         className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none cursor-pointer ${useRealistic
-                                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 rounded-none shadow-sm font-sans"
-                                : "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 rounded-xl font-sans"
+                            ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 rounded-none shadow-sm font-sans"
+                            : "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 rounded-xl font-sans"
                             }`}
                     >
                         <svg className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -361,8 +361,8 @@ export function ExamWorkspace({
                     <button
                         onClick={() => setShowPaletteMobile(prev => !prev)}
                         className={`xl:hidden flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none cursor-pointer ${useRealistic
-                                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-750 rounded-none shadow-sm font-sans"
-                                : "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 rounded-xl font-sans"
+                            ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-750 rounded-none shadow-sm font-sans"
+                            : "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 rounded-xl font-sans"
                             }`}
                     >
                         <LayoutGrid className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
@@ -561,11 +561,11 @@ export function ExamWorkspace({
                 }}
             />
 
-            <VirtualCalculator
+            {/* <VirtualCalculator
                 isOpen={showCalculator}
                 onClose={() => setShowCalculator(false)}
                 useRealisticTheme={useRealistic}
-            />
+            /> */}
 
             <AnimatePresence>
                 {showPaletteMobile && (
@@ -594,7 +594,7 @@ export function ExamWorkspace({
                                         <X className="h-5 w-5" />
                                     </button>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-3 border-b border-border pb-4 mb-4 shrink-0">
                                     {useRealistic ? (
                                         <div className="h-12 w-12 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center border border-border text-slate-400 font-bold text-[9px] uppercase text-center leading-none p-1 font-sans">
