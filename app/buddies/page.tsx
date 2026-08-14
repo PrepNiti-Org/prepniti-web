@@ -37,7 +37,7 @@ export default function BuddiesDashboardPage() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 p-4">
-            <div className="relative rounded-2xl border border-primary/15 bg-linear-to-br from-primary/10 via-primary/5 to-violet-500/10 p-8 shadow-sm">
+            <div data-tour="buddies-header" className="relative rounded-2xl border border-primary/15 bg-linear-to-br from-primary/10 via-primary/5 to-violet-500/10 p-8 shadow-sm">
                 <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
@@ -61,7 +61,7 @@ export default function BuddiesDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
                     <div className="w-full">
-                        <div className="w-full flex justify-start bg-muted/30 border border-border/50 rounded-xl p-1 mb-6 gap-1">
+                        <div data-tour="buddies-tabs" className="w-full flex justify-start bg-muted/30 border border-border/50 rounded-xl p-1 mb-6 gap-1">
                             <button
                                 onClick={() => setActiveTab("feed")}
                                 className={`rounded-lg font-bold text-xs py-2 px-4 transition-all ${activeTab === "feed" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
@@ -100,29 +100,27 @@ export default function BuddiesDashboardPage() {
                         {activeTab === "requests" && <BuddyRequests />}
                     </div>
 
-                    {activePacts.length > 0 && (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                <Swords className="h-4 w-4 text-primary" />
-                                <h2 className="text-sm font-black tracking-tight">Active Study Pacts</h2>
-                                <Badge className="text-[9px] bg-primary/10 text-primary border border-primary/20 font-black">
-                                    {activePacts.length}
-                                </Badge>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {activePacts.map((pact) => (
-                                    <StudyPactCard
-                                        key={pact.id}
-                                        pact={pact}
-                                        currentUsername={user?.username}
-                                    />
-                                ))}
-                            </div>
+                    <div data-tour="buddies-pacts" className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Swords className="h-4 w-4 text-primary" />
+                            <h2 className="text-sm font-black tracking-tight">Active Study Pacts</h2>
+                            <Badge className="text-[9px] bg-primary/10 text-primary border border-primary/20 font-black">
+                                {activePacts.length}
+                            </Badge>
                         </div>
-                    )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {activePacts.map((pact) => (
+                                <StudyPactCard
+                                    key={pact.id}
+                                    pact={pact}
+                                    currentUsername={user?.username}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="space-y-6 lg:col-span-1">
+                <div data-tour="buddies-recommendations" className="space-y-6 lg:col-span-1">
                     <BuddyRecommendations />
 
                     {pacts && pacts.filter(p => p.status !== "active").length > 0 && (

@@ -17,6 +17,8 @@ import { PaperCard } from "./_components/PaperCard";
 import { ExamInstructions } from "./_components/ExamInstructions";
 import { ExamWorkspace } from "./_components/ExamWorkspace";
 import { ExamResults } from "./_components/ExamResults";
+import { useAppTour } from "@/features/tour/useAppTour";
+import { MOCK_TOUR_PAPERS } from "@/features/tour/tourMockData";
 
 export default function MockTestsPage() {
     const { isLoggedIn, user, isHydrated } = useAuth();
@@ -160,9 +162,11 @@ export default function MockTestsPage() {
         submitRef.current = (reason?: string) => handleSubmitExam(reason);
     }, [blueprint, answers, selectedPaperId, papers]);
 
-    const activePaper = papers.find(p => p.id === selectedPaperId);
+    const { isOpen } = useAppTour();
+    const displayPapers = (papers.length === 0 && isOpen) ? MOCK_TOUR_PAPERS : papers;
+    const activePaper = displayPapers.find(p => p.id === selectedPaperId) || displayPapers[0];
 
-    const filteredPapers = papers.filter(p => {
+    const filteredPapers = displayPapers.filter(p => {
         const matchesSearch = p.filename.toLowerCase().includes(searchQuery.toLowerCase());
         const isFullLength = p.exam_type === "full";
         if (activeTab === "full") return matchesSearch && isFullLength;
@@ -209,7 +213,7 @@ export default function MockTestsPage() {
                             </div>
                         </div> */}
 
-                        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 bg-card border border-border p-4 rounded-2xl shadow-sm">
+                        <div data-tour="mock-tests-container" className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 bg-card border border-border p-4 rounded-2xl shadow-sm">
                             <div className="relative w-full md:max-w-xs">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
@@ -220,7 +224,7 @@ export default function MockTestsPage() {
                                     className="pl-9 bg-background/50 border-border rounded-xl focus-visible:ring-1"
                                 />
                             </div>
-                            <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-xl border border-border/50 w-full md:w-auto overflow-x-auto">
+                            <div data-tour="mock-tests-tabs" className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-xl border border-border/50 w-full md:w-auto overflow-x-auto">
                                 <Button
                                     variant={activeTab === "all" ? "default" : "ghost"}
                                     size="sm"

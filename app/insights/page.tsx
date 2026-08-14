@@ -57,6 +57,9 @@ import { formatDistanceToNow, format, subDays } from "date-fns";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
+import { useAppTour } from "@/features/tour/useAppTour";
+import { MOCK_TOUR_TASKS, MOCK_TOUR_TIME_LOGS } from "@/features/tour/tourMockData";
+
 type RangeDays = 7 | 30 | 90;
 
 const containerVariants = {
@@ -140,9 +143,26 @@ export default function InsightsPage() {
         }
     });
 
-    const logs: TimeLog[] = timeLogData?.data || [];
-    const dailyData: DailyEntry[] = timeLogData?.daily || [];
-    const totalMinutes = timeLogData?.total_minutes || 0;
+    const { isOpen } = useAppTour();
+    const realTasksList = tasks;
+    const effectiveTasks = (realTasksList.length === 0 && isOpen) ? MOCK_TOUR_TASKS : realTasksList;
+
+    const mockDaily = useMemo(() => {
+        return Array.from({ length: 14 }).map((_, i) => ({
+            date: subDays(new Date(), i).toISOString().split("T")[0],
+            minutes: [240, 310, 180, 420, 360, 290, 330][i % 7],
+        }));
+    }, []);
+
+    const logs: TimeLog[] = (timeLogData?.data?.length === 0 || !timeLogData?.data) && isOpen
+        ? MOCK_TOUR_TIME_LOGS
+        : (timeLogData?.data || []);
+
+    const dailyData: DailyEntry[] = (timeLogData?.daily?.length === 0 || !timeLogData?.daily) && isOpen
+        ? mockDaily
+        : (timeLogData?.daily || []);
+
+    const totalMinutes = timeLogData?.total_minutes || (isOpen ? 3480 : 0);
     const totalHours = (totalMinutes / 60).toFixed(1);
 
     const streak = (() => {
@@ -163,15 +183,15 @@ export default function InsightsPage() {
         return currentStreak;
     })();
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(t => t.status === "DONE").length;
+    const totalTasks = effectiveTasks.length;
+    const completedTasks = effectiveTasks.filter(t => t.status === "DONE").length;
     const completionRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
-    const totalEstHours = tasks.reduce((sum, t) => sum + (t.estimated_hours || 0), 0);
+    const totalEstHours = effectiveTasks.reduce((sum, t) => sum + (t.estimated_hours || 0), 0);
     const timeEfficiency = totalEstHours === 0 ? 0 : Math.min(100, Math.round((parseFloat(totalHours) / totalEstHours) * 100));
 
-    const uniqueSubjects = Array.from(new Set(tasks.map(t => t.subject).filter(Boolean)));
-    const subjectsStarted = new Set(tasks.filter(t => t.status !== "TODO").map(t => t.subject)).size;
+    const uniqueSubjects = Array.from(new Set(effectiveTasks.map(t => t.subject).filter(Boolean)));
+    const subjectsStarted = new Set(effectiveTasks.filter(t => t.status !== "TODO").map(t => t.subject)).size;
     const syllabusCoverage = uniqueSubjects.length === 0 ? 0 : Math.round((subjectsStarted / uniqueSubjects.length) * 100);
 
     const trendChartData = (() => {
@@ -426,6 +446,7 @@ export default function InsightsPage() {
         >
 
             <motion.div
+                data-tour="insights-container"
                 variants={itemVariants}
                 className="relative overflow-hidden rounded-2xl border bg-card/60 backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-md"
             >
@@ -459,6 +480,7 @@ export default function InsightsPage() {
             </motion.div>
 
             <motion.div
+                data-tour="insights-stats"
                 variants={itemVariants}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
             >
@@ -559,7 +581,7 @@ export default function InsightsPage() {
                     </Card>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 animate-in fade-in duration-300">
+                <motion.div data-tour="insights-charts" variants={itemVariants} className="lg:col-span-2 space-y-6 animate-in fade-in duration-300">
                     <Card className="shadow-md">
                         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
                             <div>
@@ -1113,7 +1135,7 @@ export default function InsightsPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="lg:col-span-2 shadow-sm">
+                <Card data-tour="insights-logs" className="lg:col-span-2 shadow-sm">
                     <CardHeader className="pb-3">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>

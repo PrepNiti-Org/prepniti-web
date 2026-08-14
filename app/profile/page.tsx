@@ -86,7 +86,7 @@ export default function ProfilePage() {
             animate="visible"
         >
             <motion.div variants={itemVariants}>
-                <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-violet-500/10 p-5 sm:p-8 shadow-sm">
+                <div data-tour="profile-main-card" className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-violet-500/10 p-5 sm:p-8 shadow-sm">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3" />
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl pointer-events-none translate-y-1/2 -translate-x-1/3" />
                     <div className="absolute inset-0 bg-dot-pattern opacity-20 pointer-events-none" />

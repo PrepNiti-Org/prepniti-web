@@ -30,18 +30,23 @@ export function MobileBottomNav() {
     const isMoreActive = moreLinks.some(link => link.href === "/" ? pathname === "/" : pathname.startsWith(link.href));
 
     return (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar/85 backdrop-blur-[32px] backdrop-saturate-[200%] border-t border-sidebar-border safe-area-pb shadow-[0_-8px_30px_rgba(0,0,0,0.2)]">
+        <nav
+            data-tour="mobile-bottom-nav"
+            className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar/85 backdrop-blur-[32px] backdrop-saturate-[200%] border-t border-sidebar-border safe-area-pb shadow-[0_-8px_30px_rgba(0,0,0,0.2)]"
+        >
             <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sidebar-foreground/10 to-transparent" />
 
             <div className="flex items-center justify-around h-16 px-1 relative">
                 {primaryLinks.map((link) => {
                     const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
                     const Icon = link.icon;
+                    const tourId = `mobile-nav-${link.href.replace("/", "") || "home"}`;
 
                     return (
                         <Link
                             key={link.name}
                             href={link.href}
+                            data-tour={tourId}
                             className={`relative flex flex-col items-center justify-center gap-1 flex-1 h-full px-0.5 transition-colors z-10 ${isActive
                                     ? "text-sidebar-primary"
                                     : "text-sidebar-foreground/60 hover:text-sidebar-foreground"

@@ -109,7 +109,10 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
     if (hiddenRoutes.includes(pathname)) return null;
 
     return (
-        <aside className={`flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 ${isMobile ? "w-full border-r-0" : (isCollapsed ? "w-16" : "w-64")} ${className}`}>
+        <aside
+            data-tour="sidenav-container"
+            className={`flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 ${isMobile ? "w-full border-r-0" : (isCollapsed ? "w-16" : "w-64")} ${className}`}
+        >
             {isMobile ? (
                 <div className="h-16 flex items-center justify-between px-6 border-b border-sidebar-border/30 shrink-0">
                     <Link href="/" onClick={onItemClick} className="flex items-center gap-2.5">
@@ -140,11 +143,13 @@ export function Sidenav({ className = "", onItemClick, isCollapsed = false, onTo
                     const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
                     const Icon = link.icon;
                     const badgeCount = link.showBadge ? incomingCount : 0;
+                    const tourId = `nav-${link.href.replace("/", "") || "home"}`;
 
                     const LinkContent = (
                         <Link
                             href={link.href}
                             onClick={onItemClick}
+                            data-tour={tourId}
                             className={`relative flex items-center ${isCollapsed ? "justify-center" : (isMobile ? "gap-4" : "gap-3")} ${isMobile ? "px-4 py-3.5 text-[15px]" : "px-3 py-3 text-sm"} rounded-xl font-medium transition-all duration-300 group ${isActive
                                 ? "text-sidebar-primary-foreground font-semibold"
                                 : "text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent"

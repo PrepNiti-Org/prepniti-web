@@ -45,15 +45,21 @@ function MatchBadge({ reason }: { reason: string }) {
     return null;
 }
 
+import { useAppTour } from "@/features/tour/useAppTour";
+import { MOCK_TOUR_RECS } from "@/features/tour/tourMockData";
+
 export function BuddyRecommendations() {
     const queryClient = useQueryClient();
     const { user } = useAuth();
+    const { isOpen } = useAppTour();
     const [showLocationReminder, setShowLocationReminder] = useState(false);
 
-    const { data: recommendations, isLoading } = useQuery({
+    const { data: realRecs, isLoading } = useQuery({
         queryKey: ["buddy-recommendations"],
         queryFn: getBuddyRecommendations,
     });
+
+    const recommendations = (realRecs?.length === 0 || !realRecs) && isOpen ? MOCK_TOUR_RECS : realRecs;
 
     useEffect(() => {
         if (user && !user.pincode && !user.district) {

@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getUserProfile } from "@/features/profile/api";
 
-import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark, HelpCircle, ChevronRight } from "lucide-react";
+import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark, HelpCircle, ChevronRight, Compass, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +31,8 @@ import { Sidenav } from "./Sidenav";
 import { ElevatedButton } from "../ui/button-elevated";
 import { NotificationBell } from "../notifications/NotificationBell";
 import { NavbarTimer } from "../timer/NavbarTimer";
+import { TourTriggerButton } from "@/features/tour/components/TourTriggerButton";
+import { useAppTour } from "@/features/tour/useAppTour";
 
 interface NavbarProps {
     // onToggleSidebar not needed anymore since Desktop toggle is in Sidenav
@@ -86,6 +88,8 @@ export function Navbar({ }: NavbarProps) {
     ].filter(Boolean).length;
     const completionPct = (completionScore / 5) * 100;
 
+    const { startTour } = useAppTour();
+
     return (
         <header className="sticky top-0 z-50 w-full transition-all duration-300 border-b bg-background/90 backdrop-blur-xl h-14 flex items-center shadow-sm">
             <div className="w-full mx-4 flex items-center justify-between gap-4">
@@ -109,7 +113,7 @@ export function Navbar({ }: NavbarProps) {
                 </div>
 
                 <div className="flex max-w-xl w-full mx-auto">
-                    <form onSubmit={handleSearchSubmit} className="flex-1 px-2 md:px-6">
+                    <form onSubmit={handleSearchSubmit} className="flex-1 px-2 md:px-6" data-tour="navbar-search">
                         <div className="relative group">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-primary/50 group-focus-within:text-primary transition-colors" />
                             <Input
@@ -121,29 +125,37 @@ export function Navbar({ }: NavbarProps) {
                             />
                         </div>
                     </form>
-                    <NavbarTimer />
+                    <div data-tour="navbar-timer" className="shrink-0">
+                        <NavbarTimer />
+                    </div>
                 </div>
 
                 {/* Right Section: Actions & Profile */}
                 <div className="flex items-center gap-2 md:gap-3 shrink-0">
-                    <ModeToggle />
+                    <TourTriggerButton variant="navbar-icon" className="hidden sm:flex" />
+                    <div data-tour="navbar-theme">
+                        <ModeToggle />
+                    </div>
 
                     {!isHydrated ? (
                         <div className="w-9 h-9 bg-muted animate-pulse rounded-full hidden sm:block"></div>
                     ) : isLoggedIn ? (
                         <div className="flex items-center gap-3">
-                            <Link href="/posts/create" className="hidden md:flex">
+                            <Link href="/posts/create" className="hidden md:flex" data-tour="navbar-post">
                                 <ElevatedButton variant="primary" size="sm" className="btn-elevated" style={{ "--btn-shadow-color": "hsl(15 100% 38%)" } as React.CSSProperties}>
                                     <PenTool className="h-3.5 w-3.5" /> Post
                                 </ElevatedButton>
                             </Link>
 
-                            <NotificationBell />
+                            <div data-tour="navbar-notifications">
+                                <NotificationBell />
+                            </div>
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <button
                                         type="button"
+                                        data-tour="navbar-profile"
                                         className="relative w-9 h-9 p-0 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                         title={
                                             missingFields.length > 0
@@ -232,6 +244,9 @@ export function Navbar({ }: NavbarProps) {
                                     <DropdownMenuItem asChild className="cursor-pointer rounded-lg md:hidden">
                                         <Link href="/posts/create"><PenTool className="mr-2 h-4 w-4 text-muted-foreground" /> Create Post</Link>
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => startTour(0)} className="cursor-pointer rounded-lg text-primary font-semibold">
+                                        <Sparkles className="mr-2 h-4 w-4 text-primary" /> Take App Tour
+                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuSub>
                                         <DropdownMenuSubTrigger className="cursor-pointer">
@@ -240,6 +255,9 @@ export function Navbar({ }: NavbarProps) {
                                         </DropdownMenuSubTrigger>
                                         <DropdownMenuPortal>
                                             <DropdownMenuSubContent className="w-48">
+                                                <DropdownMenuItem onClick={() => startTour(0)} className="cursor-pointer">
+                                                    <Compass className="mr-2 h-4 w-4 text-primary" /> Restart Walkthrough
+                                                </DropdownMenuItem>
                                                 <DropdownMenuItem asChild className="cursor-pointer">
                                                     <Link href="/about">About PrepNiti</Link>
                                                 </DropdownMenuItem>

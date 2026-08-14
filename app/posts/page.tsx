@@ -51,6 +51,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { cn } from "@/lib/utils";
 
+import { useAppTour } from "@/features/tour/useAppTour";
+import { MOCK_TOUR_POSTS } from "@/features/tour/tourMockData";
+
 const QUICK_LINKS = [
     { href: "/tracker", icon: Target, label: "Study Tracker", desc: "Manage your targets", color: "text-violet-500", bg: "bg-violet-500/10" },
     { href: "/mock-tests", icon: GraduationCap, label: "Mock Tests", desc: "Take a full-length test", color: "text-emerald-500", bg: "bg-emerald-500/10" },
@@ -74,6 +77,7 @@ export default function PostsPage() {
     const { isLoggedIn, user } = useAuth();
     const router = useRouter();
     const queryClient = useQueryClient();
+    const { isOpen } = useAppTour();
 
     // Filtering & Sorting States
     const [selectedTag, setSelectedTag] = useState<string>("");
@@ -165,7 +169,7 @@ export default function PostsPage() {
                 <div className="lg:col-span-3 space-y-5">
  
                     {/* Quick Inline Creation Card */}
-                    <Card className="border border-border/60 rounded-2xl overflow-hidden bg-card/50 backdrop-blur-md shadow-sm p-4 hover:border-primary/20 transition-all duration-300">
+                    <Card data-tour="posts-container" className="border border-border/60 rounded-2xl overflow-hidden bg-card/50 backdrop-blur-md shadow-sm p-4 hover:border-primary/20 transition-all duration-300">
                         <div className="space-y-4">
                             <div className="flex gap-3">
                                 <Avatar className="h-9 w-9 border border-border shadow-sm shrink-0">
@@ -265,7 +269,7 @@ export default function PostsPage() {
                     </div>
 
                     {/* Tag Pills List */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+                    <div data-tour="posts-tags" className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
                         <TrendingUp className="h-3.5 w-3.5 text-primary shrink-0 mr-1 hidden sm:block" />
                         <Badge
                             variant={!selectedTag ? "default" : "secondary"}
@@ -329,34 +333,53 @@ export default function PostsPage() {
                             ))}
 
                             {data.pages[0].data.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-20 text-center bg-muted/10 rounded-2xl border border-dashed border-border/60">
-                                    <div className="h-14 w-14 rounded-2xl bg-muted/40 border border-border/30 flex items-center justify-center mb-4 text-muted-foreground/50">
-                                        <MessageSquare className="h-6 w-6" />
+                                isOpen ? (
+                                    <div className="space-y-5">
+                                        {(MOCK_TOUR_POSTS as Post[]).map((post: Post, index: number) => (
+                                            <PostCard
+                                                key={post.id}
+                                                post={post}
+                                                isBookmarked={index === 1}
+                                                isLiked={index === 0}
+                                                onLike={() => {}}
+                                                isLikePending={false}
+                                                onBookmark={() => {}}
+                                                isBookmarkPending={false}
+                                                viewMode="feed"
+                                                delay={index * 0.04}
+                                            />
+                                        ))}
                                     </div>
-                                    <h3 className="text-sm font-bold text-foreground">No discussions found</h3>
-                                    <p className="text-muted-foreground text-xs mt-1 max-w-xs">
-                                        {searchVal || selectedTag
-                                            ? "Try updating your search terms or clearing tag filters."
-                                            : "Be the first to start a conversation in the PrepNiti community!"}
-                                    </p>
-                                    {(searchVal || selectedTag) ? (
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => {
-                                                setSearchVal("");
-                                                setSelectedTag("");
-                                            }}
-                                            className="mt-4 rounded-xl text-xs font-semibold cursor-pointer"
-                                        >
-                                            Clear Filters
-                                        </Button>
-                                    ) : (
-                                        <Button onClick={() => triggerCreateModal()} size="sm" className="mt-4 rounded-xl font-bold gap-1.5 cursor-pointer">
-                                            <PlusCircle className="h-4 w-4" /> Start a discussion
-                                        </Button>
-                                    )}
-                                </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-20 text-center bg-muted/10 rounded-2xl border border-dashed border-border/60">
+                                        <div className="h-14 w-14 rounded-2xl bg-muted/40 border border-border/30 flex items-center justify-center mb-4 text-muted-foreground/50">
+                                            <MessageSquare className="h-6 w-6" />
+                                        </div>
+                                        <h3 className="text-sm font-bold text-foreground">No discussions found</h3>
+                                        <p className="text-muted-foreground text-xs mt-1 max-w-xs">
+                                            {searchVal || selectedTag
+                                                ? "Try updating your search terms or clearing tag filters."
+                                                : "Be the first to start a conversation in the PrepNiti community!"}
+                                        </p>
+                                        {(searchVal || selectedTag) ? (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    setSearchVal("");
+                                                    setSelectedTag("");
+                                                }}
+                                                className="mt-4 rounded-xl text-xs font-semibold cursor-pointer"
+                                            >
+                                                Clear Filters
+                                            </Button>
+                                        ) : (
+                                            <Button onClick={() => triggerCreateModal()} size="sm" className="mt-4 rounded-xl font-bold gap-1.5 cursor-pointer">
+                                                <PlusCircle className="h-4 w-4" /> Start a discussion
+                                            </Button>
+                                        )}
+                                    </div>
+                                )
                             )}
 
                             {hasNextPage && (

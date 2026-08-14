@@ -32,9 +32,11 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { useAppTour } from "@/features/tour/useAppTour";
 
 export function NavbarTimer() {
     const queryClient = useQueryClient();
+    const { isOpen } = useAppTour();
     const [session, setSession] = useState<ActiveSession | null>(null);
     const [elapsed, setElapsed] = useState(0);
     const [showLogDialog, setShowLogDialog] = useState(false);
@@ -180,7 +182,19 @@ export function NavbarTimer() {
     const hasSession = session !== null;
     const durationMinutes = Math.max(1, Math.round(elapsed / 60));
 
-    if (!hasSession) return null;
+    if (!hasSession) {
+        if (!isOpen) return null;
+        return (
+            <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-1.5 px-2.5 py-1 h-7 rounded-full text-xs font-mono font-semibold tabular-nums transition-all border bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20 animate-pulse pointer-events-none"
+            >
+                <Timer className="h-3.5 w-3.5" />
+                00:32:15
+            </Button>
+        );
+    }
 
     return (
         <>

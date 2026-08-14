@@ -14,6 +14,9 @@ import { AddTaskModal } from "@/features/kanban/components/AddTaskModal";
 import { TaskDetailsPanel } from "@/features/kanban/components/TaskDetailsPanel";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
+import { useAppTour } from "@/features/tour/useAppTour";
+import { MOCK_TOUR_TASKS } from "@/features/tour/tourMockData";
+
 type ViewMode = "BOARD" | "LIST";
 
 function useMediaQuery(query: string) {
@@ -40,16 +43,18 @@ export default function TrackerDashboard() {
     const [searchQuery, setSearchQuery] = useState("");
     const [subjectFilter, setSubjectFilter] = useState("ALL");
     const [priorityFilter, setPriorityFilter] = useState("ALL");
+    const { isOpen } = useAppTour();
 
-    const { data: tasks = [], isLoading } = useQuery({
+    const { data: realTasks = [], isLoading } = useQuery({
         queryKey: ["tasks"],
         queryFn: getTasks,
     });
 
-    const activeTask = selectedTask ? tasks.find(t => t.id === selectedTask.id) || selectedTask : null;
+    const tasks = (realTasks.length === 0 && isOpen) ? MOCK_TOUR_TASKS : realTasks;
+    const activeTask = selectedTask ? (tasks.find(t => t.id === selectedTask.id) || selectedTask) : (isOpen ? tasks[0] : null);
     const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
-    if (isLoading) {
+    if (isLoading && !isOpen) {
         return <div className="flex justify-center py-32"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
     }
 
@@ -78,10 +83,10 @@ export default function TrackerDashboard() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
             </div> */}
 
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-3 bg-card border rounded-lg p-2 shadow-sm">
+            <div data-tour="tracker-main-content" className="flex flex-col lg:flex-row items-center justify-between gap-3 bg-card border rounded-lg p-2 shadow-sm">
 
                 {/* Search & Filters */}
-                <div className="flex flex-col sm:flex-row w-full lg:w-auto flex-1 gap-2">
+                <div data-tour="tracker-filters" className="flex flex-col sm:flex-row w-full lg:w-auto flex-1 gap-2">
                     <div className="relative w-full sm:flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input placeholder="Search targets..." className="pl-9 h-9 w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
@@ -120,13 +125,13 @@ export default function TrackerDashboard() {
                             <ListTodo className="w-3.5 h-3.5 mr-1.5 hidden xs:block" /> List
                         </Button>
                     </div>
-                    <div className="shrink-0 flex items-center h-9">
+                    <div data-tour="tracker-add-btn" className="shrink-0 flex items-center h-9">
                         <AddTaskModal />
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-6 mt-6 items-start">
+            <div data-tour="tracker-board" className="flex flex-col lg:flex-row gap-6 mt-6 items-start">
                 <div className="flex-1 w-full min-w-0">
                     {filteredTasks.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground border rounded-lg bg-muted/10">
@@ -154,7 +159,7 @@ export default function TrackerDashboard() {
                 </div>
 
                 {activeTask && isLargeScreen && (
-                    <div className="w-full lg:w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-6rem)] overflow-hidden flex flex-col">
+                    <div data-tour="tracker-detail-panel" className="w-full lg:w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-6rem)] overflow-hidden flex flex-col">
                         <TaskDetailsPanel
                             task={activeTask}
                             onClose={() => setSelectedTask(null)}

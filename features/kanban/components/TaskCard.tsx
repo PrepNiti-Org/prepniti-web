@@ -163,6 +163,7 @@ export function TaskCard({
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <button
+                                        data-tour="tracker-task-timer"
                                         onClick={handleTimerClick}
                                         disabled={isPending}
                                         className={`p-1 rounded-full border transition-all cursor-pointer ${
