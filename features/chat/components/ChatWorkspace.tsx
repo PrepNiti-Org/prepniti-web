@@ -586,7 +586,7 @@ export function ChatWorkspace() {
                             ) : (() => {
                                 const invites = buddies.filter(buddy =>
                                     activeRoom &&
-                                    !activeRoom.members.some((m: unknown) => m.username === buddy.username)
+                                    !activeRoom.members.some(m => m.username === buddy.username)
                                 );
 
                                 if (invites.length === 0) {
