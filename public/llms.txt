@@ -1,0 +1,31 @@
+# PrepNiti
+
+> PrepNiti is an anonymous peer community and preparation intelligence platform engineered for serious competitive exam aspirants (UPSC Civil Services, SSC CGL, Banking, State PCS, Railway, and other competitive examinations in India).
+
+## What is PrepNiti?
+PrepNiti combines anonymous peer discussion, structured study tracking with analytics, real-time mock test simulations, and peer accountability mechanisms to make competitive exam preparation focused, consistent, and collaborative.
+
+## Key Features & Capabilities
+
+- **Anonymous Discussions & Experiences**: Aspirants share authentic exam experiences, study strategies, booklists, notes, and mental wellness journeys with anonymous identity protection.
+- **Kanban Study Tracker & Pomodoro**: A structured syllabus tracker categorized into Reading, Practice, Revision, and Mock Tests with real-time active study session timers.
+- **Deep Preparation Insights & Analytics**: Real-time habit analytics, revision balance ratios, study streaks, subject balance radars, and automated AI coach recommendations.
+- **Realistic Mock Exam Workspace**: Timed exam simulations with question palettes, marking schemes, section navigation, full CBT interface, virtual calculator, and post-exam performance breakdowns.
+- **Study Buddy & Peer Discovery**: Location-aware and target-exam-based study partner matching and mutual accountability pacts.
+- **Resource Bookmarking & Notes**: Save valuable peer advice, question explanations, and strategy articles.
+
+## Target Exams Supported
+- UPSC Civil Services Examination (CSE - Prelims & Mains)
+- SSC (CGL, CHSL, CPO, MTS)
+- State PSCs (UPPSC, BPSC, MPSC, RAS, MPPSC, etc.)
+- Banking & Insurance (IBPS PO/Clerk, SBI PO, RBI Grade B)
+- Defense & Railway Exams (CDS, NDA, AFCAT, RRB NTPC)
+
+## Official Links & Resources
+- Website: https://prepniti.com
+- Discussions & Feed: https://prepniti.com/posts
+- Study Tracker: https://prepniti.com/tracker
+- Mock Tests: https://prepniti.com/mock-tests
+- Insights & Analytics: https://prepniti.com/insights
+- About PrepNiti: https://prepniti.com/about
+- Feedback & Support: https://prepniti.com/feedback
