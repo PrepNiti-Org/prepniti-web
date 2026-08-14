@@ -70,9 +70,11 @@ export const metadata: Metadata = {
       "Connect anonymously with serious aspirants, track syllabus progress, take realistic mock tests, and get deep preparation insights.",
     images: [
       {
-        url: "/og-image.png",
+        url: `${baseUrl}/og-image.png`,
+        secureUrl: `${baseUrl}/og-image.png`,
         width: 1200,
         height: 630,
+        type: "image/png",
         alt: "PrepNiti - Aspirant Preparation & Community Platform",
       },
     ],
@@ -82,7 +84,7 @@ export const metadata: Metadata = {
     title: "PrepNiti - Anonymous Community & Prep Platform for Aspirants",
     description:
       "Connect anonymously with serious aspirants, track syllabus progress, take realistic mock tests, and get deep preparation insights.",
-    images: ["/og-image.png"],
+    images: [`${baseUrl}/og-image.png`],
     creator: "@PrepNiti",
   },
   robots: {
