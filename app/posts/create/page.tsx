@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPost, uploadMedia, CreatePostDTO } from "@/features/posts/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import { ArrowLeft, Loader2, X, UploadCloud, Info, MessageSquare, Heart } from "
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
+import { useEffect } from "react";
 
 const formSchema = z.object({
     title: z.string().min(5, "Title must be at least 5 characters").max(100, "Title cannot exceed 100 characters"),
@@ -25,8 +26,9 @@ const formSchema = z.object({
     tags: z.array(z.string()).max(5, "Maximum 5 tags allowed"),
 });
 
-export default function CreatePostPage() {
+function CreatePostContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const [tagInput, setTagInput] = useState("");
     const [mediaFile, setMediaFile] = useState<File | null>(null);
@@ -41,6 +43,14 @@ export default function CreatePostPage() {
             tags: [],
         },
     });
+
+    const initialTag = searchParams.get("tag");
+
+    useEffect(() => {
+        if (initialTag) {
+            form.setValue("tags", [initialTag]);
+        }
+    }, [initialTag, form]);
 
     const watchedTags = form.watch("tags");
 
@@ -169,6 +179,7 @@ export default function CreatePostPage() {
                                             )}
                                         />
 
+                                        {/* Media upload option is commented out for now since it is only in UI
                                         <div className="space-y-3">
                                             <FormLabel className="text-sm font-semibold">Attach Media (Optional)</FormLabel>
                                             {!mediaFile ? (
@@ -201,6 +212,7 @@ export default function CreatePostPage() {
                                                 </div>
                                             )}
                                         </div>
+                                        */}
 
                                         <FormField
                                             control={form.control}
@@ -333,5 +345,13 @@ export default function CreatePostPage() {
 
             </div>
         </div>
+    );
+}
+
+export default function CreatePostPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center py-32"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>}>
+            <CreatePostContent />
+        </Suspense>
     );
 }

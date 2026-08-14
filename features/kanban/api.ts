@@ -77,3 +77,53 @@ export const deleteTimeLog = async (id: string) => {
     const res = await api.delete(`/timelogs/${id}`);
     return res.data;
 };
+
+// --- Study Session API ---
+
+export interface SessionResponseData {
+    id: string;
+    task_id: string;
+    task_title: string;
+    started_at: string;
+    accumulated_seconds: number;
+    is_paused: boolean;
+    paused_at?: string;
+    created_at: string;
+}
+
+export const getActiveSession = async (): Promise<SessionResponseData | null> => {
+    try {
+        const res = await api.get<{ data: SessionResponseData }>("/sessions/active");
+        return res.data.data;
+    } catch (err: any) {
+        if (err?.response?.status === 404) {
+            return null;
+        }
+        throw err;
+    }
+};
+
+export const startSession = async (taskId: string): Promise<SessionResponseData> => {
+    const res = await api.post<{ data: SessionResponseData }>("/sessions/start", { task_id: taskId });
+    return res.data.data;
+};
+
+export const pauseSession = async (): Promise<SessionResponseData> => {
+    const res = await api.post<{ data: SessionResponseData }>("/sessions/pause");
+    return res.data.data;
+};
+
+export const resumeSession = async (): Promise<SessionResponseData> => {
+    const res = await api.post<{ data: SessionResponseData }>("/sessions/resume");
+    return res.data.data;
+};
+
+export const stopSession = async (note?: string): Promise<{ data: any; duration_minutes: number; elapsed_seconds: number }> => {
+    const res = await api.post("/sessions/stop", { note });
+    return res.data;
+};
+
+export const discardSession = async (): Promise<{ message: string }> => {
+    const res = await api.delete("/sessions/active");
+    return res.data;
+};

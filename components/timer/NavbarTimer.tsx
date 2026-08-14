@@ -3,11 +3,23 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createTimeLog } from "@/features/kanban/api";
-import { getStoredTimer, storeTimer, formatTime, dispatchTimerUpdate, TimerState } from "@/features/kanban/timerUtils";
+import {
+    getActiveSession,
+    pauseSession,
+    resumeSession,
+    stopSession,
+    discardSession,
+    SessionResponseData
+} from "@/features/kanban/api";
+import {
+    formatTime,
+    getDisplayElapsed,
+    dispatchSessionUpdate,
+    ActiveSession
+} from "@/features/kanban/timerUtils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Play, Pause, Square, Save, Timer } from "lucide-react";
+import { Play, Pause, RotateCcw, Check, Timer } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -23,111 +35,152 @@ import {
 
 export function NavbarTimer() {
     const queryClient = useQueryClient();
-    const [timerState, setTimerState] = useState<TimerState | null>(null);
+    const [session, setSession] = useState<ActiveSession | null>(null);
     const [elapsed, setElapsed] = useState(0);
     const [showLogDialog, setShowLogDialog] = useState(false);
     const [note, setNote] = useState("");
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Sync from localStorage + listen for cross-component events
-    const syncFromStorage = () => {
-        const stored = getStoredTimer();
-        setTimerState(stored);
-        if (stored) {
-            if (stored.isRunning && stored.startedAt) {
-                const additionalSeconds = Math.floor((Date.now() - stored.startedAt) / 1000);
-                setElapsed(stored.elapsed + additionalSeconds);
+    const mapSessionData = (data: SessionResponseData | null): ActiveSession | null => {
+        if (!data) return null;
+        return {
+            sessionId: data.id,
+            taskId: data.task_id,
+            taskTitle: data.task_title,
+            startedAt: data.started_at ? new Date(data.started_at).getTime() : null,
+            accumulatedSeconds: data.accumulated_seconds,
+            isPaused: data.is_paused,
+        };
+    };
+
+    const fetchSession = async () => {
+        try {
+            const data = await getActiveSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            if (active) {
+                setElapsed(getDisplayElapsed(active));
             } else {
-                setElapsed(stored.elapsed);
+                setElapsed(0);
             }
-        } else {
-            setElapsed(0);
+        } catch {
+            console.error("Failed to load active study session");
         }
     };
 
     useEffect(() => {
-        syncFromStorage();
-        window.addEventListener("timer-update", syncFromStorage);
-        return () => window.removeEventListener("timer-update", syncFromStorage);
+        fetchSession();
+
+        const handleSessionUpdateEvent = (e: Event) => {
+            const customEvent = e as CustomEvent<ActiveSession | null>;
+            const newSession = customEvent.detail;
+            setSession(newSession);
+            if (newSession) {
+                setElapsed(getDisplayElapsed(newSession));
+            } else {
+                setElapsed(0);
+            }
+        };
+
+        window.addEventListener("session-update", handleSessionUpdateEvent);
+        document.addEventListener("visibilitychange", fetchSession);
+
+        return () => {
+            window.removeEventListener("session-update", handleSessionUpdateEvent);
+            document.removeEventListener("visibilitychange", fetchSession);
+        };
     }, []);
 
-    // Tick every second when running
     useEffect(() => {
-        if (timerState?.isRunning) {
+        if (session && !session.isPaused) {
             intervalRef.current = setInterval(() => {
-                setElapsed(prev => prev + 1);
+                setElapsed(getDisplayElapsed(session));
             }, 1000);
         } else {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
+            if (session) {
+                setElapsed(session.accumulatedSeconds);
+            }
         }
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [timerState?.isRunning]);
+    }, [session]);
 
-    const handlePause = () => {
-        if (!timerState) return;
-        storeTimer({ ...timerState, elapsed, isRunning: false, startedAt: null });
-        dispatchTimerUpdate();
+    const handlePause = async () => {
+        try {
+            const data = await pauseSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            dispatchSessionUpdate(active);
+            toast.info("Timer paused");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to pause timer");
+        }
     };
 
-    const handleResume = () => {
-        if (!timerState) return;
-        storeTimer({ ...timerState, elapsed, isRunning: true, startedAt: Date.now() });
-        dispatchTimerUpdate();
+    const handleResume = async () => {
+        try {
+            const data = await resumeSession();
+            const active = mapSessionData(data);
+            setSession(active);
+            dispatchSessionUpdate(active);
+            toast.info("Timer resumed");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to resume timer");
+        }
     };
 
     const handleStop = () => {
-        if (!timerState) return;
-        if (elapsed < 60) {
-            storeTimer(null);
-            dispatchTimerUpdate();
-            toast.info("Timer discarded (less than 1 minute)");
+        if (!session) return;
+        const currentElapsed = getDisplayElapsed(session);
+        if (currentElapsed < 60) {
+            toast.error("Session must be at least 1 minute long to log");
             return;
         }
-        // Pause and show log dialog
-        storeTimer({ ...timerState, elapsed, isRunning: false, startedAt: null });
-        dispatchTimerUpdate();
         setShowLogDialog(true);
     };
 
-    const handleDiscard = () => {
-        storeTimer(null);
-        dispatchTimerUpdate();
-        toast.info("Timer discarded");
+    const handleDiscard = async () => {
+        try {
+            await discardSession();
+            setSession(null);
+            dispatchSessionUpdate(null);
+            toast.info("Study session discarded");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || "Failed to discard session");
+        }
     };
 
     const logMutation = useMutation({
-        mutationFn: (data: { duration_minutes: number; note?: string }) =>
-            createTimeLog(timerState!.taskId, data),
+        mutationFn: (noteText: string) => stopSession(noteText),
         onSuccess: () => {
             toast.success("Study session logged!");
-            queryClient.invalidateQueries({ queryKey: ["taskTimeLogs", timerState?.taskId] });
+            queryClient.invalidateQueries({ queryKey: ["taskTimeLogs", session?.taskId] });
             queryClient.invalidateQueries({ queryKey: ["userTimeLogs"] });
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
-            storeTimer(null);
-            dispatchTimerUpdate();
+            setSession(null);
+            dispatchSessionUpdate(null);
             setShowLogDialog(false);
             setNote("");
         },
-        onError: () => {
-            toast.error("Failed to log session");
+        onError: (err: any) => {
+            toast.error(err?.response?.data?.error || "Failed to log session");
         },
     });
 
     const confirmLog = () => {
-        const durationMinutes = Math.max(1, Math.round(elapsed / 60));
-        logMutation.mutate({ duration_minutes: durationMinutes, note: note.trim() || undefined });
+        logMutation.mutate(note.trim());
     };
 
-    const isRunning = timerState?.isRunning || false;
-    const hasTimer = timerState !== null;
-    const durationMinutes = Math.round(elapsed / 60);
+    const isRunning = session && !session.isPaused;
+    const hasSession = session !== null;
+    const durationMinutes = Math.max(1, Math.round(elapsed / 60));
 
-    if (!hasTimer) return null;
+    if (!hasSession) return null;
 
     return (
         <>
@@ -150,24 +203,43 @@ export function NavbarTimer() {
                         <div className="text-center">
                             <div className="text-2xl font-mono font-bold tabular-nums">{formatTime(elapsed)}</div>
                             <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                                {timerState?.taskTitle || "Study session"}
+                                {session?.taskTitle || "Study session"}
                             </p>
                         </div>
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="grid grid-cols-3 gap-1.5 w-full">
+                            <Button
+                                size="sm"
+                                onClick={handleDiscard}
+                                className="rounded-xl h-8 text-[11px] font-semibold bg-destructive/10 hover:bg-destructive/20 text-destructive border-none shadow-sm cursor-pointer w-full"
+                            >
+                                <RotateCcw className="h-3.5 w-3.5 mr-0.5" /> Discard
+                            </Button>
+
                             {isRunning ? (
-                                <Button size="sm" variant="secondary" onClick={handlePause} className="gap-1.5 rounded-full h-8 text-xs">
-                                    <Pause className="h-3.5 w-3.5" /> Pause
+                                <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={handlePause}
+                                    className="rounded-xl h-8 text-[11px] font-semibold cursor-pointer w-full"
+                                >
+                                    <Pause className="h-3.5 w-3.5 mr-0.5" /> Pause
                                 </Button>
                             ) : (
-                                <Button size="sm" onClick={handleResume} className="gap-1.5 rounded-full h-8 text-xs">
-                                    <Play className="h-3.5 w-3.5" /> Resume
+                                <Button
+                                    size="sm"
+                                    onClick={handleResume}
+                                    className="rounded-xl h-8 text-[11px] font-semibold cursor-pointer w-full"
+                                >
+                                    <Play className="h-3.5 w-3.5 mr-0.5 fill-current" /> Resume
                                 </Button>
                             )}
-                            <Button size="sm" variant="default" onClick={handleStop} className="gap-1.5 rounded-full h-8 text-xs bg-green-600 hover:bg-green-700 text-white">
-                                <Save className="h-3.5 w-3.5" /> Log
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={handleDiscard} className="gap-1.5 rounded-full h-8 text-xs text-destructive hover:text-destructive">
-                                <Square className="h-3.5 w-3.5" /> Discard
+
+                            <Button
+                                size="sm"
+                                onClick={handleStop}
+                                className="rounded-xl h-8 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm cursor-pointer w-full"
+                            >
+                                <Check className="h-3.5 w-3.5 mr-0.5" /> Log
                             </Button>
                         </div>
                     </div>
@@ -184,7 +256,7 @@ export function NavbarTimer() {
                         <div className="text-center">
                             <div className="text-3xl font-mono font-bold">{formatTime(elapsed)}</div>
                             <p className="text-sm text-muted-foreground mt-1">
-                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} — {timerState?.taskTitle}
+                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} — {session?.taskTitle}
                             </p>
                         </div>
                         <div className="space-y-2">
@@ -198,13 +270,13 @@ export function NavbarTimer() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setShowLogDialog(false)}>Cancel</Button>
+                        <Button variant="ghost" className="rounded-xl text-xs h-9 cursor-pointer" onClick={() => setShowLogDialog(false)}>Cancel</Button>
                         <Button
                             onClick={confirmLog}
                             disabled={logMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs h-9 font-semibold cursor-pointer"
                         >
-                            {logMutation.isPending ? "Saving..." : "Save Session"}
+                            {logMutation.isPending ? "Logging..." : "Log Session"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -212,3 +284,4 @@ export function NavbarTimer() {
         </>
     );
 }
+

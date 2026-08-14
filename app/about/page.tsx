@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Shield, BookOpen, CheckSquare, Users, Award, Heart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -22,6 +23,7 @@ const itemVariants = {
 };
 
 export default function AboutPage() {
+  const { isLoggedIn } = useAuth();
 
   const features = [
     {
@@ -114,11 +116,19 @@ export default function AboutPage() {
             By enabling anonymous post sharing and structured exam checklists, we ensure that every aspirant—regardless of their background, location, or financial status—gains access to the ultimate prep guidebooks.
           </p>
           <div className="pt-2 flex flex-wrap gap-4">
-            <Link href="/register">
-              <Button className="shadow-md hover:shadow-lg transition-all font-semibold cursor-pointer">
-                Join Community
-              </Button>
-            </Link>
+            {isLoggedIn ? (
+              <Link href="/submit">
+                <Button className="shadow-md hover:shadow-lg transition-all font-semibold cursor-pointer">
+                  Share Experience
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/register">
+                <Button className="shadow-md hover:shadow-lg transition-all font-semibold cursor-pointer">
+                  Join Community
+                </Button>
+              </Link>
+            )}
             <Link href="/posts">
               <Button variant="outline" className="bg-background shadow-sm hover:bg-muted/50 transition-all cursor-pointer">
                 Explore Discussions

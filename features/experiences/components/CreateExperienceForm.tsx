@@ -35,7 +35,7 @@ export function CreateExperienceForm() {
             exam_name: "",
             year: new Date().getFullYear(),
             verdict: undefined,
-            difficulty: undefined, 
+            difficulty: undefined,
             description: "",
             is_anonymous: false,
         },
@@ -48,8 +48,8 @@ export function CreateExperienceForm() {
                 router.push("/");
             },
             onError: (err: Error) => {
-                const description = err instanceof Error && 'response' in err && (err as AxiosError<{ error: string }>).response?.data?.error 
-                    ? (err as AxiosError<{ error: string }>).response?.data?.error 
+                const description = err instanceof Error && 'response' in err && (err as AxiosError<{ error: string }>).response?.data?.error
+                    ? (err as AxiosError<{ error: string }>).response?.data?.error
                     : "Server error";
                 toast.error("Failed to post", { description });
             }
@@ -96,9 +96,9 @@ export function CreateExperienceForm() {
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl><SelectTrigger><SelectValue placeholder="Result" /></SelectTrigger></FormControl>
                                     <SelectContent>
-                                        <SelectItem value="Selected">Selected ✅</SelectItem>
-                                        <SelectItem value="Rejected">Rejected ❌</SelectItem>
-                                        <SelectItem value="Waitlist">Waitlist ⏳</SelectItem>
+                                        <SelectItem value="Selected">Selected</SelectItem>
+                                        <SelectItem value="Rejected">Rejected</SelectItem>
+                                        <SelectItem value="Waitlist">Waitlist</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -153,20 +153,20 @@ export function CreateExperienceForm() {
                     name="is_anonymous"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-slate-50 dark:bg-slate-900">
-                        <FormControl>
-                            <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                            <FormLabel>
-                            Post Anonymously
-                            </FormLabel>
-                            <FormDescription>
-                            Your name and avatar will be hidden from this post.
-                            </FormDescription>
-                        </div>
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                    Post Anonymously
+                                </FormLabel>
+                                <FormDescription>
+                                    Your name and avatar will be hidden from this post.
+                                </FormDescription>
+                            </div>
                         </FormItem>
                     )}
                 />

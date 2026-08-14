@@ -185,7 +185,7 @@ export function QuestionPalette({
                                 >
                                     <button
                                         onClick={() => onJumpToQuestion(idx)}
-                                        className={`aspect-square w-full flex items-center justify-center font-bold transition-all duration-155 ${statusStyle} ${alignClass} ${getCountFontClass(idx + 1)}`}
+                                        className={`aspect-square w-full flex items-center justify-center font-bold cursor-pointer transition-all duration-155 ${statusStyle} ${alignClass} ${getCountFontClass(idx + 1)}`}
                                         style={clipPathStyle ? { clipPath: clipPathStyle } : undefined}
                                     >
                                         {idx + 1}

@@ -256,7 +256,7 @@ export function VirtualCalculator({ isOpen, onClose, useRealisticTheme = true }:
         : "bg-slate-100 dark:bg-slate-900 text-foreground cursor-move flex items-center justify-between px-4 py-3 text-sm font-bold font-sans select-none";
 
     const keyStyle = (type: "num" | "op" | "fn" | "eq" | "clear") => {
-        let base = "h-9 text-xs font-semibold select-none flex items-center justify-center transition-all duration-100 ";
+        let base = "h-9 text-xs font-semibold select-none flex items-center justify-center transition-all duration-100 cursor-pointer ";
 
         if (useRealisticTheme) {
             base += "rounded-none ";

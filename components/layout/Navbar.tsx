@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
@@ -63,27 +64,20 @@ export function Navbar({ }: NavbarProps) {
         <header className="sticky top-0 z-50 w-full transition-all duration-300 border-b bg-background/90 backdrop-blur-xl h-14 flex items-center shadow-sm">
             <div className="w-full mx-4 flex items-center justify-between gap-4">
 
-                {/* Left Section: Toggle & Logo */}
+                {/* Left Section: Logo */}
                 <div className="flex items-center gap-2">
-                    {/* Mobile Sheet Toggle */}
-                    <div className="md:hidden">
-                        <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-                            <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" aria-label="Toggle Menu">
-                                    <Menu className="h-5 w-5" />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="left" className="p-0 w-80 max-w-[320px] flex flex-col bg-sidebar border-r-0">
-                                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                                <SheetDescription className="sr-only">Access site sections, profile, bookmarks, and settings</SheetDescription>
-                                <Sidenav onItemClick={() => setIsMobileOpen(false)} className="border-r-0 w-full" isMobile={true} />
-                            </SheetContent>
-                        </Sheet>
-                    </div>
-
-                    <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight ml-1 md:ml-2">
-                        <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent flex items-center gap-1.5 font-extrabold">
-                            <span className="hidden sm:inline-block">PrepNiti</span>
+                    <Link href="/" className="flex items-center gap-2.5 font-bold text-xl tracking-tight group">
+                        <div className="relative w-7 h-7 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+                            <Image
+                                src="/logo.svg"
+                                alt="PrepNiti Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <span className="bg-gradient-to-r from-primary via-primary/90 to-orange-400 bg-clip-text text-transparent items-center gap-1.5 font-extrabold hidden sm:flex">
+                            PrepNiti
                         </span>
                     </Link>
                 </div>
@@ -106,9 +100,7 @@ export function Navbar({ }: NavbarProps) {
 
                 {/* Right Section: Actions & Profile */}
                 <div className="flex items-center gap-2 md:gap-3 shrink-0">
-                    <div className="hidden sm:block">
-                        <ModeToggle />
-                    </div>
+                    <ModeToggle />
 
                     {!isHydrated ? (
                         <div className="w-9 h-9 bg-muted animate-pulse rounded-full hidden sm:block"></div>
@@ -134,7 +126,7 @@ export function Navbar({ }: NavbarProps) {
                                     </Button>
                                 </DropdownMenuTrigger>
 
-                                <DropdownMenuContent className="w-56" align="end" forceMount>
+                                <DropdownMenuContent className="w-56 shadow-2xl border-border/80 bg-popover/95 backdrop-blur-md" align="end" forceMount>
                                     <DropdownMenuLabel className="font-normal p-3">
                                         <div className="flex flex-col space-y-1">
                                             <p className="text-sm font-semibold leading-none truncate">{user?.username}</p>

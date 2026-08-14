@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 
 interface User {
+    id?: string | number;
     username: string;
     email: string;
     target_exam?: string;
@@ -42,7 +43,12 @@ export function useAuth() {
         checkAuth();
     }, []);
 
-    const login = useCallback((userData: User) => {
+    const login = useCallback((token: string, userData: User) => {
+        // Fallback for non-HttpOnly context or API references
+        // Cookies.set("token", token, {
+        //     expires: 7,
+        //     secure: window.location.protocol === 'https:'
+        // });
         localStorage.setItem("user", JSON.stringify(userData));
         setIsLoggedIn(true);
         setUser(userData);
@@ -54,7 +60,11 @@ export function useAuth() {
         } catch (err) {
             console.error("Logout request failed:", err);
         }
-        Cookies.remove("token");
+        // Cookies.remove("token", {
+        //     path: '/',
+        //     secure: window.location.protocol === 'https:'
+        // });
+        localStorage.removeItem("token");
         localStorage.removeItem("user");
 
         setIsLoggedIn(false);

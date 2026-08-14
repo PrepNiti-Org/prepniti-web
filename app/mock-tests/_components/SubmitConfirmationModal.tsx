@@ -66,12 +66,12 @@ export function SubmitConfirmationModal({
     const styleAnsweredMarked = getStatusStyle("answered_marked_review");
 
     const cancelBtnClass = useRealistic
-        ? "px-5 py-2.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans"
-        : "px-5 py-2.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-muted-foreground border border-border rounded-xl transition-all select-none font-sans";
+        ? "px-5 py-2.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 rounded hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors select-none font-sans cursor-pointer"
+        : "px-5 py-2.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-muted-foreground border border-border rounded-xl transition-all select-none font-sans cursor-pointer";
 
     const submitBtnClass = useRealistic
-        ? "px-6 py-2.5 text-xs font-bold bg-[#44a037] hover:bg-[#3c8e31] text-white border border-transparent rounded transition-colors select-none font-sans shadow-md"
-        : "px-6 py-2.5 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground border border-transparent rounded-xl transition-all select-none font-sans shadow-md shadow-primary/15";
+        ? "px-6 py-2.5 text-xs font-bold bg-[#44a037] hover:bg-[#3c8e31] text-white border border-transparent rounded transition-colors select-none font-sans shadow-md cursor-pointer"
+        : "px-6 py-2.5 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground border border-transparent rounded-xl transition-all select-none font-sans shadow-md shadow-primary/15 cursor-pointer";
 
     const modalHeaderClass = useRealistic
         ? "bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 shrink-0"
@@ -82,8 +82,8 @@ export function SubmitConfirmationModal({
         : "text-base font-extrabold font-sans text-foreground";
 
     const closeBtnClass = useRealistic
-        ? "text-slate-400 hover:text-white transition-colors"
-        : "text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800";
+        ? "text-slate-400 hover:text-white transition-colors cursor-pointer"
+        : "text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer";
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">

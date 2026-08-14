@@ -68,7 +68,7 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="container max-w-7xl mx-auto space-y-6">
+    <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
         <div className="lg:col-span-3">
@@ -128,23 +128,24 @@ export default function FeedbackPage() {
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-semibold">
-                        Email Address {!isLoggedIn && <span className="text-destructive">*</span>}
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="yourname@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isLoggedIn}
-                        className="border-primary/30 focus-visible:ring-primary/40 focus-visible:border-primary disabled:opacity-75"
-                      />
-                      <p className="text-[11px] text-muted-foreground">
-                        {isLoggedIn ? "Linked to your PrepNiti account email." : "Email is required for contact updates."}
-                      </p>
-                    </div>
+                    {!isLoggedIn && (
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-semibold">
+                          Email Address <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="yourname@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="border-primary/30 focus-visible:ring-primary/40 focus-visible:border-primary"
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          Email is required for contact updates.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label htmlFor="message" className="text-sm font-semibold">Message</Label>

@@ -1,9 +1,16 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
+import { BookOpen, Brain, CheckCircle2 } from "lucide-react";
 import { TaskCard } from "./TaskCard";
 import { QuickAddTask } from "./QuickAddTask";
 import { Task, Status } from "../api";
+
+const iconMap: Record<Status, React.ReactNode> = {
+    TODO: <BookOpen className="w-4 h-4 text-muted-foreground" />,
+    IN_PROGRESS: <Brain className="w-4 h-4 text-amber-500" />,
+    DONE: <CheckCircle2 className="w-4 h-4 text-green-500" />,
+};
 
 export function BoardColumn({
     id,
@@ -23,7 +30,10 @@ export function BoardColumn({
     return (
         <div className="flex flex-col bg-muted/30 border rounded-xl p-3 w-full min-h-[400px]">
             <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="font-semibold text-sm">{title}</h3>
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                    {iconMap[id]}
+                    <span>{title}</span>
+                </h3>
                 <span className="bg-background px-2 py-0.5 rounded-full text-xs font-bold text-muted-foreground shadow-sm">
                     {tasks.length}
                 </span>

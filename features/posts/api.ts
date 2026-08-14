@@ -13,6 +13,9 @@ export interface Post {
         username: string;
     };
     comment_count?: number;
+    like_count?: number;
+    bookmark_count?: number;
+    feed_score?: number;
 }
 
 export interface CreatePostDTO {
@@ -25,6 +28,10 @@ export interface CreatePostDTO {
 
 interface GetPostsParams {
     pageParam?: number;
+    tag?: string;
+    search?: string;
+    userId?: string;
+    sort?: string;
 }
 
 interface FetchPostsResponse {
@@ -34,8 +41,19 @@ interface FetchPostsResponse {
 
 export const getPosts = async ({
     pageParam = 1,
+    tag,
+    search,
+    userId,
+    sort,
 }: GetPostsParams): Promise<FetchPostsResponse> => {
-    const res = await api.get(`/posts?page=${pageParam}&limit=10`);
+    let url = `/posts?page=${pageParam}&limit=10`;
+    if (tag) url += `&tag=${encodeURIComponent(tag)}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (userId) url += `&user_id=${encodeURIComponent(userId)}`;
+    // Default to ranked feed algorithm
+    url += `&sort=${encodeURIComponent(sort ?? "feed")}`;
+
+    const res = await api.get(url);
     return {
         data: res.data.data || [],
         nextPage: res.data.next_page || null,

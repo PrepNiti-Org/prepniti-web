@@ -78,7 +78,7 @@ export default function HomePage() {
     return (
         <div className="container max-w-7xl mx-auto">
 
-            <section className="pt-10 pb-12 md:pt-16 md:pb-16 border-b border-border/40">
+            {/* <section className="pt-10 pb-12 md:pt-16 md:pb-16 border-b border-border/40">
                 <div className="max-w-3xl space-y-6">
                     <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">
                         PrepNiti
@@ -130,7 +130,7 @@ export default function HomePage() {
                         </Link>
                     ))}
                 </div>
-            </section>
+            </section> */}
 
             <HomeContent />
 

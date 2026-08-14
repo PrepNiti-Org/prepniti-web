@@ -54,7 +54,7 @@ export default function PrivacyPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div className="md:col-span-1 space-y-2 sticky top-20 h-fit">
+        <div className="hidden md:block md:col-span-1 space-y-2 sticky top-20 h-fit">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 mb-3">
             Table of Contents
           </p>

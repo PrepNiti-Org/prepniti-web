@@ -6,8 +6,6 @@ interface PasswordStrengthMeterProps {
 }
 
 export function PasswordStrengthMeter({ password = "" }: PasswordStrengthMeterProps) {
-  if (!password) return null
-
   const hasMinLength = password.length >= 8
   const hasUpper = /[A-Z]/.test(password)
   const hasLower = /[a-z]/.test(password)
@@ -23,7 +21,7 @@ export function PasswordStrengthMeter({ password = "" }: PasswordStrengthMeterPr
   ].filter(Boolean).length
 
   return (
-    <div className="mt-3 space-y-2 text-xs">
+    <div className="space-y-2 text-xs">
       <div className="flex gap-1 h-1 w-full bg-muted rounded-full overflow-hidden">
         <div
           className={cn(
@@ -45,7 +43,7 @@ export function PasswordStrengthMeter({ password = "" }: PasswordStrengthMeterPr
             strengthPoints === 5 && "text-green-500"
           )}
         >
-          {strengthPoints <= 2 ? "Weak" : strengthPoints <= 4 ? "Medium" : "Strong"}
+          {strengthPoints === 0 ? "Too Short" : strengthPoints <= 2 ? "Weak" : strengthPoints <= 4 ? "Medium" : "Strong"}
         </span>
       </div>
 

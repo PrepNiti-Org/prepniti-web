@@ -9,10 +9,16 @@ export const api = axios.create({
     withCredentials: true,
 });
 
-export const BACKEND_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api").replace(/\/api$/, "");
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const normalizedApiUrl = rawApiUrl.startsWith("http") ? rawApiUrl : `https://${rawApiUrl.replace(/^\/+/, "")}`;
+
+export const BACKEND_URL = normalizedApiUrl.replace(/\/api\/?$/, "");
 
 api.interceptors.request.use((config) => {
-    const token = Cookies.get("token");
+    let token = Cookies.get("token");
+    if (!token && typeof window !== "undefined") {
+        token = localStorage.getItem("token") || undefined;
+    }
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

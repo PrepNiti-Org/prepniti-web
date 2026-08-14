@@ -1,31 +1,28 @@
-export const TIMER_STORAGE_KEY = "prepniti_study_timer";
-
-export interface TimerState {
+export interface ActiveSession {
+    sessionId: string;
     taskId: string;
     taskTitle: string;
-    elapsed: number; // seconds
-    isRunning: boolean;
-    startedAt: number | null; // timestamp
+    /** Unix-ms timestamp of when the current run window started. null if paused. */
+    startedAt: number | null;
+    /** Seconds accumulated from all previous run windows (confirmed by server). */
+    accumulatedSeconds: number;
+    isPaused: boolean;
 }
 
-export function getStoredTimer(): TimerState | null {
-    if (typeof window === "undefined") return null;
-    try {
-        const raw = localStorage.getItem(TIMER_STORAGE_KEY);
-        if (!raw) return null;
-        return JSON.parse(raw);
-    } catch {
-        return null;
+/**
+ * Returns the TRUE elapsed seconds for a session using wall-clock arithmetic.
+ *
+ *   - Running : accumulatedSeconds + floor((Date.now() - startedAt) / 1000)
+ *   - Paused  : accumulatedSeconds
+ *
+ * This is NEVER affected by setInterval throttling or browser background-tab
+ * slowdowns because it always computes from a raw timestamp.
+ */
+export function getDisplayElapsed(session: ActiveSession): number {
+    if (!session.isPaused && session.startedAt !== null) {
+        return session.accumulatedSeconds + Math.floor((Date.now() - session.startedAt) / 1000);
     }
-}
-
-export function storeTimer(state: TimerState | null) {
-    if (typeof window === "undefined") return;
-    if (state) {
-        localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(state));
-    } else {
-        localStorage.removeItem(TIMER_STORAGE_KEY);
-    }
+    return session.accumulatedSeconds;
 }
 
 export function formatTime(totalSeconds: number): string {
@@ -35,9 +32,16 @@ export function formatTime(totalSeconds: number): string {
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-// Dispatch a custom event so other components react to timer changes
-export function dispatchTimerUpdate() {
+/**
+ * Dispatch a session-update event so every mounted timer component
+ * (NavbarTimer, StudyTimer) instantly reflects the new state without
+ * requiring a round-trip API call.
+ *
+ * Consumers: window.addEventListener("session-update", handler)
+ * The event detail is ActiveSession | null.
+ */
+export function dispatchSessionUpdate(session: ActiveSession | null): void {
     if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("timer-update"));
+        window.dispatchEvent(new CustomEvent<ActiveSession | null>("session-update", { detail: session }));
     }
 }
