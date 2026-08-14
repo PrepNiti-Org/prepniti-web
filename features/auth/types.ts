@@ -16,6 +16,9 @@ export interface RegisterCredentials {
     email: string;
     password: string;
     target_exam?: string;
+    pincode?: string;
+    district?: string;
+    state?: string;
 }
 
 export interface ForgotPasswordCredentials {

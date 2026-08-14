@@ -110,6 +110,14 @@ export function CompanionPanel({
                                         {activeBuddy?.target_exam || "Not specified"}
                                     </span>
                                 </div>
+                                {(activeBuddy?.district || activeBuddy?.state) && (
+                                    <div>
+                                        <span className="text-[9px] text-muted-foreground font-semibold block">Location</span>
+                                        <span className="font-bold text-foreground block mt-0.5">
+                                            {[activeBuddy.district, activeBuddy.state].filter(Boolean).join(", ")}
+                                        </span>
+                                    </div>
+                                )}
                                 <div>
                                     <span className="text-[9px] text-muted-foreground font-semibold block">Bio</span>
                                     <p className="text-foreground mt-0.5 text-[11px] leading-relaxed">

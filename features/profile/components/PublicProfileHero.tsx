@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
     Loader2, Calendar, Target, Award, Flame, BarChart3,
-    FileText, UserPlus, UserCheck, UserMinus, ShieldAlert, MoreVertical
+    FileText, UserPlus, UserCheck, UserMinus, ShieldAlert, MoreVertical, MapPin
 } from "lucide-react";
 import {
     DropdownMenu,
@@ -125,6 +125,12 @@ export function PublicProfileHero({ profile, username }: PublicProfileHeroProps)
                                 <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest border border-primary/20 bg-primary/10 text-primary">
                                     <Target className="h-3 w-3 mr-1" />
                                     {profile.target_exam}
+                                </Badge>
+                            )}
+                            {(profile.district || profile.state) && (
+                                <Badge variant="outline" className="text-[10px] font-bold tracking-wide border border-border/80 bg-background/50 text-muted-foreground">
+                                    <MapPin className="h-3 w-3 mr-1 text-primary" />
+                                    {[profile.district, profile.state].filter(Boolean).join(", ")}
                                 </Badge>
                             )}
                         </div>

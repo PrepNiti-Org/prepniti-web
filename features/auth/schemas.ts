@@ -16,6 +16,9 @@ export const registerSchema = z.object({
         .regex(/[0-9]/, "Password must contain at least one number")
         .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
     target_exam: z.string().min(1, "Please select a target exam"),
+    pincode: z.string().optional(),
+    district: z.string().optional(),
+    state: z.string().optional(),
 });
 
 export const forgotPasswordSchema = z.object({

@@ -9,6 +9,11 @@ export interface UserProfile {
     joined_at: string;
     role: string;
     is_public?: boolean;
+    pincode?: string;
+    district?: string;
+    state?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 export interface PerformanceStat {
@@ -26,6 +31,11 @@ export interface UpdateProfileDTO {
     bio: string;
     target_exam: string;
     is_public?: boolean;
+    pincode?: string;
+    district?: string;
+    state?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 export interface ActivityData {
@@ -182,7 +192,12 @@ export interface BuddyRecommendation {
     username: string;
     bio?: string;
     target_exam?: string;
+    district?: string;
+    state?: string;
+    distance_range?: string;
     mutual_count: number;
+    score: number;
+    match_reasons: string[];
 }
 
 export const getBuddyRecommendations = async (): Promise<BuddyRecommendation[]> => {
@@ -247,4 +262,68 @@ export interface SearchedUser {
 export const searchUsers = async (query: string): Promise<SearchedUser[]> => {
     const res = await api.get(`/users/search?q=${encodeURIComponent(query)}`);
     return res.data.data || [];
+};
+
+export interface PincodeLookupResult {
+    district: string;
+    state: string;
+    block: string;
+    latitude?: number;
+    longitude?: number;
+}
+
+export const lookupPincode = async (pincode: string): Promise<PincodeLookupResult | null> => {
+    try {
+        // 1. Fetch district and state from India Post API
+        const postRes = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+        const postData = await postRes.json();
+
+        if (postData?.[0]?.Status === "Success" && postData[0].PostOffice?.length > 0) {
+            const po = postData[0].PostOffice[0];
+            let lat: number | undefined;
+            let lng: number | undefined;
+
+            // 2. Geocode District + State via Open-Meteo (reliable for all Indian districts/cities)
+            try {
+                const geoRes = await fetch(
+                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(po.District)}&count=1&language=en&format=json`
+                );
+                const geoData = await geoRes.json();
+                if (geoData?.results?.length > 0) {
+                    lat = geoData.results[0].latitude;
+                    lng = geoData.results[0].longitude;
+                }
+            } catch {
+                // Ignore geo fetch errors
+            }
+
+            // 3. Fallback to Zippopotam if needed
+            if (!lat || !lng) {
+                try {
+                    const zipRes = await fetch(`https://api.zippopotam.us/IN/${pincode}`);
+                    const zipData = await zipRes.json();
+                    if (zipData?.places?.length > 0) {
+                        const place = zipData.places[0];
+                        if (place.latitude && place.longitude) {
+                            lat = parseFloat(place.latitude);
+                            lng = parseFloat(place.longitude);
+                        }
+                    }
+                } catch {
+                    // Ignore
+                }
+            }
+
+            return {
+                district: po.District,
+                state: po.State,
+                block: po.Block,
+                latitude: lat,
+                longitude: lng,
+            };
+        }
+        return null;
+    } catch {
+        return null;
+    }
 };

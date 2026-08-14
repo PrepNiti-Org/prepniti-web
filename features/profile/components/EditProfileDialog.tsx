@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateUserProfile, UserProfile } from "../api";
+import { updateUserProfile, UserProfile, lookupPincode } from "../api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,7 +32,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Edit3, Loader2 } from "lucide-react";
+import { Edit3, Loader2, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -40,6 +40,7 @@ const formSchema = z.object({
     bio: z.string().max(160, "Bio cannot exceed 160 characters").optional(),
     target_exam: z.string().max(50).optional(),
     is_public: z.boolean(),
+    pincode: z.string().max(10).optional(),
 });
 
 interface EditProfileDialogProps {
@@ -48,6 +49,10 @@ interface EditProfileDialogProps {
 
 export function EditProfileDialog({ user }: EditProfileDialogProps) {
     const [open, setOpen] = useState(false);
+    const [pincodeStatus, setPincodeStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [resolvedLocation, setResolvedLocation] = useState<{ district: string; state: string; latitude?: number; longitude?: number } | null>(
+        user.district && user.state ? { district: user.district, state: user.state, latitude: user.latitude, longitude: user.longitude } : null
+    );
     const queryClient = useQueryClient();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -57,8 +62,46 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
             bio: user.bio || "",
             target_exam: user.target_exam || "",
             is_public: user.is_public !== undefined ? user.is_public : true,
+            pincode: user.pincode || "",
         },
     });
+
+    const watchedPincode = form.watch("pincode");
+
+    const resolvePincode = useCallback(async (pin: string) => {
+        if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
+            setPincodeStatus("idle");
+            setResolvedLocation(null);
+            return;
+        }
+        setPincodeStatus("loading");
+        const result = await lookupPincode(pin);
+        if (result) {
+            setPincodeStatus("success");
+            setResolvedLocation({ district: result.district, state: result.state, latitude: result.latitude, longitude: result.longitude });
+        } else {
+            setPincodeStatus("error");
+            setResolvedLocation(null);
+        }
+    }, []);
+
+    useEffect(() => {
+        const pin = watchedPincode || "";
+        // Only auto-resolve if user changed the pincode from what's already saved
+        if (pin.length === 6 && /^\d{6}$/.test(pin)) {
+            if (pin === user.pincode && user.district && user.state && user.latitude && user.longitude) {
+                // Already resolved from server with valid coordinates
+                setPincodeStatus("success");
+                setResolvedLocation({ district: user.district, state: user.state, latitude: user.latitude, longitude: user.longitude });
+            } else {
+                const timer = setTimeout(() => resolvePincode(pin), 300);
+                return () => clearTimeout(timer);
+            }
+        } else {
+            setPincodeStatus("idle");
+            setResolvedLocation(null);
+        }
+    }, [watchedPincode, user.pincode, user.district, user.state, resolvePincode]);
 
     const mutation = useMutation({
         mutationFn: updateUserProfile,
@@ -82,6 +125,11 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
             bio: values.bio || "",
             target_exam: values.target_exam || "",
             is_public: values.is_public,
+            pincode: values.pincode || "",
+            district: resolvedLocation?.district || "",
+            state: resolvedLocation?.state || "",
+            latitude: resolvedLocation?.latitude,
+            longitude: resolvedLocation?.longitude,
         });
     }
 
@@ -145,6 +193,60 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
                                             <SelectItem value="Other">Other</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Pincode with auto-resolve */}
+                        <FormField
+                            control={form.control}
+                            name="pincode"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-1.5">
+                                        <MapPin className="h-3.5 w-3.5 text-primary" />
+                                        Pincode
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="space-y-2">
+                                            <div className="relative">
+                                                <Input
+                                                    {...field}
+                                                    placeholder="Enter 6-digit pincode"
+                                                    maxLength={6}
+                                                    inputMode="numeric"
+                                                    className="pr-8"
+                                                />
+                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                                                    {pincodeStatus === "loading" && (
+                                                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                                    )}
+                                                    {pincodeStatus === "success" && (
+                                                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                                    )}
+                                                    {pincodeStatus === "error" && (
+                                                        <AlertCircle className="h-4 w-4 text-red-500" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {resolvedLocation && pincodeStatus === "success" && (
+                                                <div className="flex items-center gap-2 text-[11px]">
+                                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold border border-emerald-500/20">
+                                                        {resolvedLocation.district}
+                                                    </span>
+                                                    <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold border border-primary/20">
+                                                        {resolvedLocation.state}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {pincodeStatus === "error" && (
+                                                <p className="text-[11px] text-red-500 font-medium">
+                                                    Invalid pincode. Please check and try again.
+                                                </p>
+                                            )}
+                                        </div>
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

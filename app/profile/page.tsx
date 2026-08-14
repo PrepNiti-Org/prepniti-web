@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
     Loader2, Mail, Calendar, Target, Award, Flame, BookOpen,
-    BarChart3, FileText, Sparkles, Clock, ArrowUpRight, GraduationCap, Users, Share2, Lock
+    BarChart3, FileText, Sparkles, Clock, ArrowUpRight, GraduationCap, Users, Share2, Lock, MapPin
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -127,6 +127,12 @@ export default function ProfilePage() {
                                     <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest border border-primary/20 bg-primary/10 text-primary">
                                         <Target className="h-3 w-3 mr-1" />
                                         {user.target_exam}
+                                    </Badge>
+                                )}
+                                {(user.district || user.state) && (
+                                    <Badge variant="outline" className="text-[10px] font-bold tracking-wide border border-border/80 bg-background/50 text-muted-foreground">
+                                        <MapPin className="h-3 w-3 mr-1 text-primary" />
+                                        {[user.district, user.state].filter(Boolean).join(", ")}
                                     </Badge>
                                 )}
                             </div>

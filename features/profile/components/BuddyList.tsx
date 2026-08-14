@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Users, Search, Swords, BarChart2, UserMinus, MoreVertical, ShieldAlert } from "lucide-react";
+import { Users, Search, Swords, BarChart2, UserMinus, MoreVertical, ShieldAlert, MapPin } from "lucide-react";
 import Link from "next/link";
 import { CreatePactDialog } from "./CreatePactDialog";
 import { BuddyCompareView } from "./BuddyCompareView";
@@ -124,11 +124,19 @@ export function BuddyList() {
                                                 <Link href={`/profile/${buddy.username}`} className="text-sm font-black text-foreground hover:text-primary transition-colors block">
                                                     @{buddy.username}
                                                 </Link>
-                                                {buddy.target_exam && (
-                                                    <Badge variant="outline" className="text-[8px] tracking-wide uppercase px-1 py-0.5 border-primary/20 text-primary">
-                                                        {buddy.target_exam}
-                                                    </Badge>
-                                                )}
+                                                <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                                                    {buddy.target_exam && (
+                                                        <Badge variant="outline" className="text-[8px] tracking-wide uppercase px-1 py-0.5 border-primary/20 text-primary">
+                                                            {buddy.target_exam}
+                                                        </Badge>
+                                                    )}
+                                                    {(buddy.district || buddy.state) && (
+                                                        <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                                                            <MapPin className="h-2.5 w-2.5 text-primary/70" />
+                                                            {[buddy.district, buddy.state].filter(Boolean).join(", ")}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
