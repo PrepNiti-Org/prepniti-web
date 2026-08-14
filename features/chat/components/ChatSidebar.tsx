@@ -106,7 +106,7 @@ export function ChatSidebar({
             };
         }
 
-        const otherUser = room.members.find(m => m.username !== "me");
+        const otherUser = room.members.find(m => String(m.id) !== String(currentUserId) && m.username !== "me");
         const displayName = otherUser ? otherUser.username : "Accountability Partner";
         const fallbackInitials = displayName.substring(0, 2).toUpperCase();
 
@@ -124,7 +124,7 @@ export function ChatSidebar({
                 <div className="flex flex-col space-y-0.5">
                     <div className="flex items-center space-x-2">
                         <MessageSquare className="h-4.5 w-4.5 text-primary shrink-0" />
-                        <h2 className="text-sm font-black tracking-tight text-foreground uppercase">Study Hub Chat</h2>
+                        <h2 className="text-sm font-black tracking-tight text-foreground">Prepniti StudyHub</h2>
                     </div>
                     {!isConnected && (
                         <div className="flex items-center space-x-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-black w-fit mt-0.5 animate-pulse">

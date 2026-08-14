@@ -10,17 +10,17 @@ import { useTheme } from "next-themes";
 import { useQuery } from "@tanstack/react-query";
 
 import {
-    HomeIcon,
+    Compass,
     LayoutDashboard,
-    MessageSquare,
+    MessagesSquare,
     Menu,
-    TrendingUp,
+    Sparkles,
     GraduationCap,
     Sun,
     Moon,
     Monitor,
-    Users,
-    MessageCircle
+    Users2,
+    Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -28,12 +28,12 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getPendingRequests } from "@/features/profile/api";
 
 export const navLinks = [
-    { name: "Home", href: "/", icon: HomeIcon, showBadge: false },
+    { name: "Home", href: "/", icon: Compass, showBadge: false },
     { name: "Tracker", href: "/tracker", icon: LayoutDashboard, showBadge: false },
-    { name: "Discussions", href: "/posts", icon: MessageSquare, showBadge: false },
-    { name: "Chat", href: "/chat", icon: MessageCircle, showBadge: false },
-    { name: "Buddies", href: "/buddies", icon: Users, showBadge: true },
-    { name: "Insights", href: "/insights", icon: TrendingUp, showBadge: false },
+    { name: "Discussions", href: "/posts", icon: MessagesSquare, showBadge: false },
+    { name: "Chat", href: "/chat", icon: Send, showBadge: false },
+    { name: "Buddies", href: "/buddies", icon: Users2, showBadge: true },
+    { name: "Insights", href: "/insights", icon: Sparkles, showBadge: false },
     { name: "Mock Tests", href: "/mock-tests", icon: GraduationCap, showBadge: false },
 ];
 

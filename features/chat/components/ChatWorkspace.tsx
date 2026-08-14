@@ -85,7 +85,7 @@ export function ChatWorkspace() {
     const activeBuddy = buddies.find(b =>
         activeRoom &&
         !activeRoom.is_group &&
-        activeRoom.members.some(m => m.username === b.username && m.username !== "me")
+        activeRoom.members.some(m => m.username === b.username && String(m.id) !== String(currentUserId) && m.username !== "me")
     );
 
     // Fetch buddy comparison progress statistics
@@ -463,7 +463,7 @@ export function ChatWorkspace() {
             };
         }
 
-        const otherUser = room.members.find(m => m.username !== "me");
+        const otherUser = room.members.find(m => String(m.id) !== String(currentUserId) && m.username !== "me");
         const displayName = otherUser ? otherUser.username : "Accountability Partner";
         const fallbackInitials = displayName.substring(0, 2).toUpperCase();
 
@@ -586,7 +586,7 @@ export function ChatWorkspace() {
                             ) : (() => {
                                 const invites = buddies.filter(buddy =>
                                     activeRoom &&
-                                    !activeRoom.members.some((m: any) => m.username === buddy.username)
+                                    !activeRoom.members.some((m: unknown) => m.username === buddy.username)
                                 );
 
                                 if (invites.length === 0) {

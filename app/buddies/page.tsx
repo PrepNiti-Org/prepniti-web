@@ -37,7 +37,7 @@ export default function BuddiesDashboardPage() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 p-4">
-            <div className="relative rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-violet-500/10 p-8 shadow-sm">
+            <div className="relative rounded-2xl border border-primary/15 bg-linear-to-br from-primary/10 via-primary/5 to-violet-500/10 p-8 shadow-sm">
                 <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
@@ -49,7 +49,7 @@ export default function BuddiesDashboardPage() {
                             <Users className="h-8 w-8 text-primary" /> Buddy Portal
                         </h1>
                         <p className="text-sm text-muted-foreground mt-2 max-w-xl leading-relaxed">
-                            Connect with other aspirants, keep track of each other's streaks, check mock test progress, and stay accountable.
+                            Connect with other aspirants, keep track of each other&apos;s streaks, check mock test progress, and stay accountable.
                         </p>
                     </div>
 

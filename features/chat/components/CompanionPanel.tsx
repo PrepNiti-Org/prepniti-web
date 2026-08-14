@@ -55,7 +55,7 @@ export function CompanionPanel({
             };
         }
 
-        const otherUser = room.members.find(m => m.username !== "me");
+        const otherUser = room.members.find(m => String(m.id) !== String(currentUserId) && m.username !== "me");
         const displayName = otherUser ? otherUser.username : "Accountability Partner";
         const fallbackInitials = displayName.substring(0, 2).toUpperCase();
 
