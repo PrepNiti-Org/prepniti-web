@@ -87,8 +87,8 @@ export default function PublicProfilePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
-                    <Card className="border-border/50 overflow-hidden">
-                        <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+                    <Card className="border-border/50">
+                        <CardHeader className="pb-3">
                             <CardTitle className="text-base font-bold flex items-center gap-2">
                                 <BarChart3Icon className="h-4 w-4 text-primary" />
                                 Mock Test Progression
@@ -100,15 +100,15 @@ export default function PublicProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-border/50 overflow-hidden">
-                        <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+                    <Card className="border-border/50">
+                        <CardHeader className="pb-3">
                             <CardTitle className="text-base font-bold flex items-center gap-2">
                                 <FileText className="h-4 w-4 text-violet-500" />
                                 Recent Contributions
                             </CardTitle>
                             <CardDescription className="text-xs mt-0.5">Experiences shared by @{profile.username}.</CardDescription>
                         </CardHeader>
-                        <CardContent className="pt-4">
+                        <CardContent className="pt-2">
                             {!profile.contributions?.length ? (
                                 <div className="text-center py-10 text-muted-foreground text-xs">
                                     No contributions shared yet.

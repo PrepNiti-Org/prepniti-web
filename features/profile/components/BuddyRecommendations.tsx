@@ -69,14 +69,14 @@ export function BuddyRecommendations() {
 
     if (isLoading) {
         return (
-            <Card className="border-border/50 overflow-hidden">
-                <CardHeader className="pb-3 border-b bg-gradient-to-r from-primary/10 via-violet-500/5 to-transparent">
+            <Card className="border-border/50">
+                <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-bold flex items-center gap-1.5">
                         <Sparkles className="h-4 w-4 text-primary animate-pulse" />
                         Recommended Study Buddies
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-3">
+                <CardContent className="pt-2 space-y-3">
                     <div className="h-14 bg-muted/40 animate-pulse rounded-xl" />
                     <div className="h-14 bg-muted/40 animate-pulse rounded-xl" />
                 </CardContent>
@@ -85,8 +85,8 @@ export function BuddyRecommendations() {
     }
 
     return (
-        <Card className="border-border/50 overflow-hidden">
-            <CardHeader className="pb-3 border-b bg-gradient-to-r from-primary/10 via-violet-500/5 to-transparent">
+        <Card className="border-border/50">
+            <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-1.5">
                     <Sparkles className="h-4 w-4 text-primary animate-pulse" />
                     Recommended Study Buddies
@@ -95,7 +95,7 @@ export function BuddyRecommendations() {
                     Personalized matches based on your target exam, proximity &amp; study activity.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="pt-4 px-4 pb-4">
+            <CardContent className="pt-2 px-5 pb-5">
                 {!recommendations || recommendations.length === 0 ? (
                     <div className="text-center py-6 text-muted-foreground/60 text-xs flex flex-col items-center">
                         <AlertCircle className="h-6 w-6 opacity-30 mb-2" />

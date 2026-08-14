@@ -67,13 +67,13 @@ export function BuddyList() {
     if (isLoading) {
         return (
             <Card className="border-border/50">
-                <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+                <CardHeader className="pb-3">
                     <CardTitle className="text-base font-bold flex items-center gap-2">
                         <Users className="h-4 w-4 text-primary" />
                         My Buddies
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 space-y-4">
+                <CardContent className="pt-2 space-y-4">
                     <div className="h-12 bg-muted/40 animate-pulse rounded-xl" />
                     <div className="h-12 bg-muted/40 animate-pulse rounded-xl" />
                 </CardContent>
@@ -84,7 +84,7 @@ export function BuddyList() {
     return (
         <>
             <Card className="border-border/50">
-                <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+                <CardHeader className="pb-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                             <CardTitle className="text-base font-bold flex items-center gap-2">

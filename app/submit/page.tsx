@@ -21,14 +21,14 @@ export default function SubmitPage() {
                 </div>
 
                 <div className="hidden lg:block lg:col-span-1 space-y-6">
-                    <Card className="bg-primary/[0.03] dark:bg-primary/[0.01] border-primary/10 shadow-sm rounded-xl overflow-hidden">
-                        <CardHeader className="pb-3 border-b border-primary/5 bg-gradient-to-r from-primary/[0.02] to-transparent">
+                    <Card className="border-border/60 shadow-sm rounded-xl">
+                        <CardHeader className="pb-3">
                             <CardTitle className="flex items-center gap-2 text-sm font-bold text-primary">
                                 <Info className="h-4.5 w-4.5 shrink-0" />
                                 Submission Guidelines
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-4 text-xs space-y-3 text-muted-foreground">
+                        <CardContent className="pt-2 text-xs space-y-3 text-muted-foreground">
                             <p>• <strong>Be Specific:</strong> Mention the exam year, board panel name (e.g. Bassi, Shukla), and your optional subject/stream.</p>
                             <p>• <strong>DAF & Questions:</strong> List questions asked about your background (DAF), optional subjects, current affairs, and case studies/situations.</p>
                             <p>• <strong>Respect Privacy:</strong> Do not share personal contact details or the specific names of board members.</p>

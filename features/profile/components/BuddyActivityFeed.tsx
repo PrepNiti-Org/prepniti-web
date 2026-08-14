@@ -16,14 +16,14 @@ export function BuddyActivityFeed() {
 
     if (isLoading) {
         return (
-            <Card className="border-border/50 overflow-hidden">
-                <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+            <Card className="border-border/50">
+                <CardHeader className="pb-3">
                     <CardTitle className="text-base font-bold flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-primary" />
                         Buddy Study Activity Feed
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 space-y-4">
+                <CardContent className="pt-2 space-y-4">
                     <div className="h-16 bg-muted/40 animate-pulse rounded-xl" />
                     <div className="h-16 bg-muted/40 animate-pulse rounded-xl" />
                     <div className="h-16 bg-muted/40 animate-pulse rounded-xl" />
@@ -33,15 +33,15 @@ export function BuddyActivityFeed() {
     }
 
     return (
-        <Card className="border-border/50 overflow-hidden">
-            <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+        <Card className="border-border/50">
+            <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
                     Buddy Study Activity Feed
                 </CardTitle>
                 <CardDescription className="text-xs">Real-time study accomplishments and mock tests of your buddies.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pt-2">
                 {!feed || feed.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-muted-foreground text-center">
                         <div className="h-16 w-16 bg-muted/40 border border-border/30 rounded-2xl flex items-center justify-center text-muted-foreground/40 mb-4">

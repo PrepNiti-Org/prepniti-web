@@ -297,14 +297,14 @@ function CreatePostContent() {
                 <div className="hidden lg:block lg:col-span-1 space-y-6 sticky top-20 h-fit">
                     
                     {/* Posting Guidelines Card */}
-                    <Card className="border-primary/25 shadow-sm rounded-xl overflow-hidden bg-card">
-                        <CardHeader className="pb-3 bg-gradient-to-r from-primary/[0.05] to-transparent border-b">
+                    <Card className="border-border/60 shadow-sm rounded-xl bg-card">
+                        <CardHeader className="pb-3">
                             <CardTitle className="text-base font-bold flex items-center gap-2">
                                 <Info className="h-4.5 w-4.5 text-primary" />
                                 Posting Tips
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-4 text-xs space-y-3.5 text-muted-foreground">
+                        <CardContent className="pt-2 text-xs space-y-3.5 text-muted-foreground">
                             <div>
                                 <h4 className="font-bold text-foreground mb-0.5 flex items-center gap-1.5">
                                     <MessageSquare className="h-3.5 w-3.5 text-primary/80" /> Write a Descriptive Title
@@ -323,8 +323,8 @@ function CreatePostContent() {
                     </Card>
 
                     {/* Community Values Card */}
-                    <Card className="border-primary/25 shadow-sm rounded-xl overflow-hidden bg-card">
-                        <CardHeader className="pb-3 bg-gradient-to-r from-secondary/[0.05] to-transparent border-b">
+                    <Card className="border-border/60 shadow-sm rounded-xl bg-card">
+                        <CardHeader className="pb-3">
                             <CardTitle className="text-base font-bold flex items-center gap-2">
                                 <Heart className="h-4.5 w-4.5 text-secondary" />
                                 Community Values

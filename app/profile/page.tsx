@@ -193,8 +193,8 @@ export default function ProfilePage() {
 
                 <motion.div variants={itemVariants} className="space-y-5 lg:col-span-1">
 
-                    <Card className="border-border/50 overflow-hidden">
-                        <CardHeader className="pb-3 bg-gradient-to-r from-muted/60 to-transparent border-b">
+                    <Card className="border-border/50">
+                        <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold flex items-center gap-2">
                                 <Sparkles className="h-4 w-4 text-primary" />
                                 Quick Navigation
@@ -281,8 +281,8 @@ export default function ProfilePage() {
 
                 <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
 
-                    <Card className="border-border/50 overflow-hidden">
-                        <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+                    <Card className="border-border/50">
+                        <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -305,8 +305,8 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-border/50 overflow-hidden">
-                        <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+                    <Card className="border-border/50">
+                        <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="text-base font-bold flex items-center gap-2">

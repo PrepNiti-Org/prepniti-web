@@ -53,10 +53,10 @@ export function BuddyRequests() {
     if (isLoading) {
         return (
             <Card className="border-border/50">
-                <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+                <CardHeader className="pb-3">
                     <CardTitle className="text-base font-bold">Pending Buddy Requests</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 space-y-4">
+                <CardContent className="pt-2 space-y-4">
                     <div className="h-12 bg-muted/40 animate-pulse rounded-xl" />
                 </CardContent>
             </Card>
@@ -65,11 +65,11 @@ export function BuddyRequests() {
 
     return (
         <Card className="border-border/50">
-            <CardHeader className="pb-3 border-b bg-gradient-to-r from-muted/60 to-transparent">
+            <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold">Pending Buddy Requests</CardTitle>
                 <CardDescription className="text-xs">Incoming requests requiring action, and outgoing requests awaiting response.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-6 space-y-6">
+            <CardContent className="pt-2 space-y-6">
                 <div>
                     <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground/80 mb-3 flex items-center gap-1.5">
                         Incoming Requests

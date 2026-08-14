@@ -96,11 +96,8 @@ export default function FeedbackPage() {
                 </CardContent>
               </Card>
             ) : (
-              <Card className="border-primary/20 shadow-sm rounded-xl overflow-hidden bg-card relative">
-                <div className="absolute inset-0 bg-dot-pattern opacity-10 pointer-events-none" />
-                <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
-                <CardHeader className="pb-6 border-b border-border/40 relative z-10 bg-gradient-to-r from-primary/[0.05] via-primary/[0.01] to-transparent">
+              <Card className="border-border/60 shadow-sm rounded-xl bg-card relative">
+                <CardHeader className="pb-4 relative z-10">
                   <CardTitle className="text-2xl font-bold tracking-tight flex items-center gap-2">
                     <MessageSquare className="h-6 w-6 text-primary" />
                     Share Your Feedback
@@ -110,7 +107,7 @@ export default function FeedbackPage() {
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="pt-8 relative z-10">
+                <CardContent className="pt-2 relative z-10">
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="category" className="text-sm font-semibold">Category</Label>
@@ -188,14 +185,14 @@ export default function FeedbackPage() {
         </div>
 
         <div className="hidden lg:block lg:col-span-1 space-y-6 sticky top-20 h-fit">
-          <Card className="border-primary/25 shadow-sm rounded-xl overflow-hidden bg-card">
-            <CardHeader className="pb-3 bg-gradient-to-r from-primary/[0.05] to-transparent border-b">
+          <Card className="border-border/60 shadow-sm rounded-xl bg-card">
+            <CardHeader className="pb-3">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Sparkles className="h-4.5 w-4.5 text-primary" />
                 Good Feedback Tips
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 text-xs space-y-3.5 text-muted-foreground leading-relaxed">
+            <CardContent className="pt-2 text-xs space-y-3.5 text-muted-foreground leading-relaxed">
               <div>
                 <h4 className="font-bold text-foreground mb-0.5">Be Specific</h4>
                 <p>For bug reports, tell us exactly what steps lead to the error or describe where it happened.</p>
