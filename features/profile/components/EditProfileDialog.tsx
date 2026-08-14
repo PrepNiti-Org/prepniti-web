@@ -107,6 +107,7 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
         mutationFn: updateUserProfile,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: ["buddy-recommendations"] });
             setOpen(false);
             toast.success("Profile Updated", { description: "Your changes have been saved." });
         },

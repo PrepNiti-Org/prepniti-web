@@ -1,12 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getBuddyRecommendations, sendBuddyRequest } from "../api";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Sparkles, UserPlus, AlertCircle, Users, Target, MapPin, Zap } from "lucide-react";
+import { Sparkles, UserPlus, AlertCircle, Users, Target, MapPin, Zap, X } from "lucide-react";
 import Link from "next/link";
 
 function MatchBadge({ reason }: { reason: string }) {
@@ -45,11 +47,34 @@ function MatchBadge({ reason }: { reason: string }) {
 
 export function BuddyRecommendations() {
     const queryClient = useQueryClient();
+    const { user } = useAuth();
+    const [showLocationReminder, setShowLocationReminder] = useState(false);
 
     const { data: recommendations, isLoading } = useQuery({
         queryKey: ["buddy-recommendations"],
         queryFn: getBuddyRecommendations,
     });
+
+    useEffect(() => {
+        if (user && !user.pincode && !user.district) {
+            const dismissedAt = localStorage.getItem("prepniti_loc_reminder_dismissed_at");
+            if (!dismissedAt) {
+                setShowLocationReminder(true);
+            } else {
+                const daysSinceDismissal = (Date.now() - parseInt(dismissedAt, 10)) / (1000 * 60 * 60 * 24);
+                if (daysSinceDismissal >= 4) {
+                    setShowLocationReminder(true);
+                }
+            }
+        } else {
+            setShowLocationReminder(false);
+        }
+    }, [user]);
+
+    const handleDismissReminder = () => {
+        setShowLocationReminder(false);
+        localStorage.setItem("prepniti_loc_reminder_dismissed_at", Date.now().toString());
+    };
 
     const sendRequestMutation = useMutation({
         mutationFn: (target: string) => sendBuddyRequest(target),
@@ -96,13 +121,49 @@ export function BuddyRecommendations() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="pt-2 px-5 pb-5">
+                {showLocationReminder && (
+                    <div className="mb-4 p-3 rounded-xl border border-primary/20 bg-primary/5 flex items-start justify-between gap-3 animate-in fade-in duration-300">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                            <div className="p-1.5 rounded-lg bg-primary/10 text-primary shrink-0 mt-0.5">
+                                <MapPin className="h-3.5 w-3.5" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs font-bold text-foreground">Find Study Buddies In Your Area</p>
+                                <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                                    Add your pincode so we can recommend peer aspirants near you. (Kept 100% private)
+                                </p>
+                                <Link
+                                    href="/profile"
+                                    className="inline-flex items-center text-[11px] font-bold text-primary hover:underline mt-1.5 gap-0.5"
+                                >
+                                    Update Location in Profile →
+                                </Link>
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleDismissReminder}
+                            className="text-muted-foreground/60 hover:text-foreground p-1 rounded-md hover:bg-muted/40 transition-colors shrink-0"
+                            title="Dismiss reminder for 4 days"
+                        >
+                            <X className="h-3.5 w-3.5" />
+                        </button>
+                    </div>
+                )}
+
                 {!recommendations || recommendations.length === 0 ? (
-                    <div className="text-center py-6 text-muted-foreground/60 text-xs flex flex-col items-center">
-                        <AlertCircle className="h-6 w-6 opacity-30 mb-2" />
-                        <span className="font-medium">No recommendations right now.</span>
-                        <span className="text-[10px] mt-1 max-w-[200px] text-muted-foreground/40">
-                            Make sure your target exam and pincode are set in profile settings.
+                    <div className="text-center py-6 px-4 text-muted-foreground/80 text-xs flex flex-col items-center">
+                        <AlertCircle className="h-6 w-6 opacity-40 mb-2 text-primary" />
+                        <span className="font-bold text-foreground text-sm">No recommendations yet</span>
+                        <span className="text-[11px] mt-1 text-muted-foreground max-w-[260px] leading-relaxed">
+                            {!user?.pincode && !user?.district
+                                ? "Set your preparation pincode and target exam so we can match you with nearby aspirants."
+                                : "We're looking for more aspirants matching your target exam and location. Check back soon!"}
                         </span>
+                        {!user?.pincode && !user?.district && (
+                            <Button size="sm" variant="outline" className="mt-3 text-xs h-7 border-primary/30 text-primary hover:bg-primary hover:text-white" asChild>
+                                <Link href="/profile">Set Your Location</Link>
+                            </Button>
+                        )}
                     </div>
                 ) : (
                     <div className="space-y-3">

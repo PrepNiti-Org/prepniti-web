@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { getUserProfile } from "@/features/profile/api";
 
-import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark, HelpCircle } from "lucide-react";
+import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark, HelpCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,11 +37,21 @@ interface NavbarProps {
 }
 
 export function Navbar({ }: NavbarProps) {
-    const { isLoggedIn, logout, user, isHydrated } = useAuth();
+    const { isLoggedIn, logout, user: authUser, isHydrated } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+
+    // Live profile data synchronized with React Query cache
+    const { data: profileUser } = useQuery({
+        queryKey: ["profile"],
+        queryFn: getUserProfile,
+        enabled: isLoggedIn,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    const user = profileUser || authUser;
 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,6 +71,20 @@ export function Navbar({ }: NavbarProps) {
 
     const avatarUrl = user?.username ? `https://api.dicebear.com/7.x/initials/svg?seed=${user.username}` : "";
     const initials = user?.username ? user.username.substring(0, 2).toUpperCase() : "U";
+
+    const missingFields: string[] = [];
+    if (!user?.target_exam) missingFields.push("Target Exam");
+    if (!user?.pincode && !user?.district) missingFields.push("Location / Pincode");
+    if (!user?.bio?.trim()) missingFields.push("Bio");
+
+    const completionScore = [
+        Boolean(user?.username),
+        Boolean(user?.email),
+        Boolean(user?.target_exam),
+        Boolean(user?.bio?.trim()),
+        Boolean(user?.pincode || user?.district),
+    ].filter(Boolean).length;
+    const completionPct = (completionScore / 5) * 100;
 
     return (
         <header className="sticky top-0 z-50 w-full transition-all duration-300 border-b bg-background/90 backdrop-blur-xl h-14 flex items-center shadow-sm">
@@ -116,31 +142,94 @@ export function Navbar({ }: NavbarProps) {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary p-0">
-                                        <Avatar className="h-9 w-9 border shadow-sm transition-transform hover:scale-105">
+                                    <button
+                                        type="button"
+                                        className="relative w-9 h-9 p-0 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                        title={
+                                            missingFields.length > 0
+                                                ? `Profile ${Math.round(completionPct)}% complete (Missing: ${missingFields.join(", ")})`
+                                                : "Profile 100% complete"
+                                        }
+                                    >
+                                        {completionPct < 100 && (
+                                            <svg
+                                                className="absolute inset-0 w-full h-full pointer-events-none"
+                                                viewBox="0 0 36 36"
+                                                style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
+                                            >
+                                                <circle
+                                                    cx="18"
+                                                    cy="18"
+                                                    r="16"
+                                                    fill="none"
+                                                    className="stroke-muted-foreground/20"
+                                                    strokeWidth="2"
+                                                />
+                                                <circle
+                                                    cx="18"
+                                                    cy="18"
+                                                    r="16"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeDasharray={100.53}
+                                                    strokeDashoffset={100.53 * (1 - completionPct / 100)}
+                                                    strokeLinecap="round"
+                                                    className="text-primary transition-all duration-700 ease-out"
+                                                />
+                                            </svg>
+                                        )}
+                                        <Avatar className={completionPct < 100 ? "h-7 w-7 shrink-0" : "h-8 w-8 border shrink-0"}>
                                             <AvatarImage src={avatarUrl} alt={user?.username} />
-                                            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+                                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
                                                 {initials}
                                             </AvatarFallback>
                                         </Avatar>
-                                    </Button>
+                                    </button>
                                 </DropdownMenuTrigger>
 
-                                <DropdownMenuContent className="w-56 shadow-2xl border-border/80 bg-popover/95 backdrop-blur-md" align="end" forceMount>
-                                    <DropdownMenuLabel className="font-normal p-3">
-                                        <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-semibold leading-none truncate">{user?.username}</p>
-                                            <p className="text-xs leading-none text-muted-foreground truncate">{user?.email}</p>
+                                <DropdownMenuContent className="w-64 p-1.5 shadow-2xl border-border/80 bg-popover/95 backdrop-blur-xl rounded-2xl" align="end" forceMount>
+                                    <div className="flex items-center gap-3 p-2.5">
+                                        <Avatar className="h-9 w-9 border border-border/50 shrink-0">
+                                            <AvatarImage src={avatarUrl} alt={user?.username} />
+                                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                                                {initials}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-bold text-foreground truncate">@{user?.username}</p>
+                                            <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                                         </div>
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild className="cursor-pointer">
+                                    </div>
+
+                                    {missingFields.length > 0 && (
+                                        <Link
+                                            href="/profile"
+                                            className="mx-1 my-1 p-2.5 rounded-xl bg-primary/[0.06] hover:bg-primary/[0.12] border border-primary/15 transition-all flex items-center justify-between group cursor-pointer"
+                                        >
+                                            <div className="space-y-0.5 min-w-0 pr-2">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+                                                    <span className="font-bold text-[11px] text-foreground">
+                                                        Profile {Math.round(completionPct)}% Complete
+                                                    </span>
+                                                </div>
+                                                <p className="text-[10px] text-muted-foreground truncate">
+                                                    Add {missingFields.slice(0, 2).join(" & ")} for better matches
+                                                </p>
+                                            </div>
+                                            <ChevronRight className="h-3.5 w-3.5 text-primary shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                                        </Link>
+                                    )}
+
+                                    <DropdownMenuSeparator className="my-1" />
+                                    <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
                                         <Link href="/bookmarks"><Bookmark className="mr-2 h-4 w-4 text-muted-foreground" /> Bookmarks</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild className="cursor-pointer">
+                                    <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
                                         <Link href="/profile"><UserIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Profile</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild className="cursor-pointer md:hidden">
+                                    <DropdownMenuItem asChild className="cursor-pointer rounded-lg md:hidden">
                                         <Link href="/posts/create"><PenTool className="mr-2 h-4 w-4 text-muted-foreground" /> Create Post</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />

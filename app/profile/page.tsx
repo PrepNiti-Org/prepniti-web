@@ -73,6 +73,11 @@ export default function ProfilePage() {
         : 0;
     const initials = user.username ? user.username.substring(0, 2).toUpperCase() : "ME";
 
+    const missingProfileFields: string[] = [];
+    if (!user.target_exam) missingProfileFields.push("Target Exam");
+    if (!user.pincode && !user.district) missingProfileFields.push("Location / Pincode");
+    if (!user.bio?.trim()) missingProfileFields.push("Bio");
+
     return (
         <motion.div
             className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8"
@@ -129,10 +134,14 @@ export default function ProfilePage() {
                                         {user.target_exam}
                                     </Badge>
                                 )}
-                                {(user.district || user.state) && (
+                                {(user.district || user.state) ? (
                                     <Badge variant="outline" className="text-[10px] font-bold tracking-wide border border-border/80 bg-background/50 text-muted-foreground">
                                         <MapPin className="h-3 w-3 mr-1 text-primary" />
                                         {[user.district, user.state].filter(Boolean).join(", ")}
+                                    </Badge>
+                                ) : (
+                                    <Badge variant="outline" className="text-[10px] font-medium border-dashed border-primary/40 bg-primary/5 text-primary">
+                                        <MapPin className="h-3 w-3 mr-1 opacity-70" /> Location not set
                                     </Badge>
                                 )}
                             </div>
@@ -158,31 +167,26 @@ export default function ProfilePage() {
 
                     <div className="relative z-10 flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/40">
                         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm">
-                            <Flame className={`h-4 w-4 ${streak > 0 ? 'text-amber-500' : 'text-muted-foreground/40'}`} />
-                            <div>
-                                <p className="text-xs font-black text-foreground">{streak} day{streak !== 1 ? 's' : ''}</p>
-                                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Streak</p>
+                            <GraduationCap className="h-4 w-4 text-primary" />
+                            <div className="text-xs">
+                                <p className="font-bold text-foreground">{mockCount}</p>
+                                <p className="text-[10px] text-muted-foreground">Mocks Taken</p>
                             </div>
                         </div>
+
                         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm">
-                            <BarChart3 className="h-4 w-4 text-blue-500" />
-                            <div>
-                                <p className="text-xs font-black text-foreground">{mockCount}</p>
-                                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Mocks Taken</p>
+                            <Award className="h-4 w-4 text-emerald-500" />
+                            <div className="text-xs">
+                                <p className="font-bold text-foreground">{bestScore}%</p>
+                                <p className="text-[10px] text-muted-foreground">Top Score</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm">
-                            <Award className={`h-4 w-4 ${bestScore >= 80 ? 'text-emerald-500' : bestScore >= 50 ? 'text-amber-500' : 'text-rose-500'}`} />
-                            <div>
-                                <p className="text-xs font-black text-foreground">{bestScore.toFixed(1)}%</p>
-                                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Best Score</p>
-                            </div>
-                        </div>
+
                         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm">
                             <FileText className="h-4 w-4 text-violet-500" />
-                            <div>
-                                <p className="text-xs font-black text-foreground">{contributionCount}</p>
-                                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Posts</p>
+                            <div className="text-xs">
+                                <p className="font-bold text-foreground">{contributionCount}</p>
+                                <p className="text-[10px] text-muted-foreground">Posts Shared</p>
                             </div>
                         </div>
                     </div>
@@ -192,6 +196,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                 <motion.div variants={itemVariants} className="space-y-5 lg:col-span-1">
+
 
                     <Card className="border-border/50">
                         <CardHeader className="pb-2">

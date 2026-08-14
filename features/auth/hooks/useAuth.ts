@@ -6,11 +6,15 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 
-interface User {
+export interface User {
     id?: string | number;
     username: string;
     email: string;
     target_exam?: string;
+    bio?: string;
+    pincode?: string;
+    district?: string;
+    state?: string;
 }
 
 export function useAuth() {
