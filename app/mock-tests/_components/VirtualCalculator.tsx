@@ -13,7 +13,7 @@ class MathParser {
     }
 
     private tokenize(expr: string) {
-        let sanitized = expr
+        const sanitized = expr
             .replace(/\s+/g, "")
             .replace(/mod/gi, "%")
             .replace(/pi/gi, Math.PI.toString())
@@ -191,6 +191,16 @@ export function VirtualCalculator({ isOpen, onClose, useRealisticTheme = true }:
     const inputRef = useRef<HTMLInputElement>(null);
     const dragControls = useDragControls();
 
+    const handleEvaluate = () => {
+        if (!inputVal.trim()) return;
+        try {
+            const evaluated = evaluateExpression(inputVal, useDegrees);
+            setResultVal(evaluated.toString());
+        } catch (err: any) {
+            setResultVal(err.message || "Syntax Error");
+        }
+    };
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
@@ -218,16 +228,6 @@ export function VirtualCalculator({ isOpen, onClose, useRealisticTheme = true }:
 
     const handleBackspace = () => {
         setInputVal(prev => prev.slice(0, -1));
-    };
-
-    const handleEvaluate = () => {
-        if (!inputVal.trim()) return;
-        try {
-            const evaluated = evaluateExpression(inputVal, useDegrees);
-            setResultVal(evaluated.toString());
-        } catch (err: any) {
-            setResultVal(err.message || "Syntax Error");
-        }
     };
 
     const calculateOneOverX = () => {

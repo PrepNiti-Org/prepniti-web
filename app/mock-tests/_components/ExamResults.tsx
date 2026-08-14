@@ -15,6 +15,49 @@ interface ExamResultsProps {
 
 type FilterType = "all" | "correct" | "incorrect" | "unattempted";
 
+// Circular SVG Progress Ring Helper
+function ProgressRing({ percentage, colorClass, size = 120, strokeWidth = 8, label }: { percentage: number; colorClass: string; size?: number; strokeWidth?: number; label: string }) {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (percentage / 100) * circumference;
+
+    return (
+        <div className="flex flex-col items-center gap-2">
+            <div className="relative" style={{ width: size, height: size }}>
+                <svg className="w-full h-full transform -rotate-90">
+                    {/* Background Ring */}
+                    <circle
+                        className="text-slate-100 dark:text-slate-800"
+                        strokeWidth={strokeWidth}
+                        stroke="currentColor"
+                        fill="transparent"
+                        r={radius}
+                        cx={size / 2}
+                        cy={size / 2}
+                    />
+                    {/* Foreground Progress Ring */}
+                    <circle
+                        className={`transition-all duration-500 ease-out ${colorClass}`}
+                        strokeWidth={strokeWidth}
+                        strokeDasharray={circumference}
+                        strokeDashoffset={offset}
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="transparent"
+                        r={radius}
+                        cx={size / 2}
+                        cy={size / 2}
+                    />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <span className="text-2xl font-black font-mono">{percentage}%</span>
+                </div>
+            </div>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
+        </div>
+    );
+}
+
 export function ExamResults({ scoreInfo, blueprint, answers, onReset, securityViolation }: ExamResultsProps) {
     const [filter, setFilter] = useState<FilterType>("all");
     const flatQuestions = blueprint.flatMap(el => el.questions);
@@ -39,49 +82,6 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset, securityVi
         if (filter === "unattempted") return !isAttempted;
         return true; // "all"
     });
-
-    // Circular SVG Progress Ring Helper
-    const ProgressRing = ({ percentage, colorClass, size = 120, strokeWidth = 8, label }: { percentage: number; colorClass: string; size?: number; strokeWidth?: number; label: string }) => {
-        const radius = (size - strokeWidth) / 2;
-        const circumference = radius * 2 * Math.PI;
-        const offset = circumference - (percentage / 100) * circumference;
-
-        return (
-            <div className="flex flex-col items-center gap-2">
-                <div className="relative" style={{ width: size, height: size }}>
-                    <svg className="w-full h-full transform -rotate-90">
-                        {/* Background Ring */}
-                        <circle
-                            className="text-slate-100 dark:text-slate-800"
-                            strokeWidth={strokeWidth}
-                            stroke="currentColor"
-                            fill="transparent"
-                            r={radius}
-                            cx={size / 2}
-                            cy={size / 2}
-                        />
-                        {/* Foreground Progress Ring */}
-                        <circle
-                            className={`transition-all duration-500 ease-out ${colorClass}`}
-                            strokeWidth={strokeWidth}
-                            strokeDasharray={circumference}
-                            strokeDashoffset={offset}
-                            strokeLinecap="round"
-                            stroke="currentColor"
-                            fill="transparent"
-                            r={radius}
-                            cx={size / 2}
-                            cy={size / 2}
-                        />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center flex-col">
-                        <span className="text-2xl font-black font-mono">{percentage}%</span>
-                    </div>
-                </div>
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
-            </div>
-        );
-    };
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto font-sans">

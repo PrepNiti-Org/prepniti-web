@@ -27,23 +27,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ModeToggle } from "../theme/mode-toggle";
-import { Sidenav } from "./Sidenav";
 import { ElevatedButton } from "../ui/button-elevated";
 import { NotificationBell } from "../notifications/NotificationBell";
 import { NavbarTimer } from "../timer/NavbarTimer";
 import { TourTriggerButton } from "@/features/tour/components/TourTriggerButton";
 import { useAppTour } from "@/features/tour/useAppTour";
 
-interface NavbarProps {
-    // onToggleSidebar not needed anymore since Desktop toggle is in Sidenav
-}
-
-export function Navbar({ }: NavbarProps) {
+export function Navbar() {
     const { isLoggedIn, logout, user: authUser, isHydrated } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
-    const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const { startTour } = useAppTour();
 
     // Live profile data synchronized with React Query cache
     const { data: profileUser } = useQuery({
@@ -62,11 +57,6 @@ export function Navbar({ }: NavbarProps) {
             router.push(`/search?q=${encodeURIComponent(trimmed)}`);
         }
     };
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setIsMobileOpen(false);
-    }, [pathname]);
 
     const hiddenRoutes = ["/login", "/register"];
     if (hiddenRoutes.includes(pathname)) return null;
@@ -87,8 +77,6 @@ export function Navbar({ }: NavbarProps) {
         Boolean(user?.pincode || user?.district),
     ].filter(Boolean).length;
     const completionPct = (completionScore / 5) * 100;
-
-    const { startTour } = useAppTour();
 
     return (
         <header className="sticky top-0 z-50 w-full transition-all duration-300 border-b bg-background/90 backdrop-blur-xl h-14 flex items-center shadow-sm">
