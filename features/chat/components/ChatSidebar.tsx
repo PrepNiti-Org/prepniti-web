@@ -118,7 +118,7 @@ export function ChatSidebar({
     };
 
     return (
-        <div className="w-80 border-r border-border flex flex-col bg-muted/10 shrink-0">
+        <div className={`w-full md:w-80 border-r border-border flex flex-col bg-muted/10 shrink-0 ${activeRoomId ? "hidden md:flex" : "flex"}`}>
             {/* Header Actions block */}
             <div className="p-4 flex items-center justify-between border-b border-border bg-card">
                 <div className="flex flex-col space-y-0.5">
@@ -241,7 +241,7 @@ export function ChatSidebar({
                 {isLoadingRooms ? (
                     <div className="flex flex-col items-center justify-center h-48 space-y-2">
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                        <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">Loading chats...</span>
+                        <span className="text-[10px] text-muted-foreground font-black tracking-wider">Loading chats...</span>
                     </div>
                 ) : filteredRooms.length === 0 ? (
                     <div className="text-center text-muted-foreground text-xs py-8 border border-dashed border-border/80 rounded-2xl m-2">
@@ -268,7 +268,7 @@ export function ChatSidebar({
 
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center justify-between">
-                                        <h4 className={`text-xs font-black truncate uppercase tracking-wider ${isActive ? "text-primary" : "text-foreground"}`}>
+                                        <h4 className={`text-xs font-black truncate tracking-wider ${isActive ? "text-primary" : "text-foreground"}`}>
                                             {meta.title}
                                         </h4>
                                         {lastMsg && (

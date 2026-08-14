@@ -8,7 +8,8 @@ import {
     Loader2,
     PanelRightClose,
     PanelRight,
-    Clock
+    Clock,
+    ArrowLeft
 } from "lucide-react";
 import {
     getChatRooms,
@@ -490,12 +491,20 @@ export function ChatWorkspace() {
             />
 
             {/* Right Message stream Pane */}
-            <div className="flex-1 flex flex-col bg-background">
+            <div className={`flex-1 flex-col bg-background ${activeRoom ? "flex" : "hidden md:flex"}`}>
                 {activeRoom ? (
                     <>
                         {/* Selected Room Header */}
                         <div className="p-4 border-b border-border flex items-center justify-between bg-card">
                             <div className="flex items-center space-x-3">
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => setActiveRoomId(null)}
+                                    className="md:hidden h-8 w-8 text-muted-foreground hover:text-foreground mr-1"
+                                >
+                                    <ArrowLeft className="h-4.5 w-4.5" />
+                                </Button>
                                 <Avatar className="h-9 w-9 border border-border bg-background shadow-sm">
                                     <AvatarFallback className="bg-primary/5 text-primary">
                                         {getRoomMetadata(activeRoom).avatarFallback}

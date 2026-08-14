@@ -26,7 +26,7 @@ export function ChatMessageInput({
     sendMessage
 }: ChatMessageInputProps) {
     return (
-        <div className="border-t border-border bg-card p-4">
+        <div className="border-t border-border bg-card p-4 pb-20 md:pb-4">
             {/* Rich input toolbar wrapper */}
             <div className="space-y-2">
                 <div className="flex items-center space-x-2 px-1">
