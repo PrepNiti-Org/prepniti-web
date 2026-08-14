@@ -20,7 +20,7 @@ export interface Notification {
     id: string;
     user_id: string;
     actor_id: string;
-    type: "like_post" | "comment_post" | "like_comment" | "reply_comment" | "welcome";
+    type: "like_post" | "comment_post" | "like_comment" | "reply_comment" | "welcome" | "buddy_request" | "buddy_accepted";
     post_id?: string;
     comment_id?: string;
     is_read: boolean;
@@ -54,3 +54,8 @@ export const getNotifications = async ({
 export const markNotificationsAsRead = async (): Promise<void> => {
     await api.post("/notifications/read");
 };
+
+export const markSingleNotificationAsRead = async (id: string): Promise<void> => {
+    await api.patch(`/notifications/${id}/read`);
+};
+

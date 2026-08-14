@@ -39,6 +39,7 @@ const formSchema = z.object({
     username: z.string().min(3, "Username must be at least 3 characters").max(20),
     bio: z.string().max(160, "Bio cannot exceed 160 characters").optional(),
     target_exam: z.string().max(50).optional(),
+    is_public: z.boolean(),
 });
 
 interface EditProfileDialogProps {
@@ -55,6 +56,7 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
             username: user.username || "",
             bio: user.bio || "",
             target_exam: user.target_exam || "",
+            is_public: user.is_public !== undefined ? user.is_public : true,
         },
     });
 
@@ -72,11 +74,14 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
         },
     });
 
+    const formIsPublic = form.watch("is_public");
+
     function onSubmit(values: z.infer<typeof formSchema>) {
         mutation.mutate({
             username: values.username,
             bio: values.bio || "",
             target_exam: values.target_exam || "",
+            is_public: values.is_public,
         });
     }
 
@@ -138,6 +143,31 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
                                             <SelectItem value="Law">Law</SelectItem>
                                             <SelectItem value="Nursing">Nursing</SelectItem>
                                             <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="is_public"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Profile Visibility</FormLabel>
+                                    <Select 
+                                        onValueChange={(val) => field.onChange(val === "true")} 
+                                        defaultValue={field.value ? "true" : "false"}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="w-full bg-background border-border focus-visible:ring-primary/20">
+                                                <SelectValue placeholder="Select visibility" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="true">Public (Shareable URL)</SelectItem>
+                                            <SelectItem value="false">Buddy Only (Private)</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

@@ -28,7 +28,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
 
                 {/* Main Content Area — pb-20 leaves room for mobile bottom nav */}
-                <main className="flex-1 overflow-y-auto relative py-4 sm:py-8 px-3 sm:px-6 md:px-8 pb-20 md:pb-8">
+                <main className={pathname.startsWith("/chat") ? "flex-1 relative overflow-hidden flex flex-col" : "flex-1 overflow-y-auto relative py-4 sm:py-8 px-3 sm:px-6 md:px-8 pb-20 md:pb-8"}>
                     {children}
                 </main>
             </div>

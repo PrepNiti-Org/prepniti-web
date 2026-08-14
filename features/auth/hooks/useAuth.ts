@@ -27,6 +27,7 @@ export function useAuth() {
             try {
                 const res = await api.get("/users/me");
                 const userData = res.data.data;
+
                 setUser(userData);
                 setIsLoggedIn(true);
                 localStorage.setItem("user", JSON.stringify(userData));
@@ -42,15 +43,19 @@ export function useAuth() {
         checkAuth();
     }, []);
 
-    const login = useCallback((token: string, userData: User) => {
-        // Fallback for non-HttpOnly context or API references
-        // Cookies.set("token", token, {
-        //     expires: 7,
-        //     secure: window.location.protocol === 'https:'
-        // });
-        localStorage.setItem("user", JSON.stringify(userData));
-        setIsLoggedIn(true);
-        setUser(userData);
+    const login = useCallback((tokenOrUser: string | User, userData?: User) => {
+        let finalUser: User | undefined;
+        if (typeof tokenOrUser === "string") {
+            finalUser = userData;
+        } else {
+            finalUser = tokenOrUser;
+        }
+
+        if (finalUser) {
+            localStorage.setItem("user", JSON.stringify(finalUser));
+            setIsLoggedIn(true);
+            setUser(finalUser);
+        }
     }, []);
 
     const logout = useCallback(async () => {
