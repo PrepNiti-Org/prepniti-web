@@ -101,6 +101,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: baseUrl,
   },
+  ...(process.env.NEXT_PUBLIC_FB_APP_ID
+    ? {
+        facebook: {
+          appId: process.env.NEXT_PUBLIC_FB_APP_ID,
+        },
+      }
+    : {}),
 };
 
 const jsonLd = {
