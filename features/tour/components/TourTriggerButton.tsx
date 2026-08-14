@@ -12,7 +12,7 @@ interface TourTriggerButtonProps {
 }
 
 export function TourTriggerButton({ variant = "navbar-icon", className = "" }: TourTriggerButtonProps) {
-    const { startTour, isOpen } = useAppTour();
+    const { startTour } = useAppTour();
 
     if (variant === "dropdown-item") {
         return (

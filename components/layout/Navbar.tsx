@@ -30,7 +30,6 @@ import { ModeToggle } from "../theme/mode-toggle";
 import { ElevatedButton } from "../ui/button-elevated";
 import { NotificationBell } from "../notifications/NotificationBell";
 import { NavbarTimer } from "../timer/NavbarTimer";
-import { TourTriggerButton } from "@/features/tour/components/TourTriggerButton";
 import { useAppTour } from "@/features/tour/useAppTour";
 
 export function Navbar() {
@@ -120,7 +119,6 @@ export function Navbar() {
 
                 {/* Right Section: Actions & Profile */}
                 <div className="flex items-center gap-2 md:gap-3 shrink-0">
-                    <TourTriggerButton variant="navbar-icon" className="hidden sm:flex" />
                     <div data-tour="navbar-theme">
                         <ModeToggle />
                     </div>
