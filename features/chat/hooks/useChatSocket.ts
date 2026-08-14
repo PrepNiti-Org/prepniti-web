@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api } from "@/lib/api";
+import { api, BACKEND_URL } from "@/lib/api";
 import { ChatMessage } from "../chat_api";
 
 interface UseChatSocketProps {
@@ -73,10 +73,10 @@ export function useChatSocket({ onMessageReceived, onTypingReceived, onReadRecei
                 // Guard: component may have unmounted during the async ticket fetch
                 if (!isActiveRef.current) return;
 
-                const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-                // Connect directly to port 8080 (same process that generated the ticket).
-                // In production, override via NEXT_PUBLIC_WS_URL.
-                const wsBase = process.env.NEXT_PUBLIC_WS_URL || `${protocol}//localhost:8080`;
+                // Connect directly to the Go WebSocket endpoint.
+                // In production, uses NEXT_PUBLIC_WS_URL or derives dynamically from BACKEND_URL
+                const defaultWsBase = BACKEND_URL.replace(/^http/, "ws");
+                const wsBase = process.env.NEXT_PUBLIC_WS_URL || defaultWsBase;
                 const wsUrl = `${wsBase}/api/chat/ws?ticket=${encodeURIComponent(ticket)}`;
 
                 console.log("[WS] Connecting to:", wsUrl);
