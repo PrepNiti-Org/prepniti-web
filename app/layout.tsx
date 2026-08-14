@@ -24,7 +24,7 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://prepniti.com";
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "PrepNiti — Anonymous Community & Prep Platform for Aspirants",
+    default: "PrepNiti - Anonymous Community & Prep Platform for Aspirants",
     template: "%s | PrepNiti",
   },
   description:
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: baseUrl,
     siteName: "PrepNiti",
-    title: "PrepNiti — Anonymous Community & Prep Platform for Aspirants",
+    title: "PrepNiti - Anonymous Community & Prep Platform for Aspirants",
     description:
       "Connect anonymously with serious aspirants, track syllabus progress, take realistic mock tests, and get deep preparation insights.",
     images: [
@@ -73,13 +73,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "PrepNiti — Aspirant Preparation & Community Platform",
+        alt: "PrepNiti - Aspirant Preparation & Community Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PrepNiti — Anonymous Community & Prep Platform for Aspirants",
+    title: "PrepNiti - Anonymous Community & Prep Platform for Aspirants",
     description:
       "Connect anonymously with serious aspirants, track syllabus progress, take realistic mock tests, and get deep preparation insights.",
     images: ["/og-image.png"],

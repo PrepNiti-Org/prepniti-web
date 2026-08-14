@@ -157,7 +157,7 @@ export function BuddyCompareView({ open, onOpenChange, buddyUsername, myUsername
                     <DialogTitle className="flex items-center gap-2 text-sm font-black">
                         <Swords className="h-4 w-4 text-primary" />
                         Stats Comparison
-                        <span className="text-muted-foreground font-normal">— last 30 days</span>
+                        <span className="text-muted-foreground font-normal">- last 30 days</span>
                     </DialogTitle>
                 </DialogHeader>
 
@@ -199,7 +199,7 @@ export function BuddyCompareView({ open, onOpenChange, buddyUsername, myUsername
                         {activeTab === "study" && (
                             <div className="space-y-2">
                                 <p className="text-xs font-bold text-muted-foreground flex items-center gap-1">
-                                    <TrendingUp className="h-3.5 w-3.5" /> Daily study minutes — last 30 days
+                                    <TrendingUp className="h-3.5 w-3.5" /> Daily study minutes - last 30 days
                                 </p>
                                 <ResponsiveContainer width="100%" height={220}>
                                     <AreaChart data={studyData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -261,7 +261,7 @@ export function BuddyCompareView({ open, onOpenChange, buddyUsername, myUsername
                         {activeTab === "mock" && (
                             <div className="space-y-2">
                                 <p className="text-xs font-bold text-muted-foreground flex items-center gap-1">
-                                    <BarChart2 className="h-3.5 w-3.5" /> Mock test avg score % — last 30 days
+                                    <BarChart2 className="h-3.5 w-3.5" /> Mock test avg score % - last 30 days
                                 </p>
                                 {mockFiltered.length === 0 ? (
                                     <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">

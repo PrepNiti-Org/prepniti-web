@@ -7,11 +7,11 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "PrepNiti — Exam Prep, Honestly",
+    title: "PrepNiti - Exam Prep, Honestly",
     description:
-        "Study logs, mock tests, topic planner, interview experiences and a community — all anonymous. Built for UPSC, PSC, Banking and every serious aspirant.",
+        "Study logs, mock tests, topic planner, interview experiences and a community - all anonymous. Built for UPSC, PSC, Banking and every serious aspirant.",
     openGraph: {
-        title: "PrepNiti — Exam Prep, Honestly",
+        title: "PrepNiti - Exam Prep, Honestly",
         description: "The prep platform built by aspirants, for aspirants.",
         type: "website",
     },
@@ -21,7 +21,7 @@ const FEATURES = [
     {
         icon: BookOpen,
         label: "Interview Experiences",
-        desc: "Detailed transcripts from real board interviews — UPSC, PSC, Banking.",
+        desc: "Detailed transcripts from real board interviews - UPSC, PSC, Banking.",
         href: "/",
         color: "text-violet-500",
         bg: "bg-violet-500/10",
@@ -66,7 +66,7 @@ const FEATURES = [
     {
         icon: Users,
         label: "Community Posts",
-        desc: "Open threads — strategy, doubts, wins. No real names required.",
+        desc: "Open threads - strategy, doubts, wins. No real names required.",
         href: "/posts",
         color: "text-rose-500",
         bg: "bg-rose-500/10",
@@ -97,7 +97,7 @@ export default function HomePage() {
                     </h1>
 
                     <p className="text-muted-foreground text-base md:text-lg max-w-xl leading-relaxed">
-                        Mock tests, study tracking, topic planner, interview experiences, and a live community — all in one anonymous space.
+                        Mock tests, study tracking, topic planner, interview experiences, and a live community - all in one anonymous space.
                     </p>
 
                     <HeroCTA />

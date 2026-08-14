@@ -290,7 +290,7 @@ export function StudyTimer({ taskId, taskTitle }: StudyTimerProps) {
                         <div className="text-center">
                             <div className="text-3xl font-mono font-bold">{formatTime(elapsed)}</div>
                             <p className="text-sm text-muted-foreground mt-1">
-                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} — {taskTitle}
+                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} - {taskTitle}
                             </p>
                         </div>
                         <div className="space-y-2">

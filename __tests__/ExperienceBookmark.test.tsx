@@ -88,7 +88,7 @@ const baseExp: Experience = {
   is_bookmarked: false,
 };
 
-describe("experiences/api – toggleExperienceBookmark", () => {
+describe("experiences/api - toggleExperienceBookmark", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("calls POST /experiences/:id/bookmark and returns bookmarked: true", async () => {
@@ -117,7 +117,7 @@ describe("experiences/api – toggleExperienceBookmark", () => {
   });
 });
 
-describe("experiences/api – toggleExperienceLike", () => {
+describe("experiences/api - toggleExperienceLike", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("calls POST /experiences/:id/like and returns like data", async () => {
@@ -132,7 +132,7 @@ describe("experiences/api – toggleExperienceLike", () => {
   });
 });
 
-describe("experiences/api – getBookmarkedExperiences", () => {
+describe("experiences/api - getBookmarkedExperiences", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("fetches page 1 by default", async () => {
@@ -158,7 +158,7 @@ describe("experiences/api – getBookmarkedExperiences", () => {
   });
 });
 
-describe("PostCard – bookmark button", () => {
+describe("PostCard - bookmark button", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("renders the bookmark icon in the dialog footer", () => {
@@ -235,7 +235,7 @@ describe("PostCard – bookmark button", () => {
   });
 });
 
-describe("PostCard – helpful (like) button", () => {
+describe("PostCard - helpful (like) button", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("calls toggleExperienceLike on click and shows success toast", async () => {

@@ -61,7 +61,7 @@ const WHY = [
     {
         num: "01",
         title: "Everything in one place",
-        body: "Most aspirants juggle 4–5 apps for tracking, mocks, and notes. PrepNiti brings all of that into one focused space so you stop switching between tools and start studying.",
+        body: "Most aspirants juggle 4-5 apps for tracking, mocks, and notes. PrepNiti brings all of that into one focused space so you stop switching between tools and start studying.",
     },
     {
         num: "02",

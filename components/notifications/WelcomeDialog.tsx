@@ -46,7 +46,7 @@ export function WelcomeDialog({ open, onOpenChange }: WelcomeDialogProps) {
 
                 <div className="space-y-5 my-4 text-sm text-foreground/80 leading-relaxed text-left">
                     <p>
-                        We are thrilled to welcome you to our community! We know that preparing for competitive exams is a demanding journey. PrepNiti was built to be your ultimate companion—providing a private, structured space to collaborate, learn, and succeed.
+                        We are thrilled to welcome you to our community! We know that preparing for competitive exams is a demanding journey. PrepNiti was built to be your ultimate companion-providing a private, structured space to collaborate, learn, and succeed.
                     </p>
 
                     <div className="space-y-4 pt-2 border-t border-border/40">

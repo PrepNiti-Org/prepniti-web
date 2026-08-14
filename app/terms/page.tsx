@@ -32,7 +32,7 @@ export default function TermsPage() {
       title: "4. Licensing & Content Rights",
       icon: <HeartHandshake className="h-4 w-4 text-primary" />,
       content:
-        "By posting content on PrepNiti, you allow the community to display and share your interview experiences with other aspirants. You keep full ownership of what you write — we never claim it as ours.",
+        "By posting content on PrepNiti, you allow the community to display and share your interview experiences with other aspirants. You keep full ownership of what you write - we never claim it as ours.",
     },
   ];
 

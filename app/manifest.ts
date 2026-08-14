@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "PrepNiti — Community & Study Platform for Aspirants",
+    name: "PrepNiti - Community & Study Platform for Aspirants",
     short_name: "PrepNiti",
     description: "Anonymous Peer Community and Intelligent Preparation Platform for UPSC, SSC, and Competitive Exam Aspirants.",
     start_url: "/",

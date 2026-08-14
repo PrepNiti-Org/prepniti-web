@@ -270,7 +270,7 @@ export function NavbarTimer() {
                         <div className="text-center">
                             <div className="text-3xl font-mono font-bold">{formatTime(elapsed)}</div>
                             <p className="text-sm text-muted-foreground mt-1">
-                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} — {session?.taskTitle}
+                                ≈ {durationMinutes} minute{durationMinutes !== 1 ? "s" : ""} - {session?.taskTitle}
                             </p>
                         </div>
                         <div className="space-y-2">

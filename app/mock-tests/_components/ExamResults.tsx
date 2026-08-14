@@ -94,7 +94,7 @@ export function ExamResults({ scoreInfo, blueprint, answers, onReset, securityVi
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wide mb-1">⚠ Security Violation — Exam Auto-Submitted</p>
+                        <p className="text-sm font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wide mb-1">⚠ Security Violation - Exam Auto-Submitted</p>
                         <p className="text-sm text-rose-700 dark:text-rose-300 leading-relaxed">
                             Your exam was automatically submitted because: <strong>{securityViolation}</strong>. Exiting fullscreen mode during an exam is a security violation and is strictly prohibited.
                         </p>

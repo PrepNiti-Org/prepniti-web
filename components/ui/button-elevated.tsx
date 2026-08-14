@@ -21,7 +21,7 @@ export const ElevatedButton = forwardRef<HTMLButtonElement, ElevatedButtonProps>
                     "hover:-translate-y-px hover:brightness-[1.06]",
                     "disabled:opacity-45 disabled:cursor-not-allowed disabled:translate-y-0 disabled:brightness-100",
 
-                    // elevation via box-shadow on ::after — use inline style trick
+                    // elevation via box-shadow on ::after - use inline style trick
                     "after:absolute after:inset-0 after:rounded-[inherit]",
                     "after:transition-shadow after:duration-100",
 

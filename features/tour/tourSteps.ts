@@ -99,7 +99,7 @@ export const TOUR_STEPS: TourStep[] = [
         targetSelector: '[data-tour="navbar-timer"]',
         mobileTargetSelector: '[data-tour="navbar-timer"]',
         title: "Global Timer: Seamless App-Wide Tracking",
-        description: "Your timer stays active in the top bar across the whole app! Switch pages, attempt mocks, or browse offline—come back anytime to log your hours with notes.",
+        description: "Your timer stays active in the top bar across the whole app! Switch pages, attempt mocks, or browse offline-come back anytime to log your hours with notes.",
         icon: Timer,
         placement: "bottom"
     },

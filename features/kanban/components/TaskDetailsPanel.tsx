@@ -198,7 +198,7 @@ export function TaskDetailsPanel({
                                     <Clock className="h-3.5 w-3.5 text-primary" /> Time Progress
                                 </span>
                                 <span className="text-xs font-bold text-foreground">
-                                    {totalLoggedHours}h / {estimatedHours > 0 ? `${estimatedHours}h` : "—"}
+                                    {totalLoggedHours}h / {estimatedHours > 0 ? `${estimatedHours}h` : "-"}
                                 </span>
                             </div>
                             <Progress value={progressPercent} className="h-2" />
@@ -308,7 +308,7 @@ export function TaskDetailsPanel({
                                     <Clock className="h-3.5 w-3.5 text-primary" /> Total Logged
                                 </span>
                                 <span className="text-xs font-bold text-foreground">
-                                    {totalLoggedHours}h / {estimatedHours > 0 ? `${estimatedHours}h` : "—"}
+                                    {totalLoggedHours}h / {estimatedHours > 0 ? `${estimatedHours}h` : "-"}
                                 </span>
                             </div>
                             <Progress value={progressPercent} className="h-2" />

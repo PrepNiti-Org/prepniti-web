@@ -59,7 +59,7 @@ export function useChatSocket({ onMessageReceived, onTypingReceived, onReadRecei
         }
 
         async function connect() {
-            // Already have an open socket — nothing to do
+            // Already have an open socket - nothing to do
             if (socketRef.current?.readyState === WebSocket.OPEN ||
                 socketRef.current?.readyState === WebSocket.CONNECTING) return;
 
