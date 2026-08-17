@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bold, Italic, Code as CodeIcon, Send } from "lucide-react";
+import { Bold, Italic, Code as CodeIcon, Send, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ChatMessageInputProps {
@@ -62,9 +62,13 @@ export function ChatMessageInput({
                     </Button>
 
                     <div className="flex-1" />
-                    <span className="text-[10px] text-muted-foreground font-semibold">
-                        {editorTextLength}/1000
-                    </span>
+                    <div className="flex items-center space-x-2 text-[10px] text-muted-foreground font-semibold">
+                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md font-bold">
+                            <Lock className="h-2.5 w-2.5" />
+                            <span>E2EE</span>
+                        </span>
+                        <span>{editorTextLength}/1000</span>
+                    </div>
                 </div>
 
                 <form onSubmit={sendMessage} className="flex items-center space-x-2">

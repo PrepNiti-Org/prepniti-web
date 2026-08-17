@@ -9,15 +9,24 @@ import {
     PanelRightClose,
     PanelRight,
     Clock,
-    ArrowLeft
+    ArrowLeft,
+    ShieldCheck
 } from "lucide-react";
 import {
     getChatRooms,
     getRoomMessages,
     markRoomAsRead,
+    registerUserPublicKey,
+    getRoomKeys,
+    sendRoomMessage,
     RoomDetail,
     ChatMessage
 } from "../chat_api";
+import {
+    getOrCreateUserKeyPair,
+    encryptChatMessage,
+    decryptChatMessage
+} from "@/lib/e2ee";
 import { getBuddies } from "@/features/profile/api";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -48,6 +57,8 @@ export function ChatWorkspace() {
     const [editorTextLength, setEditorTextLength] = useState(0);
     const [activeFormats, setActiveFormats] = useState({ bold: false, italic: false, code: false });
 
+    const privateKeyRef = useRef<CryptoKey | null>(null);
+
     // tempId for the current in-flight optimistic message (negative, never clashes with real IDs)
     const optimisticTempIdRef = useRef<number | null>(null);
 
@@ -55,6 +66,22 @@ export function ChatWorkspace() {
     const currentUserId = typeof window !== "undefined"
         ? (() => { try { return JSON.parse(localStorage.getItem("user") || "{}").id ?? ""; } catch { return ""; } })()
         : "";
+
+    useEffect(() => {
+        if (!currentUserId) return;
+        getOrCreateUserKeyPair(currentUserId)
+            .then(async ({ publicKeyPEM, privateKey }) => {
+                privateKeyRef.current = privateKey;
+                try {
+                    await registerUserPublicKey(publicKeyPEM);
+                } catch (err) {
+                    console.warn("[E2EE] Failed to register user public key:", err);
+                }
+            })
+            .catch(err => {
+                console.error("[E2EE] Keypair initialization failed:", err);
+            });
+    }, [currentUserId]);
 
     // Add Member Dialog State
     const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
@@ -100,14 +127,27 @@ export function ChatWorkspace() {
         enabled: !!activeBuddy?.username
     });
 
+    const decryptList = async (msgs: ChatMessage[]) => {
+        return Promise.all(
+            msgs.map(async (msg) => {
+                if (msg.is_encrypted && msg.ciphertext) {
+                    const decrypted = await decryptChatMessage(msg, currentUserId, privateKeyRef.current);
+                    return { ...msg, content: decrypted };
+                }
+                return msg;
+            })
+        );
+    };
+
     // Fetch messages when room selection changes
     useEffect(() => {
         if (!activeRoomId) return;
 
         setMessages([]);
         getRoomMessages(activeRoomId, 0, 40)
-            .then(data => {
-                setMessages(data);
+            .then(async (data) => {
+                const decryptedMsgs = await decryptList(data);
+                setMessages(decryptedMsgs);
                 markRoomAsRead(activeRoomId).then(() => {
                     queryClient.invalidateQueries({ queryKey: ["chat-rooms"] });
                 });
@@ -116,21 +156,27 @@ export function ChatWorkspace() {
 
         // Clear typing indicators when changing rooms
         setTypingUsers({});
-    }, [activeRoomId, queryClient]);
+    }, [activeRoomId, queryClient, currentUserId]);
 
     // Live socket handler
     const { isConnected, sendTypingState } = useChatSocket({
-        onMessageReceived: (msg: ChatMessage) => {
+        onMessageReceived: async (msg: ChatMessage) => {
             queryClient.invalidateQueries({ queryKey: ["chat-rooms"] });
 
             if (msg.room_id === activeRoomId) {
+                let displayedMsg = msg;
+                if (msg.is_encrypted && msg.ciphertext) {
+                    const decrypted = await decryptChatMessage(msg, currentUserId, privateKeyRef.current);
+                    displayedMsg = { ...msg, content: decrypted };
+                }
+
                 setMessages(prev => {
-                    const tempIdx = prev.findIndex(m => m.id < 0 && m.content === msg.content);
+                    const tempIdx = prev.findIndex(m => m.id < 0 && (m.content === displayedMsg.content || m.ciphertext === displayedMsg.ciphertext));
                     if (tempIdx !== -1) {
-                        return prev.map((m, i) => i === tempIdx ? msg : m);
+                        return prev.map((m, i) => i === tempIdx ? displayedMsg : m);
                     }
-                    if (prev.some(m => m.id === msg.id)) return prev;
-                    return [...prev, msg];
+                    if (prev.some(m => m.id === displayedMsg.id)) return prev;
+                    return [...prev, displayedMsg];
                 });
 
                 markRoomAsRead(activeRoomId).then(() => {
@@ -221,7 +267,7 @@ export function ChatWorkspace() {
         }
     });
 
-    // Send message helper
+    // Send message helper with client-side E2EE
     const submitMessageText = async (text: string) => {
         if (!text.trim() || !activeRoomId) return;
 
@@ -233,6 +279,7 @@ export function ChatWorkspace() {
             room_id: activeRoomId,
             sender_id: currentUserId,
             content: text,
+            is_encrypted: true,
             created_at: new Date().toISOString(),
             sender: { id: currentUserId, username: "me" },
         };
@@ -240,20 +287,33 @@ export function ChatWorkspace() {
         setMessages(prev => [...prev, optimisticMsg]);
 
         try {
-            const res = await api.post(`/chat/rooms/${activeRoomId}/messages`, { content: text });
-            const newMsg: ChatMessage = res.data.data;
+            const { room_keys, admin_key } = await getRoomKeys(activeRoomId);
+
+            const encrypted = await encryptChatMessage(text, room_keys, admin_key);
+
+            const newMsg: ChatMessage = await sendRoomMessage(activeRoomId, {
+                ciphertext: encrypted.ciphertext,
+                iv: encrypted.iv,
+                envelopes: JSON.stringify(encrypted.envelopes),
+                is_encrypted: true,
+            });
+
+            const displayedMsg = {
+                ...newMsg,
+                content: text,
+            };
 
             setMessages(prev => {
                 const withoutTemp = prev.filter(m => m.id !== tempId);
                 if (withoutTemp.some(m => m.id === newMsg.id)) {
                     return withoutTemp;
                 }
-                return prev.map(m => m.id === tempId ? newMsg : m);
+                return prev.map(m => m.id === tempId ? displayedMsg : m);
             });
 
             queryClient.invalidateQueries({ queryKey: ["chat-rooms"] });
         } catch (err) {
-            console.error("Failed to send message:", err);
+            console.error("Failed to send encrypted message:", err);
             setMessages(prev => prev.filter(m => m.id !== tempId));
         } finally {
             if (optimisticTempIdRef.current === tempId) optimisticTempIdRef.current = null;
@@ -516,15 +576,22 @@ export function ChatWorkspace() {
                                 </div>
                             </div>
 
-                            {/* Toggle Right Panel Side Panel */}
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => setIsCompanionOpen(!isCompanionOpen)}
-                                className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8 rounded-lg transition-all"
-                            >
-                                {isCompanionOpen ? <PanelRightClose className="h-4.5 w-4.5 text-primary" /> : <PanelRight className="h-4.5 w-4.5" />}
-                            </Button>
+                            <div className="flex items-center space-x-2">
+                                <div className="hidden sm:flex items-center space-x-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                                    <ShieldCheck className="h-3 w-3" />
+                                    <span>End-to-End Encrypted</span>
+                                </div>
+
+                                {/* Toggle Right Panel Side Panel */}
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => setIsCompanionOpen(!isCompanionOpen)}
+                                    className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8 rounded-lg transition-all"
+                                >
+                                    {isCompanionOpen ? <PanelRightClose className="h-4.5 w-4.5 text-primary" /> : <PanelRight className="h-4.5 w-4.5" />}
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Middle Content: Chat stream + Accountability Panel */}
@@ -574,6 +641,10 @@ export function ChatWorkspace() {
                         </div>
                         <h3 className="text-sm font-black text-foreground">Select a conversation</h3>
                         <p className="text-xs text-muted-foreground max-w-xs mt-1 leading-relaxed">Open a chat from the sidebar or start a new direct message with one of your accountability buddies.</p>
+                        <div className="mt-4 flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold shadow-xs">
+                            <ShieldCheck className="h-3 w-3" />
+                            <span>Protected by End-to-End Encryption</span>
+                        </div>
                     </div>
                 )}
             </div>

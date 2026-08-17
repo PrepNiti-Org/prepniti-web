@@ -13,6 +13,10 @@ export interface ChatMessage {
     room_id: string;
     sender_id: string;
     content: string;
+    ciphertext?: string;
+    iv?: string;
+    envelopes?: string | Record<string, string>;
+    is_encrypted?: boolean;
     media_url?: string;
     created_at: string;
     sender: ChatUser;
@@ -33,6 +37,14 @@ export interface CreateRoomInput {
     group_name?: string;
 }
 
+export interface SendMessagePayload {
+    content?: string;
+    ciphertext?: string;
+    iv?: string;
+    envelopes?: string;
+    is_encrypted?: boolean;
+}
+
 export const createChatRoom = async (input: CreateRoomInput): Promise<RoomDetail> => {
     const res = await api.post("/chat/rooms", input);
     return res.data.data;
@@ -48,6 +60,26 @@ export const getRoomMessages = async (roomId: string, beforeId = 0, limit = 20):
     return res.data.data || [];
 };
 
+export const sendRoomMessage = async (roomId: string, payload: SendMessagePayload): Promise<ChatMessage> => {
+    const res = await api.post(`/chat/rooms/${roomId}/messages`, payload);
+    return res.data.data;
+};
+
 export const markRoomAsRead = async (roomId: string): Promise<void> => {
     await api.post(`/chat/rooms/${roomId}/read`);
 };
+
+export const registerUserPublicKey = async (publicKey: string): Promise<void> => {
+    await api.post("/chat/keys", { public_key: publicKey });
+};
+
+export const getRoomKeys = async (roomId: string): Promise<{ room_keys: Record<string, string>; admin_key: string }> => {
+    const res = await api.get(`/chat/rooms/${roomId}/keys`);
+    return res.data.data || { room_keys: {}, admin_key: "" };
+};
+
+export const getAdminPublicKey = async (): Promise<string> => {
+    const res = await api.get("/chat/admin-key");
+    return res.data.admin_key || "";
+};
+

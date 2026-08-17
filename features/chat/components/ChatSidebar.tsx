@@ -8,7 +8,8 @@ import {
     Plus,
     Search,
     Users,
-    Check
+    Check,
+    Lock
 } from "lucide-react";
 import {
     RoomDetail,
@@ -292,6 +293,11 @@ export function ChatSidebar({
                         );
                     })
                 )}
+            </div>
+
+            <div className="p-3 border-t border-border/80 bg-card/60 flex items-center justify-center space-x-1.5 text-[10px] font-semibold text-muted-foreground/80 select-none">
+                <Lock className="h-3 w-3 text-emerald-500 shrink-0" />
+                <span>End-to-end encrypted</span>
             </div>
         </div>
     );

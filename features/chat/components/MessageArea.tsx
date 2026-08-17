@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Clock } from "lucide-react";
+import { Clock, Lock } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChatMessage, RoomDetail } from "../chat_api";
 
@@ -99,8 +99,13 @@ export function MessageArea({
                                         </div>
                                     ) : (
                                         <>
-                                            <span className="text-[8px] text-muted-foreground/60 font-semibold">
+                                            <span className="text-[8px] text-muted-foreground/60 font-semibold flex items-center gap-0.5">
                                                 {msgTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                {msg.is_encrypted && (
+                                                    <span title="End-to-End Encrypted">
+                                                        <Lock className="h-2 w-2 text-emerald-500 ml-0.5" />
+                                                    </span>
+                                                )}
                                             </span>
                                             {isMe && (
                                                 <span className="text-[9px] text-primary/70 font-black ml-0.5" title="Sent receipt">
@@ -130,6 +135,13 @@ export function MessageArea({
             ref={messagesContainerRef}
             className="flex-1 overflow-y-auto p-4 space-y-1 bg-muted/10 relative"
         >
+            <div className="flex justify-center my-3 mb-5">
+                <div className="flex items-center space-x-2 bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-semibold px-3.5 py-1.5 rounded-full max-w-sm text-center shadow-xs select-none">
+                    <Lock className="h-3 w-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span>Messages are end-to-end encrypted.</span>
+                </div>
+            </div>
+
             {renderMessageStream()}
 
             {/* Custom High-Fidelity Typing Indicator bubble inside stream */}
