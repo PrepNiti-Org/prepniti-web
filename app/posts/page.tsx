@@ -14,6 +14,8 @@ import {
     getUserLikes,
     getBookmarkedPosts,
     createPost,
+    updatePost,
+    deletePost,
     uploadMedia
 } from "@/features/posts/api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -145,6 +147,19 @@ export default function PostsPage() {
             }
             queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
         }
+    });
+
+    const deletePostMutation = useMutation({
+        mutationFn: (postId: string) => deletePost(postId),
+        onSuccess: () => {
+            toast.success("Post deleted successfully");
+            queryClient.invalidateQueries({ queryKey: ["posts"] });
+            queryClient.invalidateQueries({ queryKey: ["my-discussions"] });
+            queryClient.invalidateQueries({ queryKey: ["profile-activity"] });
+        },
+        onError: (err: Error & { response?: { data?: { error?: string } } }) => {
+            toast.error(err.response?.data?.error || "Failed to delete post");
+        },
     });
 
     const triggerCreateModal = (initialTag?: string) => {
@@ -326,6 +341,9 @@ export default function PostsPage() {
                                             onBookmark={() => toggleBookmarkMutation.mutate(post.id)}
                                             isBookmarkPending={toggleBookmarkMutation.isPending}
                                             viewMode="feed"
+                                            isAuthor={isLoggedIn && (user?.username === post.user?.username)}
+                                            onDelete={() => deletePostMutation.mutate(post.id)}
+                                            isDeletePending={deletePostMutation.isPending}
                                             delay={index * 0.03}
                                         />
                                     ))}

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Experience, toggleExperienceLike, toggleExperienceBookmark } from "../api";
+import { Experience, toggleExperienceLike, toggleExperienceBookmark, deleteExperience } from "../api";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { EditExperienceModal } from "./EditExperienceModal";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,7 +16,10 @@ import {
     User,
     ThumbsUp,
     Bookmark,
-    Share2
+    Share2,
+    Trash2,
+    Pencil,
+    Loader2
 } from "lucide-react";
 import {
     Dialog,
@@ -22,6 +28,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { MarkdownPreview } from "@/components/ui/markdown-preview";
 
@@ -32,6 +49,7 @@ const getVerdictBadgeStyles = (verdict: string) => {
         case "rejected":
             return "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/20 font-semibold";
         case "waitlist":
+        case "waitlisted":
             return "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 hover:bg-amber-500/20 font-semibold";
         default:
             return "bg-muted text-muted-foreground border-border font-semibold";
@@ -45,6 +63,7 @@ const getDifficultyBadgeStyles = (difficulty: string) => {
         case "medium":
             return "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 hover:bg-amber-500/20 font-semibold";
         case "hard":
+        case "brutal":
             return "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/20 font-semibold";
         default:
             return "bg-muted text-muted-foreground border-border font-semibold";
@@ -52,7 +71,15 @@ const getDifficultyBadgeStyles = (difficulty: string) => {
 };
 
 export function PostCard({ post }: { post: Experience }) {
-    const isSelected = post.verdict.toLowerCase() === "selected";
+    const { user, isHydrated } = useAuth();
+    const queryClient = useQueryClient();
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const isAuthor = isHydrated && !!user && (
+        (post.user_id && user.id === post.user_id) ||
+        (post.user?.username && user.username === post.user.username)
+    );
+
     const authorName = post.is_anonymous ? "Anonymous Aspirant" : post.user?.username || "Aspirant";
 
     const [likeCount, setLikeCount] = useState(post.like_count || 0);
@@ -67,6 +94,21 @@ export function PostCard({ post }: { post: Experience }) {
         setIsBookmarked(!!post.is_bookmarked);
     }, [post.like_count, post.is_liked, post.is_bookmarked]);
 
+    const deleteMutation = useMutation({
+        mutationFn: () => deleteExperience(post.id),
+        onSuccess: () => {
+            toast.success("Experience deleted successfully");
+            queryClient.invalidateQueries({ queryKey: ["experiences-feed"] });
+            queryClient.invalidateQueries({ queryKey: ["experiences"] });
+            queryClient.invalidateQueries({ queryKey: ["my-experiences"] });
+            queryClient.invalidateQueries({ queryKey: ["profile-activity"] });
+            setDialogOpen(false);
+        },
+        onError: (err: Error & { response?: { data?: { error?: string } } }) => {
+            toast.error(err.response?.data?.error || "Failed to delete experience");
+        },
+    });
+
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (isLiking) return;
@@ -76,7 +118,7 @@ export function PostCard({ post }: { post: Experience }) {
             setIsLiked(res.liked);
             setLikeCount(res.like_count);
             toast.success(res.liked ? "Marked as helpful!" : "Removed helpful mark");
-        } catch (err) {
+        } catch {
             toast.error("Failed to update like status");
         } finally {
             setIsLiking(false);
@@ -120,9 +162,11 @@ export function PostCard({ post }: { post: Experience }) {
                             </span>
                         </div>
                     </div>
-                    <Badge variant="outline" className={`hidden sm:inline-flex ${getVerdictBadgeStyles(post.verdict)}`}>
-                        {post.verdict}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={`hidden sm:inline-flex ${getVerdictBadgeStyles(post.verdict)}`}>
+                            {post.verdict}
+                        </Badge>
+                    </div>
                 </div>
 
                 <h2 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-2">
@@ -161,7 +205,7 @@ export function PostCard({ post }: { post: Experience }) {
     );
 
     return (
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
                 <div className="w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl h-full">
                     {previewCard}
@@ -191,19 +235,63 @@ export function PostCard({ post }: { post: Experience }) {
                                 </div>
                             </div>
                         </div>
-                        <Badge variant="outline" className={`text-sm px-3 py-1 shadow-sm ${getVerdictBadgeStyles(post.verdict)}`}>
-                            {post.verdict}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline" className={`text-sm px-3 py-1 shadow-sm ${getVerdictBadgeStyles(post.verdict)}`}>
+                                {post.verdict}
+                            </Badge>
+                        </div>
                     </div>
 
                     <DialogTitle className="text-2xl md:text-3xl font-extrabold text-left leading-tight">
                         {post.exam_name} ({post.year})
                     </DialogTitle>
 
-                    <div className="flex items-center gap-2 mt-4">
+                    <div className="flex items-center justify-between gap-2 mt-4">
                         <Badge variant="outline" className={getDifficultyBadgeStyles(post.difficulty)}>
                             {post.difficulty}
                         </Badge>
+
+                        {isAuthor && (
+                            <div className="flex items-center gap-2">
+                                <EditExperienceModal
+                                    post={post}
+                                    trigger={
+                                        <Button variant="outline" size="sm" className="h-8 rounded-lg">
+                                            <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit
+                                        </Button>
+                                    }
+                                />
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg">
+                                            <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete Interview Experience</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Are you sure you want to delete this experience? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={() => deleteMutation.mutate()}
+                                                disabled={deleteMutation.isPending}
+                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            >
+                                                {deleteMutation.isPending ? (
+                                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
+                                                ) : (
+                                                    "Delete Experience"
+                                                )}
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                        )}
                     </div>
                 </DialogHeader>
 

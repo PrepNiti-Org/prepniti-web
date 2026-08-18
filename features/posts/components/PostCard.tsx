@@ -3,13 +3,21 @@
 import { useState, useEffect } from "react";
 import { Post } from "@/features/posts/api";
 import { formatDistanceToNow } from "date-fns";
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Copy } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MarkdownPreview } from "@/components/ui/markdown-preview";
+import { EditPostModal } from "./EditPostModal";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -19,7 +27,6 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -60,6 +67,7 @@ export function PostCard({
 }: PostCardProps) {
     const [localLiked, setLocalLiked] = useState(isLiked);
     const [localUpvotes, setLocalUpvotes] = useState(post.upvotes);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     useEffect(() => {
         setLocalLiked(isLiked);
@@ -69,8 +77,11 @@ export function PostCard({
         setLocalUpvotes(post.upvotes);
     }, [post.upvotes]);
 
-    const handleShare = (e: React.MouseEvent) => {
-        e.preventDefault();
+    const handleShare = (e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const url = `${window.location.origin}/posts/${post.id}`;
         navigator.clipboard.writeText(url).then(() => {
             toast.success("Link copied to clipboard!");
@@ -176,14 +187,54 @@ export function PostCard({
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            {viewMode === "detail" && isAuthor && onDelete && (
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-full">
-                                            <Trash2 className="h-4 w-4" />
+                        <div className="flex items-center gap-1">
+                            {isAuthor && (
+                                <EditPostModal
+                                    post={post}
+                                    trigger={
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full">
+                                            <Pencil className="h-4 w-4" />
                                         </Button>
-                                    </AlertDialogTrigger>
+                                    }
+                                />
+                            )}
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className={cn("h-8 w-8 text-muted-foreground hover:text-foreground rounded-full", viewMode === "feed" && "-mt-1 -mr-2")}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-40 rounded-xl">
+                                    <DropdownMenuItem
+                                        onClick={handleShare}
+                                        className="cursor-pointer text-xs"
+                                    >
+                                        <Copy className="h-3.5 w-3.5 mr-2" /> Copy Link
+                                    </DropdownMenuItem>
+
+                                    {isAuthor && onDelete && (
+                                        <>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                variant="destructive"
+                                                onSelect={() => setIsDeleteDialogOpen(true)}
+                                                className="cursor-pointer text-xs text-destructive focus:text-destructive focus:bg-destructive/10"
+                                            >
+                                                <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete Post
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {isAuthor && onDelete && (
+                                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -195,7 +246,10 @@ export function PostCard({
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                             <AlertDialogAction
-                                                onClick={onDelete}
+                                                onClick={() => {
+                                                    onDelete();
+                                                    setIsDeleteDialogOpen(false);
+                                                }}
                                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                                 disabled={isDeletePending}
                                             >
@@ -205,9 +259,6 @@ export function PostCard({
                                     </AlertDialogContent>
                                 </AlertDialog>
                             )}
-                            <Button variant="ghost" size="icon" className={cn("h-8 w-8 text-muted-foreground hover:text-foreground rounded-full", viewMode === "feed" && "-mt-1 -mr-2")}>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
                         </div>
                     </div>
                 </CardHeader>

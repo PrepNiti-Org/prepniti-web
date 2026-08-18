@@ -63,8 +63,18 @@ export const getExperienceById = async (id: string): Promise<Experience> => {
     return res.data.data;
 };
 
+export const createExperience = async (data: CreateExperienceDTO): Promise<Experience> => {
+    const res = await api.post("/experiences", data);
+    return res.data.data;
+};
+
 export const updateExperience = async ({ id, data }: { id: string; data: Partial<CreateExperienceDTO> }) => {
     const res = await api.patch(`/experiences/${id}`, data);
+    return res.data;
+};
+
+export const deleteExperience = async (id: string): Promise<{ message: string }> => {
+    const res = await api.delete(`/experiences/${id}`);
     return res.data;
 };
 

@@ -48,12 +48,14 @@ export interface ActivityData {
 }
 
 export interface UserExperience {
-    id: number;
+    id: string;
     exam_name: string;
     year: number;
     verdict: string;
     difficulty: string;
     description: string;
+    is_anonymous?: boolean;
+    user_id?: string;
     created_at: string;
 }
 

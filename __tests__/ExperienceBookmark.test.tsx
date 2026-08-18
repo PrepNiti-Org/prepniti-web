@@ -2,10 +2,42 @@ import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({}),
+}));
+
+vi.mock("@/features/auth/hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: { id: "user-1", username: "testuser" },
+    isHydrated: true,
+    isLoggedIn: true,
+  }),
+}));
+
+vi.mock("@tanstack/react-query", () => ({
+  useQueryClient: () => ({
+    invalidateQueries: vi.fn(),
+  }),
+  useMutation: (opts: any) => ({
+    mutate: opts.mutationFn || vi.fn(),
+    isPending: false,
+  }),
+}));
+
 vi.mock("@/lib/api", () => ({
   api: {
     post: vi.fn(),
     get: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
   },
 }));
 
@@ -16,15 +48,22 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("lucide-react", () => ({
-  Calendar: () => <svg data-testid="calendar-icon" />,
-  MessageSquare: () => <svg data-testid="msg-icon" />,
-  ShieldCheck: () => <svg data-testid="shield-icon" />,
-  User: () => <svg data-testid="user-icon" />,
-  ThumbsUp: () => <svg data-testid="thumbsup-icon" />,
-  Bookmark: () => <svg data-testid="bookmark-icon" />,
-  Share2: () => <svg data-testid="share-icon" />,
-}));
+vi.mock("lucide-react", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, any>>();
+  return {
+    ...actual,
+    Calendar: () => <svg data-testid="calendar-icon" />,
+    MessageSquare: () => <svg data-testid="msg-icon" />,
+    ShieldCheck: () => <svg data-testid="shield-icon" />,
+    User: () => <svg data-testid="user-icon" />,
+    ThumbsUp: () => <svg data-testid="thumbsup-icon" />,
+    Bookmark: () => <svg data-testid="bookmark-icon" />,
+    Share2: () => <svg data-testid="share-icon" />,
+    Trash2: () => <svg data-testid="trash-icon" />,
+    Pencil: () => <svg data-testid="pencil-icon" />,
+    Loader2: () => <svg data-testid="loader-icon" />,
+  };
+});
 
 vi.mock("@/components/ui/card", () => ({
   Card: ({ children, className }: any) => <div className={className}>{children}</div>,

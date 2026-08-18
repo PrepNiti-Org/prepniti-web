@@ -45,9 +45,11 @@ const formSchema = z.object({
     is_anonymous: z.boolean().default(false),
 });
 
-export function EditExperienceModal({ post }: { post: Experience }) {
+export function EditExperienceModal({ post, trigger }: { post: Experience; trigger?: React.ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const queryClient = useQueryClient();
+
+    const normalizedVerdict = post.verdict === "Waitlisted" ? "Waitlist" : post.verdict;
 
     const form = useForm<z.infer<typeof formSchema>>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,7 +57,7 @@ export function EditExperienceModal({ post }: { post: Experience }) {
         defaultValues: {
             exam_name: post.exam_name,
             year: post.year,
-            verdict: post.verdict,
+            verdict: normalizedVerdict,
             difficulty: post.difficulty,
             description: post.description,
             is_anonymous: post.is_anonymous,
@@ -68,6 +70,9 @@ export function EditExperienceModal({ post }: { post: Experience }) {
             toast.success("Experience updated successfully!");
             queryClient.invalidateQueries({ queryKey: ["my-experiences"] });
             queryClient.invalidateQueries({ queryKey: ["experiences-feed"] });
+            queryClient.invalidateQueries({ queryKey: ["experiences"] });
+            queryClient.invalidateQueries({ queryKey: ["experience", post.id] });
+            queryClient.invalidateQueries({ queryKey: ["profile-activity"] });
             setIsOpen(false);
         },
         onError: (error: Error & { response?: { data?: { error?: string } } }) => {
@@ -84,9 +89,11 @@ export function EditExperienceModal({ post }: { post: Experience }) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8">
-                    <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
-                </Button>
+                {trigger || (
+                    <Button variant="outline" size="sm" className="h-8">
+                        <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
+                    </Button>
+                )}
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -112,7 +119,7 @@ export function EditExperienceModal({ post }: { post: Experience }) {
                                         <SelectContent>
                                             <SelectItem value="Selected">Selected</SelectItem>
                                             <SelectItem value="Rejected">Rejected</SelectItem>
-                                            <SelectItem value="Waitlisted">Waitlisted</SelectItem>
+                                            <SelectItem value="Waitlist">Waitlist</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
