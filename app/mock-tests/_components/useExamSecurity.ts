@@ -1,10 +1,50 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
+/**
+ * Cross-browser check if the Fullscreen API is supported on the client
+ */
+export function isFullscreenSupported(): boolean {
+    if (typeof document === "undefined") return false;
+    const doc = document as any;
+    return !!(
+        doc.fullscreenEnabled ||
+        doc.webkitFullscreenEnabled ||
+        doc.mozFullScreenEnabled ||
+        doc.msFullscreenEnabled
+    );
+}
+
+/**
+ * Cross-browser helper to get the currently active fullscreen element
+ */
+export function getFullscreenElement(): Element | null {
+    if (typeof document === "undefined") return null;
+    const doc = document as any;
+    return (
+        doc.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullScreenElement ||
+        doc.msFullscreenElement ||
+        null
+    );
+}
+
+/**
+ * Cross-browser check if the document is currently in fullscreen
+ */
+export function isDocumentFullscreen(): boolean {
+    return !!getFullscreenElement();
+}
+
 export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObject<(reason?: string) => void>) {
     const isExitingIntentionally = useRef(false);
+    const violationTriggered = useRef(false);
+    const isGracePeriod = useRef(false);
+    const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const enterFullscreen = async () => {
+    const enterFullscreen = async (): Promise<boolean> => {
+        if (typeof document === "undefined") return false;
         const docEl = document.documentElement as any;
         try {
             if (docEl.requestFullscreen) {
@@ -15,18 +55,22 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
                 await docEl.mozRequestFullScreen();
             } else if (docEl.msRequestFullscreen) {
                 await docEl.msRequestFullscreen();
+            } else {
+                return false;
             }
+            return true;
         } catch (err) {
-            console.error("Failed to enter fullscreen mode:", err);
-            toast.warning("Fullscreen mode request was rejected. Please ensure browser permissions are granted.");
+            console.warn("Fullscreen request rejected or not supported:", err);
+            return false;
         }
     };
 
     const exitFullscreen = async () => {
-        const doc = document as any;
+        if (typeof document === "undefined") return;
         isExitingIntentionally.current = true;
+        const doc = document as any;
         try {
-            if (doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement) {
+            if (isDocumentFullscreen()) {
                 if (doc.exitFullscreen) {
                     await doc.exitFullscreen();
                 } else if (doc.webkitExitFullscreen) {
@@ -38,16 +82,41 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
                 }
             }
         } catch (err) {
-            console.error("Failed to exit fullscreen mode:", err);
+            console.warn("Error exiting fullscreen:", err);
         }
     };
 
     useEffect(() => {
-        if (step !== "testing") return;
+        if (step !== "testing") {
+            if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+                blurTimeoutRef.current = null;
+            }
+            return;
+        }
+
+        // Reset state for new exam session
+        isExitingIntentionally.current = false;
+        violationTriggered.current = false;
+        isGracePeriod.current = true;
+
+        // Grace period (1.5s) to allow browser animation, fullscreen prompt, and initial layout paint
+        const graceTimer = setTimeout(() => {
+            isGracePeriod.current = false;
+        }, 1500);
 
         const handleSecurityViolation = (reason: string) => {
-            if (isExitingIntentionally.current) return;
+            if (isExitingIntentionally.current || violationTriggered.current || isGracePeriod.current) {
+                return;
+            }
+            violationTriggered.current = true;
             isExitingIntentionally.current = true;
+
+            if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+                blurTimeoutRef.current = null;
+            }
+
             toast.error(`Security Violation: ${reason}. Exam has been submitted automatically.`, {
                 duration: 6000,
             });
@@ -55,26 +124,50 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
         };
 
         const handleFullscreenChange = () => {
-            const doc = document as any;
-            const isFullscreen = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
-            if (isExitingIntentionally.current) {
+            if (isExitingIntentionally.current || violationTriggered.current || isGracePeriod.current) {
                 return;
             }
-            if (!isFullscreen && step === "testing") {
+            // If fullscreen is supported and document is no longer in fullscreen
+            if (isFullscreenSupported() && !isDocumentFullscreen()) {
                 handleSecurityViolation("Exited fullscreen mode");
             }
         };
 
         const handleVisibilityChange = () => {
-            if (isExitingIntentionally.current) return;
+            if (isExitingIntentionally.current || violationTriggered.current || isGracePeriod.current) {
+                return;
+            }
             if (document.visibilityState === "hidden") {
-                handleSecurityViolation("Switched browser tabs / minimized window");
+                handleSecurityViolation("Switched browser tabs or minimized window");
             }
         };
 
         const handleWindowBlur = () => {
-            if (isExitingIntentionally.current) return;
-            handleSecurityViolation("Lost window focus");
+            if (isExitingIntentionally.current || violationTriggered.current || isGracePeriod.current) {
+                return;
+            }
+
+            // Debounce blur by 800ms to avoid false positives from native dropdowns/system prompts
+            if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+            }
+            blurTimeoutRef.current = setTimeout(() => {
+                if (isExitingIntentionally.current || violationTriggered.current || isGracePeriod.current) {
+                    return;
+                }
+                // Confirm focus was genuinely lost or window hidden
+                if (typeof document !== "undefined" && (!document.hasFocus() || document.visibilityState === "hidden")) {
+                    handleSecurityViolation("Lost window focus");
+                }
+            }, 800);
+        };
+
+        const handleWindowFocus = () => {
+            // Cancel pending blur violation if window regained focus quickly
+            if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+                blurTimeoutRef.current = null;
+            }
         };
 
         const handleContextMenu = (e: MouseEvent) => {
@@ -83,74 +176,95 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
         };
 
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Function keys (F12, F5, F11)
             if (e.key === "F12" || e.keyCode === 123) {
                 e.preventDefault();
                 toast.warning("Developer tools are disabled.");
                 return;
             }
 
+            if (e.key === "F5" || (e.key === "r" && (e.ctrlKey || e.metaKey))) {
+                e.preventDefault();
+                toast.warning("Refreshing is disabled during the exam.");
+                return;
+            }
+
+            if (e.key === "F11") {
+                // Prevent browser toggle conflict
+                e.preventDefault();
+                return;
+            }
+
             const isMac = typeof window !== "undefined" && navigator.platform.toUpperCase().indexOf("MAC") >= 0;
             const modifier = isMac ? e.metaKey : e.ctrlKey;
 
-            if (modifier && (e.key === "c" || e.key === "v" || e.key === "x" || e.key === "C" || e.key === "V" || e.key === "X")) {
-                e.preventDefault();
-                toast.warning("Copying, pasting, and cutting are disabled.");
-                return;
-            }
-
-            if (modifier && e.shiftKey && (e.key === "i" || e.key === "I")) {
-                e.preventDefault();
-                toast.warning("Developer tools are disabled.");
-                return;
-            }
-            if (isMac && modifier && e.altKey && (e.key === "i" || e.key === "I")) {
+            // Devtools shortcuts: Ctrl+Shift+I/J/C or Cmd+Option+I/J/C
+            if (
+                (modifier && e.shiftKey && ["i", "I", "j", "J", "c", "C"].includes(e.key)) ||
+                (isMac && modifier && e.altKey && ["i", "I", "j", "J", "c", "C"].includes(e.key))
+            ) {
                 e.preventDefault();
                 toast.warning("Developer tools are disabled.");
                 return;
             }
 
-            if (modifier && (e.key === "u" || e.key === "U")) {
-                e.preventDefault();
-                toast.warning("Viewing source is disabled.");
-                return;
-            }
-            if (isMac && modifier && e.altKey && (e.key === "u" || e.key === "U")) {
+            // View source: Ctrl+U / Cmd+Option+U
+            if ((modifier && (e.key === "u" || e.key === "U")) || (isMac && modifier && e.altKey && (e.key === "u" || e.key === "U"))) {
                 e.preventDefault();
                 toast.warning("Viewing source is disabled.");
                 return;
             }
 
+            // Save page: Ctrl+S / Cmd+S
             if (modifier && (e.key === "s" || e.key === "S")) {
                 e.preventDefault();
                 toast.warning("Saving page is disabled.");
                 return;
             }
 
-            if (e.key === "F5" || (modifier && (e.key === "r" || e.key === "R"))) {
+            // Print: Ctrl+P / Cmd+P
+            if (modifier && (e.key === "p" || e.key === "P")) {
                 e.preventDefault();
-                toast.warning("Refreshing is disabled during the exam.");
+                toast.warning("Printing is disabled during the exam.");
+                return;
+            }
+
+            // Copy/Cut/Paste outside input fields
+            const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+            const isInput = targetTag === "input" || targetTag === "textarea";
+            if (!isInput && modifier && ["c", "v", "x", "C", "V", "X"].includes(e.key)) {
+                e.preventDefault();
+                toast.warning("Copying and pasting are disabled.");
                 return;
             }
         };
 
         const handleClipboard = (e: ClipboardEvent) => {
-            e.preventDefault();
+            const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+            if (targetTag !== "input" && targetTag !== "textarea") {
+                e.preventDefault();
+            }
         };
 
         const handleSelectStart = (e: Event) => {
-            e.preventDefault();
+            const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+            if (targetTag !== "input" && targetTag !== "textarea") {
+                e.preventDefault();
+            }
         };
 
-        // Attach listeners
-        document.addEventListener("fullscreenchange", handleFullscreenChange);
-        document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-        document.addEventListener("mozfullscreenchange", handleFullscreenChange);
-        document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+        // Attach listeners across vendors
+        const fullscreenEvents = ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"];
+        fullscreenEvents.forEach(evt => {
+            document.addEventListener(evt, handleFullscreenChange);
+            window.addEventListener(evt, handleFullscreenChange);
+        });
 
         document.addEventListener("visibilitychange", handleVisibilityChange);
         window.addEventListener("blur", handleWindowBlur);
+        window.addEventListener("focus", handleWindowFocus);
         document.addEventListener("contextmenu", handleContextMenu);
-        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("keydown", handleKeyDown, { capture: true });
 
         document.addEventListener("copy", handleClipboard);
         document.addEventListener("cut", handleClipboard);
@@ -158,15 +272,22 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
         document.addEventListener("selectstart", handleSelectStart);
 
         return () => {
-            document.removeEventListener("fullscreenchange", handleFullscreenChange);
-            document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
-            document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
-            document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
+            clearTimeout(graceTimer);
+            if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+                blurTimeoutRef.current = null;
+            }
+
+            fullscreenEvents.forEach(evt => {
+                document.removeEventListener(evt, handleFullscreenChange);
+                window.removeEventListener(evt, handleFullscreenChange);
+            });
 
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             window.removeEventListener("blur", handleWindowBlur);
+            window.removeEventListener("focus", handleWindowFocus);
             document.removeEventListener("contextmenu", handleContextMenu);
-            document.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener("keydown", handleKeyDown, { capture: true });
 
             document.removeEventListener("copy", handleClipboard);
             document.removeEventListener("cut", handleClipboard);
@@ -177,3 +298,4 @@ export function useExamSecurity(step: string, onSubmitRef: React.MutableRefObjec
 
     return { enterFullscreen, exitFullscreen };
 }
+

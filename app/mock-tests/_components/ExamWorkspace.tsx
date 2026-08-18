@@ -346,7 +346,7 @@ export function ExamWorkspace({
                     </span>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4 md:gap-6 shrink-0">
-                    <button
+                    {/* <button
                         onClick={() => setShowCalculator(prev => !prev)}
                         className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none cursor-pointer ${useRealistic
                             ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 rounded-none shadow-sm font-sans"
@@ -357,7 +357,7 @@ export function ExamWorkspace({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
                         <span className="hidden sm:inline">Calculator</span>
-                    </button>
+                    </button> */}
                     <button
                         onClick={() => setShowPaletteMobile(prev => !prev)}
                         className={`xl:hidden flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 text-[10px] md:text-xs font-bold transition-all border select-none cursor-pointer ${useRealistic
