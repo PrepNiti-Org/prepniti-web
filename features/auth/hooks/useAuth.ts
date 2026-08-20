@@ -10,6 +10,7 @@ export interface User {
     id?: string | number;
     username: string;
     email: string;
+    role?: string;
     target_exam?: string;
     bio?: string;
     pincode?: string;
@@ -47,12 +48,19 @@ export function useAuth() {
         checkAuth();
     }, []);
 
-    const login = useCallback((tokenOrUser: string | User, userData?: User) => {
+    const login = useCallback((tokenOrUser?: string | User | null, userData?: User) => {
         let finalUser: User | undefined;
+        let token: string | undefined;
         if (typeof tokenOrUser === "string") {
+            token = tokenOrUser;
             finalUser = userData;
-        } else {
+        } else if (tokenOrUser) {
             finalUser = tokenOrUser;
+        }
+
+        if (token) {
+            localStorage.setItem("token", token);
+            Cookies.set("token", token, { expires: 7, path: "/" });
         }
 
         if (finalUser) {
@@ -68,12 +76,13 @@ export function useAuth() {
         } catch (err) {
             console.error("Logout request failed:", err);
         }
-        // Cookies.remove("token", {
-        //     path: '/',
-        //     secure: window.location.protocol === 'https:'
-        // });
+        Cookies.remove("token", { path: "/" });
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("prepniti_guest_tasks");
+        localStorage.removeItem("prepniti_guest_timelogs");
+        localStorage.removeItem("prepniti_guest_bookmarks");
+        localStorage.removeItem("prepniti_guest_mock_stats");
 
         setIsLoggedIn(false);
         setUser(null);

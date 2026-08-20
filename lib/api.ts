@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Cookies from "js-cookie";
+import { attachGuestInterceptor } from "@/features/guest/guestInterceptor";
 
 export const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
@@ -8,6 +9,9 @@ export const api = axios.create({
     },
     withCredentials: true,
 });
+
+// Pluggable Guest Mode Interceptor
+attachGuestInterceptor(api);
 
 const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 const normalizedApiUrl = rawApiUrl.startsWith("http") ? rawApiUrl : `https://${rawApiUrl.replace(/^\/+/, "")}`;

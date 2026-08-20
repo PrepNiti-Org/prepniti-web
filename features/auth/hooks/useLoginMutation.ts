@@ -9,7 +9,7 @@ export function useLoginMutation() {
     return useMutation({
         mutationFn: loginUser,
         onSuccess: (data) => {
-            login(data.user);
+            login(data.token, data.user);
             toast.success("Welcome back!", {
                 description: `Hello, ${data.user.username}!`,
             });

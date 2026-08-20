@@ -47,9 +47,10 @@ export default function MockTestsPage() {
     useEffect(() => {
         api.get<Paper[]>("/papers")
             .then(res => {
-                setPapers(res.data);
-                if (res.data.length > 0) {
-                    setSelectedPaperId(res.data[0].id);
+                const list = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
+                setPapers(list);
+                if (list.length > 0) {
+                    setSelectedPaperId(list[0].id);
                 }
             })
             .catch(() => {
@@ -92,14 +93,15 @@ export default function MockTestsPage() {
         setSelectedPaperId(paperId);
         try {
             const res = await api.get<ExamElement[]>(`/papers/${paperId}/questions`);
-            if (res.data.length === 0) {
+            const elements: ExamElement[] = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
+            if (elements.length === 0) {
                 toast.error("This test paper has no questions.");
                 return;
             }
-            setBlueprint(res.data);
+            setBlueprint(elements);
             setAnswers({});
 
-            const flat = res.data.flatMap(el => el.questions);
+            const flat = elements.flatMap(el => el.questions);
             const initialStatuses: Record<string, "not_visited" | "not_answered" | "answered" | "marked_review" | "answered_marked_review"> = {};
             flat.forEach((q, idx) => {
                 initialStatuses[q.id] = idx === 0 ? "not_answered" : "not_visited";
@@ -163,7 +165,8 @@ export default function MockTestsPage() {
     }, [blueprint, answers, selectedPaperId, papers]);
 
     const { isOpen } = useAppTour();
-    const displayPapers = (papers.length === 0 && isOpen) ? MOCK_TOUR_PAPERS : papers;
+    const safePapers = Array.isArray(papers) ? papers : [];
+    const displayPapers = (safePapers.length === 0 && isOpen) ? MOCK_TOUR_PAPERS : safePapers;
     const activePaper = displayPapers.find(p => p.id === selectedPaperId) || displayPapers[0];
 
     const filteredPapers = displayPapers.filter(p => {
@@ -176,8 +179,8 @@ export default function MockTestsPage() {
 
     const paperAttemptMap = useMemo(() => {
         const map: Record<string, PaperAttemptStats> = {};
-        if (!mockInsights?.per_paper) return map;
-        for (const paper of papers) {
+        if (!mockInsights?.per_paper || !Array.isArray(safePapers)) return map;
+        for (const paper of safePapers) {
             const match = mockInsights.per_paper.find(
                 pp => pp.exam_name === paper.filename
             );
@@ -191,7 +194,7 @@ export default function MockTestsPage() {
             }
         }
         return map;
-    }, [papers, mockInsights]);
+    }, [safePapers, mockInsights]);
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">

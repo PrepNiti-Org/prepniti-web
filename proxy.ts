@@ -1,32 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const GUEST_ONLY = ["/login", "/register", "/forgot-password", "/reset-password"];
+const AUTH_PAGES = ["/login", "/register", "/forgot-password", "/reset-password"];
 
-const AUTH_REQUIRED = [
-    "/tracker",
-    "/insights",
-    "/bookmarks",
-    "/submit",
-    "/notifications",
-    "/profile",
-    "/mock-tests",
-    "/search",
-    "/posts/create",
-    "/dashboard",
-];
+export function proxy(req: NextRequest) {
+    const { pathname } = req.nextUrl;
+    const isAuthPage = AUTH_PAGES.some((p) => pathname.startsWith(p));
+    const hasToken = req.cookies.has("token");
 
-export function proxy(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-    const hasToken = request.cookies.has("token");
-
-    if (hasToken && GUEST_ONLY.some((p) => pathname.startsWith(p))) {
-        return NextResponse.redirect(new URL("/", request.url));
+    if (hasToken && isAuthPage) {
+        return NextResponse.redirect(new URL("/", req.url));
     }
 
-    if (!hasToken && AUTH_REQUIRED.some((p) => pathname.startsWith(p))) {
-        const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("next", pathname);
+    if (!hasToken && !isAuthPage) {
+        const loginUrl = new URL("/login", req.url);
+        if (pathname !== "/") loginUrl.searchParams.set("next", pathname);
         return NextResponse.redirect(loginUrl);
     }
 
@@ -34,22 +22,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: [
-        // Auth-required pages
-        "/tracker/:path*",
-        "/insights/:path*",
-        "/bookmarks/:path*",
-        "/submit/:path*",
-        "/notifications/:path*",
-        "/profile/:path*",
-        "/mock-tests/:path*",
-        "/search/:path*",
-        "/posts/create",
-        "/dashboard/:path*",
-        // Guest-only pages
-        "/login",
-        "/register",
-        "/forgot-password",
-        "/reset-password",
-    ],
+    matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

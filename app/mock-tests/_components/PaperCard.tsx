@@ -28,16 +28,23 @@ export function PaperCard({ paper, onStart, loadingExam, selectedPaperId, attemp
             )}
 
             <CardHeader className="pb-3 relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                    {isFullLength ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-600 dark:text-amber-500">
-                            <Sparkles className="h-3 w-3" /> Full-Length Mock
-                        </span>
-                    ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-500">
-                            <GraduationCap className="h-3 w-3" /> Practice Sheet
-                        </span>
-                    )}
+                <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                        {paper.target_exam && (
+                            <span className="inline-flex items-center rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[11px] font-bold text-primary">
+                                {paper.target_exam}
+                            </span>
+                        )}
+                        {isFullLength ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[11px] font-bold text-amber-600 dark:text-amber-500">
+                                <Sparkles className="h-3 w-3" /> Full Mock
+                            </span>
+                        ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-500">
+                                <GraduationCap className="h-3 w-3" /> Practice
+                            </span>
+                        )}
+                    </div>
                     <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium">
                         <Clock className="h-3.5 w-3.5 text-muted-foreground/60" /> {duration} Mins
                     </span>

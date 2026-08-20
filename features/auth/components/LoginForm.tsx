@@ -11,6 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import Link from "next/link";
 import { Mail, Loader2 } from "lucide-react";
 
+import { GuestLoginButton } from "@/features/guest/components/GuestLoginButton";
+
 import { BACKEND_URL } from "@/lib/api";
 
 function GoogleIcon() {
@@ -38,20 +40,24 @@ export function LoginForm() {
 
 	return (
 		<div className="space-y-4">
-			{/* Google SSO Button */}
-			<a
-				href={`${BACKEND_URL}/api/auth/google`}
-				id="google-sso-login-btn"
-				className="flex items-center justify-center gap-2.5 w-full h-10 rounded-xl border border-border/50 bg-background/40 hover:bg-background/80 hover:border-primary/30 transition-all duration-300 text-xs sm:text-sm font-semibold text-foreground hover:shadow-md active:scale-[0.98] cursor-pointer"
-			>
-				<GoogleIcon />
-				Continue with Google
-			</a>
+			{/* Social & Guest Access */}
+			<div className="grid grid-cols-2 gap-2.5">
+				<a
+					href={`${BACKEND_URL}/api/auth/google`}
+					id="google-sso-login-btn"
+					className="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-border/50 bg-background/40 hover:bg-background/80 hover:border-primary/30 transition-all duration-300 text-xs font-semibold text-foreground hover:shadow-xs active:scale-[0.98] cursor-pointer"
+				>
+					<GoogleIcon />
+					Google
+				</a>
+
+				<GuestLoginButton />
+			</div>
 
 			{/* Divider */}
 			<div className="relative flex items-center gap-3">
 				<div className="flex-1 h-px bg-border/50" />
-				<span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">or</span>
+				<span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">or email</span>
 				<div className="flex-1 h-px bg-border/50" />
 			</div>
 
