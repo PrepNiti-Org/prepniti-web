@@ -9,9 +9,13 @@ import { TourProvider } from "@/features/tour/useAppTour";
 import { AppTour } from "@/features/tour/components/AppTour";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-    const [isCollapsed, setIsCollapsed] = useState(true);
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const pathname = usePathname();
     const isAuthPage = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password";
+
+    const handleToggle = () => {
+        setIsCollapsed((prev) => !prev);
+    };
 
     if (isAuthPage) {
         return <div className="w-full min-h-screen overflow-y-auto lg:overflow-hidden bg-background">{children}</div>;
@@ -26,8 +30,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {/* Main Layout Area */}
                 <div className="flex flex-1 overflow-hidden">
                     {/* Desktop Sidebar */}
-                    <div className="hidden md:flex flex-col shrink-0 border-r bg-background/50 backdrop-blur-xl transition-all duration-300">
-                        <Sidenav isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
+                    <div className="hidden md:flex flex-col shrink-0">
+                        <Sidenav isCollapsed={isCollapsed} onToggle={handleToggle} />
                     </div>
 
                     {/* Main Content Area - pb-20 leaves room for mobile bottom nav */}

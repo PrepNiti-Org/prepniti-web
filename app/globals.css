@@ -138,7 +138,35 @@
 
   body {
     @apply text-foreground bg-transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+
+  /* Refined selection highlight */
+  ::selection {
+    background-color: hsl(15 100% 57% / 0.2);
+    color: inherit;
+  }
+}
+
+/* Polished modern slim scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border) / 0.7);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
 }
 
 @utility bg-dot-pattern {

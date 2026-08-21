@@ -12,10 +12,13 @@ export interface User {
     email: string;
     role?: string;
     target_exam?: string;
+    target_exam_name?: string;
+    target_exam_date?: string;
     bio?: string;
     pincode?: string;
     district?: string;
     state?: string;
+    is_public?: boolean;
 }
 
 export function useAuth() {

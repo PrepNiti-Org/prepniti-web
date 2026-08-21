@@ -1,0 +1,26 @@
+import { MotivationalQuote } from "../types";
+
+export const ASPIRANT_MOTIVATIONAL_QUOTES: MotivationalQuote[] = [
+    { quote: "Arise, awake, and stop not till the goal is reached.", author: "Swami Vivekananda" },
+    { quote: "Dream is not that which you see while sleeping; it is something that does not let you sleep.", author: "Dr. A.P.J. Abdul Kalam" },
+    { quote: "If you want to shine like a sun, first burn like a sun.", author: "Dr. A.P.J. Abdul Kalam" },
+    { quote: "Cultivation of mind should be the ultimate aim of human existence.", author: "Dr. B.R. Ambedkar" },
+    { quote: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+    { quote: "You do not rise to the level of your goals. You fall to the level of your systems.", author: "James Clear" },
+    { quote: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" },
+    { quote: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+    { quote: "One day, all your late nights and early mornings will pay off.", author: "Aspirant Wisdom" },
+    { quote: "Trust the process. Your daily consistency is building your destiny.", author: "PrepNiti Mantra" },
+    { quote: "Every chapter and revision completed today is a step closer to the final merit list.", author: "Board Aspirant" },
+    { quote: "Hard work beats talent when talent fails to work hard.", author: "Tim Notke" },
+    { quote: "Concentrate all your thoughts upon the work in hand. The sun's rays do not burn until brought to a focus.", author: "Alexander Graham Bell" },
+    { quote: "Do not wait; the time will never be 'just right.' Start where you stand, and work with whatever tools you have.", author: "Napoleon Hill" },
+    { quote: "Perseverance is not a long race; it is many short races one after the other.", author: "Walter Elliot" },
+    { quote: "Patience and perseverance have a magical effect before which difficulties disappear.", author: "John Quincy Adams" },
+    { quote: "Small daily improvements over time lead to stunning results.", author: "Robin Sharma" },
+    { quote: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+    { quote: "It always seems impossible until it is done.", author: "Nelson Mandela" },
+    { quote: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+    { quote: "The man who moves a mountain begins by carrying away small stones.", author: "Confucius" },
+    { quote: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+];

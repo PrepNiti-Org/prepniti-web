@@ -6,6 +6,8 @@ export interface UserProfile {
     email: string;
     bio?: string;
     target_exam?: string;
+    target_exam_name?: string;
+    target_exam_date?: string;
     joined_at: string;
     role: string;
     is_public?: boolean;
@@ -30,6 +32,8 @@ export interface UpdateProfileDTO {
     username: string;
     bio: string;
     target_exam: string;
+    target_exam_name?: string;
+    target_exam_date?: string;
     is_public?: boolean;
     pincode?: string;
     district?: string;
