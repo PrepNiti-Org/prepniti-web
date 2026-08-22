@@ -6,11 +6,23 @@ import { toast } from "sonner";
 import { Plus, Loader2, Calendar, BookOpen, PenTool, Target, BrainCircuit } from "lucide-react";
 import { createTask, Task, Priority, Status } from "../api";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 export function AddTaskModal() {
     const queryClient = useQueryClient();
@@ -30,67 +42,101 @@ export function AddTaskModal() {
     const mutation = useMutation({
         mutationFn: (data: Partial<Task>) => createTask(data),
         onSuccess: () => {
-            toast.success("Task created!");
+            toast.success("Target created!");
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
             setOpen(false);
-            setForm({ title: "", subject: "", status: "TODO", priority: "MEDIUM", type: "READING", estimated_hours: "", target_date: "", description: "" });
+            setForm({
+                title: "",
+                subject: "",
+                status: "TODO",
+                priority: "MEDIUM",
+                type: "READING",
+                estimated_hours: "",
+                target_date: "",
+                description: "",
+            });
         },
-        onError: () => toast.error("Failed to create task"),
+        onError: (error: unknown) => {
+            const msg = (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to create target";
+            toast.error(msg);
+        },
     });
 
-    const handleSubmit = () => {
-        if (!form.title) return toast.error("Title is required");
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!form.title.trim()) return toast.error("Title is required");
 
         mutation.mutate({
             ...form,
-            estimated_hours: form.estimated_hours ? parseInt(form.estimated_hours) : undefined,
+            title: form.title.trim(),
+            subject: form.subject.trim(),
+            estimated_hours: form.estimated_hours ? parseInt(form.estimated_hours, 10) : undefined,
             target_date: form.target_date ? new Date(form.target_date).toISOString() : undefined,
+            description: form.description.trim(),
         });
     };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="sm"><Plus className="w-4 h-4 mr-2" /> New Task</Button>
+                <Button size="sm" className="rounded-full h-9 px-4 font-bold text-xs cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 gap-1.5 shadow-xs">
+                    <Plus className="w-4 h-4" />
+                    <span>New Target</span>
+                </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader><DialogTitle>Create New Target</DialogTitle></DialogHeader>
+            <DialogContent className="sm:max-w-125 rounded-2xl p-5 sm:p-6">
+                <DialogHeader className="pb-1">
+                    <DialogTitle className="text-lg font-bold">Create New Target</DialogTitle>
+                </DialogHeader>
 
-                <div className="grid gap-4 py-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Title *</label>
-                        <Input placeholder="What do you need to accomplish?" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+                <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-foreground">Title *</label>
+                        <Input
+                            placeholder="What do you need to accomplish?"
+                            className="h-10 text-sm"
+                            value={form.title}
+                            onChange={(e) => setForm({ ...form, title: e.target.value })}
+                            autoFocus
+                        />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Subject</label>
-                            <Input placeholder="e.g. History" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-foreground">Subject</label>
+                            <Input
+                                placeholder="e.g. History"
+                                className="h-10 text-sm"
+                                value={form.subject}
+                                onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                            />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Task Type</label>
-                            <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-foreground">Task Type</label>
+                            <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
+                                <SelectTrigger className="h-10 text-sm w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="READING">
+                                    <SelectItem value="READING" className="text-sm py-2">
                                         <div className="flex items-center gap-2">
                                             <BookOpen className="w-4 h-4 text-muted-foreground" />
                                             <span>Reading</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="PRACTICE">
+                                    <SelectItem value="PRACTICE" className="text-sm py-2">
                                         <div className="flex items-center gap-2">
                                             <PenTool className="w-4 h-4 text-muted-foreground" />
                                             <span>Practice</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="MOCK_TEST">
+                                    <SelectItem value="MOCK_TEST" className="text-sm py-2">
                                         <div className="flex items-center gap-2">
                                             <Target className="w-4 h-4 text-red-500" />
                                             <span>Mock Test</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="REVISION">
+                                    <SelectItem value="REVISION" className="text-sm py-2">
                                         <div className="flex items-center gap-2">
                                             <BrainCircuit className="w-4 h-4 text-purple-500" />
                                             <span>Revision</span>
@@ -101,55 +147,91 @@ export function AddTaskModal() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Status</label>
+                    <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-foreground">Status</label>
                             <Select value={form.status} onValueChange={(v: Status) => setForm({ ...form, status: v })}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="h-10 text-sm w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="TODO">To Study</SelectItem>
-                                    <SelectItem value="IN_PROGRESS">In Revision</SelectItem>
-                                    <SelectItem value="DONE">Completed</SelectItem>
+                                    <SelectItem value="TODO" className="text-sm py-2">To Study</SelectItem>
+                                    <SelectItem value="IN_PROGRESS" className="text-sm py-2">In Revision</SelectItem>
+                                    <SelectItem value="DONE" className="text-sm py-2">Completed</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Priority</label>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-foreground">Priority</label>
                             <Select value={form.priority} onValueChange={(v: Priority) => setForm({ ...form, priority: v })}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="h-10 text-sm w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="HIGH">High</SelectItem>
-                                    <SelectItem value="MEDIUM">Medium</SelectItem>
-                                    <SelectItem value="LOW">Low</SelectItem>
+                                    <SelectItem value="HIGH" className="text-sm py-2">High</SelectItem>
+                                    <SelectItem value="MEDIUM" className="text-sm py-2">Medium</SelectItem>
+                                    <SelectItem value="LOW" className="text-sm py-2">Low</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Est. Hours</label>
-                            <Input type="number" min="0" placeholder="e.g. 2" value={form.estimated_hours} onChange={e => setForm({ ...form, estimated_hours: e.target.value })} />
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-foreground truncate">Est. Hours</label>
+                            <Input
+                                type="number"
+                                min="0"
+                                placeholder="e.g. 2"
+                                className="h-10 text-sm"
+                                value={form.estimated_hours}
+                                onChange={(e) => setForm({ ...form, estimated_hours: e.target.value })}
+                            />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Target Date</label>
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-foreground">Target Date</label>
                         <div className="relative">
-                            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input type="date" className="pl-9" value={form.target_date} onChange={e => setForm({ ...form, target_date: e.target.value })} />
+                            <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                                type="date"
+                                className="pl-9 h-10 text-sm"
+                                value={form.target_date}
+                                onChange={(e) => setForm({ ...form, target_date: e.target.value })}
+                            />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Description & Notes</label>
-                        <Textarea className="min-h-[80px]" placeholder="Add links, page numbers, or study notes..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-foreground">Description & Notes</label>
+                        <Textarea
+                            className="min-h-20 text-sm resize-none"
+                            placeholder="Add links, page numbers, or study notes..."
+                            value={form.description}
+                            onChange={(e) => setForm({ ...form, description: e.target.value })}
+                            rows={3}
+                        />
                     </div>
-                </div>
 
-                <div className="flex justify-end gap-2 border-t pt-4">
-                    <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSubmit} disabled={mutation.isPending}>
-                        {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />} Create Target
-                    </Button>
-                </div>
+                    <div className="flex items-center justify-end gap-2.5 border-t border-border/50 pt-4">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 px-4 text-xs font-semibold cursor-pointer"
+                            onClick={() => setOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={mutation.isPending}
+                            size="sm"
+                            className="h-9 px-5 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl cursor-pointer shadow-xs"
+                        >
+                            {mutation.isPending && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+                            <span>Create Target</span>
+                        </Button>
+                    </div>
+                </form>
             </DialogContent>
         </Dialog>
     );

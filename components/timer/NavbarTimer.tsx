@@ -178,7 +178,7 @@ export function NavbarTimer() {
     const logMutation = useMutation({
         mutationFn: (noteText: string) => stopSession(noteText),
         onSuccess: (res) => {
-            toast.success(`🎉 ${res.duration_minutes || "Study"} minutes logged!`);
+            toast.success(`${res.duration_minutes || "Study"} minutes logged!`);
             queryClient.invalidateQueries({ queryKey: ["taskTimeLogs", session?.taskId] });
             queryClient.invalidateQueries({ queryKey: ["userTimeLogs"] });
             queryClient.invalidateQueries({ queryKey: ["profile-stats"] });

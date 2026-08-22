@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
-import { Task, startSession, pauseSession, resumeSession, getActiveSession } from "../api";
+import { Task, startSession, pauseSession, resumeSession, getActiveSession, SessionResponseData } from "../api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,7 +30,7 @@ export function TaskListView({
     const [session, setSession] = useState<ActiveSession | null>(null);
     const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
 
-    const mapSessionData = (data: any): ActiveSession | null => {
+    const mapSessionData = (data: SessionResponseData | null | undefined): ActiveSession | null => {
         if (!data) return null;
         return {
             sessionId: data.id,
@@ -61,6 +61,7 @@ export function TaskListView({
         return () => window.removeEventListener("session-update", handleUpdate);
     }, []);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const handleTimerClick = async (e: React.MouseEvent, targetTask: Task) => {
         e.stopPropagation();
         if (pendingTaskId !== null) return;
@@ -97,8 +98,9 @@ export function TaskListView({
                 dispatchSessionUpdate(active);
                 toast.success("Timer started!");
             }
-        } catch (err: any) {
-            toast.error(err?.response?.data?.error || "Failed to update timer");
+        } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to update timer";
+            toast.error(msg);
         } finally {
             setPendingTaskId(null);
         }
@@ -189,7 +191,7 @@ export function TaskListView({
                 </span>
             )
         }
-    ], [session, pendingTaskId]);
+    ], [session, pendingTaskId, handleTimerClick]);
 
     const table = useReactTable({
         data: tasks,
@@ -252,8 +254,8 @@ export function TaskListView({
                                         ? "bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary" 
                                         : isCurrentSession
                                             ? isRunning
-                                                ? "bg-green-500/[0.02] dark:bg-green-950/10 border-l-2 border-l-green-500"
-                                                : "bg-amber-500/[0.02] dark:bg-amber-950/10 border-l-2 border-l-amber-500"
+                                                ? "bg-green-500/2 dark:bg-green-950/10 border-l-2 border-l-green-500"
+                                                : "bg-amber-500/2 dark:bg-amber-950/10 border-l-2 border-l-amber-500"
                                             : ""
                                 }`}
                                 onClick={() => onSelectTask(row.original)}

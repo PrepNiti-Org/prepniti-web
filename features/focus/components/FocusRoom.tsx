@@ -17,7 +17,6 @@ import {
     Clock,
     Flame,
     History,
-    Sparkles,
     Minus,
     Plus,
     PlusCircle,
@@ -58,6 +57,8 @@ import {
     getDisplayElapsed,
     dispatchSessionUpdate,
     ActiveSession,
+    getTimerConfig,
+    saveTimerConfig,
 } from "@/features/kanban/timerUtils";
 import { FOCUS_WALLPAPERS } from "@/features/countdown/constants/wallpapers";
 import { ASPIRANT_MOTIVATIONAL_QUOTES } from "@/features/countdown/constants/quotes";
@@ -76,23 +77,29 @@ interface FocusRoomProps {
 
 export function FocusRoom({ initialTaskId }: FocusRoomProps) {
     const queryClient = useQueryClient();
-    const [primaryMode, setPrimaryMode] = useState<PrimaryMode>("TIMER");
-    const [selectedMinutes, setSelectedMinutes] = useState<number>(25);
+    const [primaryMode, setPrimaryMode] = useState<PrimaryMode>(() => {
+        if (typeof window !== "undefined") {
+            const config = getTimerConfig();
+            return config.mode || "TIMER";
+        }
+        return "TIMER";
+    });
+    const [selectedMinutes, setSelectedMinutes] = useState<number>(() => {
+        if (typeof window !== "undefined") {
+            const config = getTimerConfig();
+            return config.targetDurationSeconds ? Math.round(config.targetDurationSeconds / 60) : 25;
+        }
+        return 25;
+    });
     const [selectedTaskId, setSelectedTaskId] = useState<string>(initialTaskId || "");
     const [session, setSession] = useState<ActiveSession | null>(null);
     const [elapsed, setElapsed] = useState(0);
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            try {
-                localStorage.setItem("prepniti_focus_timer_config", JSON.stringify({
-                    targetDurationSeconds: selectedMinutes * 60,
-                    mode: primaryMode
-                }));
-            } catch {
-                // Ignore
-            }
-        }
+        saveTimerConfig({
+            targetDurationSeconds: selectedMinutes * 60,
+            mode: primaryMode,
+        });
     }, [selectedMinutes, primaryMode]);
 
     const [isZenMode, setIsZenMode] = useState(false);
@@ -136,24 +143,26 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
         };
     }, [selectedMinutes, primaryMode]);
 
-    useQuery({
-        queryKey: ["activeSession"],
-        queryFn: async () => {
+    const fetchSession = useCallback(async () => {
+        try {
             const data = await getActiveSession();
             const active = mapSessionData(data);
             setSession(active);
             if (active) {
                 setElapsed(getDisplayElapsed(active));
                 if (active.taskId) setSelectedTaskId(active.taskId);
+            } else {
+                setElapsed(0);
             }
-            return active;
-        },
-        staleTime: 1000 * 30,
-    });
-
-    const activeSelectedTask = tasks.find((t) => t.id === (session?.taskId || selectedTaskId));
+        } catch {
+            console.error("Failed to load active study session");
+        }
+    }, [mapSessionData]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchSession();
+
         const handleSessionUpdateEvent = (e: Event) => {
             const customEvent = e as CustomEvent<ActiveSession | null>;
             const newSession = customEvent.detail;
@@ -167,11 +176,15 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
         };
 
         window.addEventListener("session-update", handleSessionUpdateEvent);
+        document.addEventListener("visibilitychange", fetchSession);
 
         return () => {
             window.removeEventListener("session-update", handleSessionUpdateEvent);
+            document.removeEventListener("visibilitychange", fetchSession);
         };
-    }, []);
+    }, [fetchSession]);
+
+    const activeSelectedTask = tasks.find((t) => t.id === (session?.taskId || selectedTaskId));
 
     useEffect(() => {
         if (session && !session.isPaused) {
@@ -211,6 +224,7 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
             const active = mapSessionData(data);
             setSession(active);
             dispatchSessionUpdate(active);
+            queryClient.invalidateQueries({ queryKey: ["activeSession"] });
             toast.success(`Started: ${data.task_title || "Focus session"}`);
         },
         onError: (err: unknown) => {
@@ -228,6 +242,7 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
             const active = mapSessionData(data);
             setSession(active);
             dispatchSessionUpdate(active);
+            queryClient.invalidateQueries({ queryKey: ["activeSession"] });
         },
     });
 
@@ -237,6 +252,7 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
             const active = mapSessionData(data);
             setSession(active);
             dispatchSessionUpdate(active);
+            queryClient.invalidateQueries({ queryKey: ["activeSession"] });
         },
     });
 
@@ -249,11 +265,12 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
             dispatchSessionUpdate(null);
             setShowLogDialog(false);
             setLogNote("");
+            queryClient.invalidateQueries({ queryKey: ["activeSession"] });
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
             queryClient.invalidateQueries({ queryKey: ["userTimeLogs"] });
             queryClient.invalidateQueries({ queryKey: ["profile-stats"] });
             queryClient.invalidateQueries({ queryKey: ["profile-activity"] });
-            toast.success(`🎉 ${res.duration_minutes} minutes recorded.`);
+            toast.success(`${res.duration_minutes} minutes recorded.`);
         },
         onError: () => {
             toast.error("Failed to stop session");
@@ -266,6 +283,7 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
             setSession(null);
             setElapsed(0);
             dispatchSessionUpdate(null);
+            queryClient.invalidateQueries({ queryKey: ["activeSession"] });
             toast.info("Session reset");
         },
     });
@@ -312,6 +330,8 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
             } else if (e.key === "z" || e.key === "Z") {
                 e.preventDefault();
                 setIsZenMode((prev) => !prev);
+            } else if (e.key === "Escape" || e.code === "Escape") {
+                setIsZenMode(false);
             }
         };
 
@@ -324,18 +344,50 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
 
     return (
         <div className="relative w-full h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] overflow-hidden flex flex-col justify-between items-center p-4 sm:p-6 select-none">
-            <motion.div
-                animate={{
-                    scale: isRunning ? [1, 1.08, 1] : 1,
-                    opacity: isRunning ? [0.25, 0.45, 0.25] : 0.12,
-                }}
-                transition={{
-                    repeat: isRunning ? Infinity : 0,
-                    duration: 6,
-                    ease: "easeInOut",
-                }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-162.5 h-162.5 bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10"
-            />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none -z-10 flex items-center justify-center">
+                <motion.div
+                    animate={
+                        isRunning
+                            ? { scale: [1, 1.12, 1], opacity: [0.35, 0.55, 0.35] }
+                            : isPaused
+                            ? { scale: [1, 1.05, 1], opacity: [0.22, 0.35, 0.22] }
+                            : { scale: 1, opacity: 0.14 }
+                    }
+                    transition={{
+                        repeat: isRunning || isPaused ? Infinity : 0,
+                        duration: isRunning ? 4.5 : 3,
+                        ease: "easeInOut",
+                    }}
+                    className={`w-105 h-105 sm:w-140 sm:h-140 max-w-[85vw] max-h-[85vw] rounded-full blur-3xl transition-all duration-700 ${
+                        isRunning
+                            ? "bg-primary/25 dark:bg-primary/30"
+                            : isPaused
+                            ? "bg-amber-500/25 dark:bg-amber-500/30"
+                            : "bg-primary/10 dark:bg-primary/15"
+                    }`}
+                />
+                <motion.div
+                    animate={
+                        isRunning
+                            ? { scale: [1, 1.18, 1], opacity: [0.2, 0.35, 0.2] }
+                            : isPaused
+                            ? { scale: [1, 1.08, 1], opacity: [0.12, 0.22, 0.12] }
+                            : { scale: 1, opacity: 0.08 }
+                    }
+                    transition={{
+                        repeat: isRunning || isPaused ? Infinity : 0,
+                        duration: 3.5,
+                        ease: "easeInOut",
+                    }}
+                    className={`absolute w-65 h-65 sm:w-85 sm:h-85 rounded-full blur-2xl transition-all duration-700 ${
+                        isRunning
+                            ? "bg-primary/30 dark:bg-primary/35"
+                            : isPaused
+                            ? "bg-amber-500/20 dark:bg-amber-500/25"
+                            : "bg-primary/15 dark:bg-primary/20"
+                    }`}
+                />
+            </div>
 
             <AnimatePresence>
                 {isZenMode && (
@@ -351,19 +403,14 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
                         />
                         <div className="absolute inset-0 bg-linear-to-b from-black/85 via-black/50 to-black/90 -z-10" />
 
-                        <div className="w-full flex items-center justify-between max-w-3xl">
-                            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold">
-                                <Sparkles className="w-3.5 h-3.5 text-primary" />
-                                <span>{activeSelectedTask ? activeSelectedTask.title : "Deep Focus"}</span>
-                            </div>
-
+                        <div className="w-full flex items-center justify-end max-w-3xl">
                             <div className="flex items-center gap-2">
-                                <AmbientSoundPlayer />
+                                <AmbientSoundPlayer inZenMode />
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={handleShuffleWallpaper}
-                                    className="text-white hover:bg-white/20 rounded-full h-8 w-8 p-0 cursor-pointer"
+                                    className="text-white/80 hover:text-white hover:bg-white/15 rounded-full h-8 w-8 p-0 cursor-pointer transition-colors"
                                     title="Shuffle Background"
                                 >
                                     <Shuffle className="w-4 h-4" />
@@ -372,8 +419,8 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setIsZenMode(false)}
-                                    className="text-white hover:bg-white/20 rounded-full h-8 w-8 p-0 cursor-pointer"
-                                    title="Exit Zen Mode [Z]"
+                                    className="text-white/80 hover:text-white hover:bg-white/15 rounded-full h-8 w-8 p-0 cursor-pointer transition-colors"
+                                    title="Exit Zen Mode [Esc / Z]"
                                 >
                                     <Minimize2 className="w-4 h-4" />
                                 </Button>
@@ -381,6 +428,21 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
                         </div>
 
                         <div className="flex flex-col items-center justify-center space-y-4">
+                            <motion.div
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/8 hover:bg-white/12 backdrop-blur-xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all max-w-[90vw] sm:max-w-md"
+                            >
+                                <span className="text-xs sm:text-sm font-semibold tracking-tight text-white/95 truncate">
+                                    {activeSelectedTask ? activeSelectedTask.title : "Deep Focus Session"}
+                                </span>
+                                {activeSelectedTask?.subject && (
+                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/10 text-white/70 border border-white/10 shrink-0">
+                                        {activeSelectedTask.subject}
+                                    </span>
+                                )}
+                            </motion.div>
+
                             {isTimerMode ? (
                                 <DigitalTimerDisplay formattedTime={formattedTime} />
                             ) : (
@@ -423,8 +485,8 @@ export function FocusRoom({ initialTaskId }: FocusRoomProps) {
                             </div>
                         </div>
 
-                        <div className="text-[11px] text-white/40 font-medium">
-                            Press Esc or click Minimize to exit Zen mode
+                        <div className="text-[11px] text-white/40 font-medium flex items-center gap-1.5">
+                            Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/15 text-[10px] font-mono text-white/70">Esc</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/15 text-[10px] font-mono text-white/70">Z</kbd> to exit Zen mode
                         </div>
                     </motion.div>
                 )}

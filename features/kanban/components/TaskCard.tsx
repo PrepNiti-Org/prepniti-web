@@ -7,8 +7,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Task, getTaskTimeLogs, startSession, pauseSession, resumeSession, getActiveSession } from "../api";
-import { Clock, CalendarDays, BookOpen, PenTool, Target, BrainCircuit, Timer, Play, Pause, Loader2 } from "lucide-react";
+import { Task, getTaskTimeLogs, startSession, pauseSession, resumeSession, getActiveSession, SessionResponseData } from "../api";
+import { CalendarDays, BookOpen, PenTool, Target, BrainCircuit, Timer, Play, Pause, Loader2 } from "lucide-react";
 import { dispatchSessionUpdate, ActiveSession } from "../timerUtils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -36,7 +36,7 @@ export function TaskCard({
     const [session, setSession] = useState<ActiveSession | null>(null);
     const [isPending, setIsPending] = useState(false);
 
-    const mapSessionData = (data: any): ActiveSession | null => {
+    const mapSessionData = (data: SessionResponseData | null | undefined): ActiveSession | null => {
         if (!data) return null;
         return {
             sessionId: data.id,
@@ -103,8 +103,9 @@ export function TaskCard({
                 dispatchSessionUpdate(active);
                 toast.success("Timer started!");
             }
-        } catch (err: any) {
-            toast.error(err?.response?.data?.error || "Failed to update timer");
+        } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to update timer";
+            toast.error(msg);
         } finally {
             setIsPending(false);
         }
@@ -135,8 +136,8 @@ export function TaskCard({
                 } ${isOverdue ? "border-red-500/40 bg-red-50/30 dark:bg-red-950/5" : ""} ${
                     isCurrentSession
                         ? isRunning
-                            ? "border-green-500 ring-1 ring-green-500 bg-green-500/[0.01]"
-                            : "border-amber-500 ring-1 ring-amber-500 bg-amber-500/[0.01]"
+                            ? "border-green-500 ring-1 ring-green-500 bg-green-500/1"
+                            : "border-amber-500 ring-1 ring-amber-500 bg-amber-500/1"
                         : ""
                 }`} 
                 onClick={() => !isDragging && onSelectTask(task)}
@@ -202,7 +203,7 @@ export function TaskCard({
                     <div className="flex items-center gap-2.5 mt-2 pt-1.5 border-t border-border/40 text-[9px] text-muted-foreground leading-none">
                         {(task.estimated_hours || loggedMinutes > 0) && (
                             <span className="flex items-center gap-0.5">
-                                <Timer className="w-2.5 h-2.5 text-green-500" />
+                                <Timer className="w-2.5 h-2.5 text-primary" />
                                 {loggedHours}h{task.estimated_hours ? `/${task.estimated_hours}h` : ""}
                             </span>
                         )}

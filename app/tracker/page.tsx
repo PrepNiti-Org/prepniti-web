@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getTasks, Task } from "@/features/kanban/api";
 import { Loader2, LayoutDashboard, ListTodo, Search, Target } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -12,30 +11,12 @@ import { KanbanBoardView } from "@/features/kanban/components/KanbanBoardView";
 import { TaskListView } from "@/features/kanban/components/TaskListView";
 import { AddTaskModal } from "@/features/kanban/components/AddTaskModal";
 import { TaskDetailsPanel } from "@/features/kanban/components/TaskDetailsPanel";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 import { useAppTour } from "@/features/tour/useAppTour";
 import { MOCK_TOUR_TASKS } from "@/features/tour/tourMockData";
 
 type ViewMode = "BOARD" | "LIST";
-
-function useMediaQuery(query: string) {
-    const [matches, setMatches] = useState(false);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setMounted(true);
-        const media = window.matchMedia(query);
-        setMatches(media.matches);
-
-        const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
-        media.addEventListener("change", listener);
-        return () => media.removeEventListener("change", listener);
-    }, [query]);
-
-    return mounted ? matches : false;
-}
 
 export default function TrackerDashboard() {
     const [view, setView] = useState<ViewMode>("BOARD");
@@ -52,8 +33,6 @@ export default function TrackerDashboard() {
     });
 
     const tasks = (realTasks.length === 0 && isOpen) ? MOCK_TOUR_TASKS : realTasks;
-    const activeTask = selectedTask ? (tasks.find(t => t.id === selectedTask.id) || selectedTask) : (isOpen ? tasks[0] : null);
-    const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
     if (isLoading && !isOpen) {
         return <div className="flex justify-center py-32"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
@@ -84,20 +63,26 @@ export default function TrackerDashboard() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
             </div> */}
 
-            <div data-tour="tracker-main-content" className="flex flex-col lg:flex-row items-center justify-between gap-3 bg-card border rounded-lg p-2 shadow-sm">
-
+            <div data-tour="tracker-main-content" className="flex flex-col lg:flex-row items-center justify-between gap-3 bg-card/60 backdrop-blur-md border border-border/40 rounded-2xl p-2.5 shadow-xs">
                 {/* Search & Filters */}
                 <div data-tour="tracker-filters" className="flex flex-col sm:flex-row w-full lg:w-auto flex-1 gap-2">
                     <div className="relative w-full sm:flex-1">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Search targets..." className="pl-9 h-9 w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search targets..."
+                            className="pl-9 h-9 w-full rounded-full text-xs bg-background/60 border-border/40 focus-visible:ring-1"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
                     
                     {/* Subject & Priority: Share same line on mobile */}
                     <div className="flex gap-2 w-full sm:w-auto shrink-0">
                         <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                            <SelectTrigger className="flex-1 sm:w-37.5 h-9"><SelectValue placeholder="All Subjects" /></SelectTrigger>
-                            <SelectContent>
+                            <SelectTrigger className="flex-1 sm:w-37.5 h-9 rounded-full text-xs bg-background/60 border-border/40 font-medium">
+                                <SelectValue placeholder="All Subjects" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl">
                                 <SelectItem value="ALL">All Subjects</SelectItem>
                                 {uniqueSubjects.map((subject) => (
                                     <SelectItem key={subject} value={subject}>{subject}</SelectItem>
@@ -105,8 +90,10 @@ export default function TrackerDashboard() {
                             </SelectContent>
                         </Select>
                         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                            <SelectTrigger className="flex-1 sm:w-32.5 h-9"><SelectValue placeholder="Any Priority" /></SelectTrigger>
-                            <SelectContent>
+                            <SelectTrigger className="flex-1 sm:w-32.5 h-9 rounded-full text-xs bg-background/60 border-border/40 font-medium">
+                                <SelectValue placeholder="Any Priority" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl">
                                 <SelectItem value="ALL">Any Priority</SelectItem>
                                 <SelectItem value="HIGH">High Priority</SelectItem>
                                 <SelectItem value="MEDIUM">Medium Priority</SelectItem>
@@ -118,13 +105,31 @@ export default function TrackerDashboard() {
 
                 {/* Actions: View Toggle & Add Task share same line on mobile */}
                 <div className="flex items-center w-full lg:w-auto gap-2 shrink-0">
-                    <div className="flex bg-muted p-1 rounded-md flex-1 sm:flex-none justify-center h-9 items-center">
-                        <Button variant={view === "BOARD" ? "default" : "ghost"} size="sm" onClick={() => setView("BOARD")} className="h-7 text-xs flex-1 px-3">
-                            <LayoutDashboard className="w-3.5 h-3.5 mr-1.5 hidden xs:block" /> Board
-                        </Button>
-                        <Button variant={view === "LIST" ? "default" : "ghost"} size="sm" onClick={() => setView("LIST")} className="h-7 text-xs flex-1 px-3">
-                            <ListTodo className="w-3.5 h-3.5 mr-1.5 hidden xs:block" /> List
-                        </Button>
+                    <div className="flex bg-muted/60 p-1 rounded-full border border-border/30 flex-1 sm:flex-none justify-center h-9 items-center">
+                        <button
+                            type="button"
+                            onClick={() => setView("BOARD")}
+                            className={`flex items-center justify-center gap-1.5 px-3.5 h-7 rounded-full text-xs transition-all cursor-pointer ${
+                                view === "BOARD"
+                                    ? "bg-background text-foreground shadow-xs font-bold"
+                                    : "text-muted-foreground hover:text-foreground font-medium"
+                            }`}
+                        >
+                            <LayoutDashboard className="w-3.5 h-3.5" />
+                            <span>Board</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setView("LIST")}
+                            className={`flex items-center justify-center gap-1.5 px-3.5 h-7 rounded-full text-xs transition-all cursor-pointer ${
+                                view === "LIST"
+                                    ? "bg-background text-foreground shadow-xs font-bold"
+                                    : "text-muted-foreground hover:text-foreground font-medium"
+                            }`}
+                        >
+                            <ListTodo className="w-3.5 h-3.5" />
+                            <span>List</span>
+                        </button>
                     </div>
                     <div data-tour="tracker-add-btn" className="shrink-0 flex items-center h-9">
                         <AddTaskModal />
@@ -132,8 +137,8 @@ export default function TrackerDashboard() {
                 </div>
             </div>
 
-            <div data-tour="tracker-board" className="flex flex-col lg:flex-row gap-6 mt-6 items-start">
-                <div className="flex-1 w-full min-w-0">
+            <div data-tour="tracker-board" className="mt-6">
+                <div className="w-full min-w-0">
                     {filteredTasks.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground border rounded-lg bg-muted/10">
                             <Target className="w-12 h-12 mb-4 opacity-20" />
@@ -144,45 +149,35 @@ export default function TrackerDashboard() {
                             {view === "BOARD" && (
                                 <KanbanBoardView
                                     tasks={filteredTasks}
-                                    selectedTaskId={activeTask?.id}
+                                    selectedTaskId={selectedTask?.id}
                                     onSelectTask={setSelectedTask}
                                 />
                             )}
                             {view === "LIST" && (
                                 <TaskListView
                                     tasks={filteredTasks}
-                                    selectedTaskId={activeTask?.id}
+                                    selectedTaskId={selectedTask?.id}
                                     onSelectTask={setSelectedTask}
                                 />
                             )}
                         </>
                     )}
                 </div>
-
-                {activeTask && isLargeScreen && (
-                    <div data-tour="tracker-detail-panel" className="w-full lg:w-105 shrink-0 sticky top-4 max-h-[calc(100vh-6rem)] overflow-hidden flex flex-col">
-                        <TaskDetailsPanel
-                            key={activeTask.id}
-                            task={activeTask}
-                            onClose={() => setSelectedTask(null)}
-                        />
-                    </div>
-                )}
             </div>
 
-            <Sheet open={!!activeTask && !isLargeScreen} onOpenChange={(open) => { if (!open) setSelectedTask(null); }}>
-                <SheetContent className="w-full sm:max-w-135 overflow-y-auto border-l shadow-2xl flex flex-col p-4 sm:p-6 h-full">
-                    <SheetTitle className="sr-only">Edit Target Details</SheetTitle>
-                    {activeTask && (
+            <Dialog open={!!selectedTask} onOpenChange={(open) => { if (!open) setSelectedTask(null); }}>
+                <DialogContent className="sm:max-w-125 max-h-[90vh] overflow-y-auto rounded-2xl p-5 sm:p-6">
+                    <DialogTitle className="sr-only">Edit Target Details</DialogTitle>
+                    {selectedTask && (
                         <TaskDetailsPanel
-                            key={activeTask.id}
-                            task={activeTask}
+                            key={selectedTask.id}
+                            task={selectedTask}
                             onClose={() => setSelectedTask(null)}
                             showCloseButton={false}
                         />
                     )}
-                </SheetContent>
-            </Sheet>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

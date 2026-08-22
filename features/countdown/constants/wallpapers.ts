@@ -54,7 +54,7 @@ export const FOCUS_WALLPAPERS: Wallpaper[] = [
     {
         id: "redwood-canopy",
         title: "Enchanted Redwoods",
-        url: "https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=2560&q=85",
+        url: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=2560&q=85",
     },
     {
         id: "canyon-starlight",
