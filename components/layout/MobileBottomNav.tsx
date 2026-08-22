@@ -30,20 +30,20 @@ export function MobileBottomNav() {
     if (hiddenRoutes.includes(pathname)) return null;
 
     const primaryLinks = [
-        navLinks[0], // Tracker
-        navLinks[1], // Focus
-        navLinks[2], // Mock Tests
-        navLinks[4], // Experiences
-        navLinks[7], // Chat
-    ];
+        navLinks.find((l) => l.href === "/tracker") || navLinks[0],
+        navLinks.find((l) => l.href === "/focus") || navLinks[1],
+        navLinks.find((l) => l.href === "/mock-tests") || navLinks[2],
+        navLinks.find((l) => l.href === "/") || navLinks[4],
+        navLinks.find((l) => l.href === "/chat") || navLinks[7],
+    ].filter(Boolean);
 
     const moreLinks = [
-        navLinks[3], // Insights
-        navLinks[5], // Discussions
-        navLinks[6], // Buddies
-    ];
+        navLinks.find((l) => l.href === "/insights") || navLinks[3],
+        navLinks.find((l) => l.href === "/posts") || navLinks[5],
+        navLinks.find((l) => l.href === "/buddies") || navLinks[6],
+    ].filter(Boolean);
 
-    const isMoreActive = moreLinks.some(link => link.href === "/" ? pathname === "/" : pathname.startsWith(link.href));
+    const isMoreActive = moreLinks.some(link => link && (link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)));
 
     return (
         <>

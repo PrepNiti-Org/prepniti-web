@@ -38,10 +38,15 @@ export interface NavSection {
 
 export const navSections: NavSection[] = [
     {
-        title: "Workspace",
+        title: "Daily Flow",
         items: [
             { name: "Tracker", href: "/tracker", icon: LayoutDashboard, showBadge: false },
             { name: "Focus", href: "/focus", icon: Flame, showBadge: false },
+        ]
+    },
+    {
+        title: "Prep Hub",
+        items: [
             { name: "Mock Tests", href: "/mock-tests", icon: GraduationCap, showBadge: false },
             { name: "Insights", href: "/insights", icon: Sparkles, showBadge: false },
         ]
