@@ -54,7 +54,7 @@ export const navSections: NavSection[] = [
     {
         title: "Community",
         items: [
-            { name: "Experiences", href: "/", icon: BookOpen, showBadge: false },
+            { name: "Experiences", href: "/experiences", icon: BookOpen, showBadge: false },
             { name: "Discussions", href: "/posts", icon: MessagesSquare, showBadge: false },
             { name: "Buddies", href: "/buddies", icon: Users2, showBadge: true },
             { name: "Chat", href: "/chat", icon: Send, showBadge: false },
@@ -125,7 +125,7 @@ export function Sidenav({
                                         aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                                     >
                                         {isCollapsed ? (
-                                            <PanelLeft className="h-4 w-4" />
+                                             <PanelLeft className="h-4 w-4" />
                                         ) : (
                                             <PanelLeftClose className="h-4 w-4" />
                                         )}
@@ -156,7 +156,11 @@ export function Sidenav({
 
                             <div className="space-y-0.5">
                                 {section.items.map((link) => {
-                                    const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+                                    const isActive = link.href === "/tracker"
+                                        ? pathname === "/tracker" || pathname === "/"
+                                        : link.href === "/"
+                                        ? pathname === "/"
+                                        : pathname.startsWith(link.href);
                                     const Icon = link.icon;
                                     const badgeCount = link.showBadge ? incomingCount : 0;
                                     const tourId = `nav-${link.href.replace("/", "") || "experiences"}`;

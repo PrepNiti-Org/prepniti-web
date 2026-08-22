@@ -3,12 +3,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useExamSecurity, isFullscreenSupported, isDocumentFullscreen } from "../app/mock-tests/_components/useExamSecurity";
 
 describe("useExamSecurity Hook", () => {
-    let onSubmitMock: ReturnType<typeof vi.fn>;
+    let onSubmitMock: (reason?: string) => void;
     let onSubmitRef: { current: (reason?: string) => void };
 
     beforeEach(() => {
         vi.useFakeTimers();
-        onSubmitMock = vi.fn();
+        onSubmitMock = vi.fn<(reason?: string) => void>();
         onSubmitRef = { current: onSubmitMock };
     });
 

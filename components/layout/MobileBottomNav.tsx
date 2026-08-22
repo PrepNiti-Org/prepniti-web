@@ -33,7 +33,7 @@ export function MobileBottomNav() {
         navLinks.find((l) => l.href === "/tracker") || navLinks[0],
         navLinks.find((l) => l.href === "/focus") || navLinks[1],
         navLinks.find((l) => l.href === "/mock-tests") || navLinks[2],
-        navLinks.find((l) => l.href === "/") || navLinks[4],
+        navLinks.find((l) => l.href === "/experiences") || navLinks[4],
         navLinks.find((l) => l.href === "/chat") || navLinks[7],
     ].filter(Boolean);
 
@@ -43,7 +43,7 @@ export function MobileBottomNav() {
         navLinks.find((l) => l.href === "/buddies") || navLinks[6],
     ].filter(Boolean);
 
-    const isMoreActive = moreLinks.some(link => link && (link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)));
+    const isMoreActive = moreLinks.some(link => link && pathname.startsWith(link.href));
 
     return (
         <>
@@ -55,7 +55,9 @@ export function MobileBottomNav() {
 
                 <div className="flex items-center justify-around h-16 px-1 relative">
                     {primaryLinks.map((link) => {
-                        const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+                        const isActive = link.href === "/tracker"
+                            ? pathname === "/tracker" || pathname === "/"
+                            : pathname.startsWith(link.href);
                         const Icon = link.icon;
                         const tourId = `mobile-nav-${link.href.replace("/", "") || "home"}`;
 

@@ -22,7 +22,7 @@ const FEATURES = [
         icon: BookOpen,
         label: "Interview Experiences",
         desc: "Detailed transcripts from real board interviews - UPSC, PSC, Banking.",
-        href: "/",
+        href: "/experiences",
         color: "text-violet-500",
         bg: "bg-violet-500/10",
         border: "border-violet-500/20",
