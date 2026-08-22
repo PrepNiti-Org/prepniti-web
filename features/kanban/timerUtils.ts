@@ -7,6 +7,34 @@ export interface ActiveSession {
     /** Seconds accumulated from all previous run windows (confirmed by server). */
     accumulatedSeconds: number;
     isPaused: boolean;
+    /** Optional target duration in seconds for countdown timer mode (e.g. 1500 for 25m) */
+    targetDurationSeconds?: number;
+    /** Mode: TIMER (countdown) or STOPWATCH (countup) */
+    mode?: "TIMER" | "STOPWATCH";
+}
+
+const TIMER_CONFIG_KEY = "prepniti_focus_timer_config";
+
+export function saveTimerConfig(config: { targetDurationSeconds: number; mode: "TIMER" | "STOPWATCH" }): void {
+    if (typeof window !== "undefined") {
+        try {
+            localStorage.setItem(TIMER_CONFIG_KEY, JSON.stringify(config));
+        } catch {
+        }
+    }
+}
+
+export function getTimerConfig(): { targetDurationSeconds: number; mode: "TIMER" | "STOPWATCH" } {
+    if (typeof window !== "undefined") {
+        try {
+            const raw = localStorage.getItem(TIMER_CONFIG_KEY);
+            if (raw) {
+                return JSON.parse(raw);
+            }
+        } catch {
+        }
+    }
+    return { targetDurationSeconds: 25 * 60, mode: "TIMER" };
 }
 
 /**
@@ -34,7 +62,7 @@ export function formatTime(totalSeconds: number): string {
 
 /**
  * Dispatch a session-update event so every mounted timer component
- * (NavbarTimer, StudyTimer) instantly reflects the new state without
+ * (NavbarTimer, StudyTimer, FocusRoom) instantly reflects the new state without
  * requiring a round-trip API call.
  *
  * Consumers: window.addEventListener("session-update", handler)

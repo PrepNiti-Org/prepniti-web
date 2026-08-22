@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -8,16 +8,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getUserProfile } from "@/features/profile/api";
 
-import { Menu, Search, PenTool, LayoutDashboard, User as UserIcon, LogOut, Bookmark, HelpCircle, ChevronRight, Compass, Sparkles } from "lucide-react";
+import { Search, PenTool, User as UserIcon, LogOut, Bookmark, HelpCircle, ChevronRight, Compass, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
     DropdownMenuPortal,
@@ -27,7 +25,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ModeToggle } from "../theme/mode-toggle";
-import { ElevatedButton } from "../ui/button-elevated";
 import { NotificationBell } from "../notifications/NotificationBell";
 import { NavbarTimer } from "../timer/NavbarTimer";
 import { useAppTour } from "@/features/tour/useAppTour";
@@ -39,7 +36,6 @@ export function Navbar() {
     const [searchQuery, setSearchQuery] = useState("");
     const { startTour } = useAppTour();
 
-    // Live profile data synchronized with React Query cache
     const { data: profileUser } = useQuery({
         queryKey: ["profile"],
         queryFn: getUserProfile,
@@ -84,7 +80,7 @@ export function Navbar() {
                 {/* Left Section: Logo */}
                 <div className="flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2.5 font-bold text-xl tracking-tight group">
-                        <div className="relative w-7 h-7 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+                        <div className="relative w-7 h-7 shrink-0 transition-transform duration-300 group-hover:scale-105">
                             <Image
                                 src="/logo.svg"
                                 alt="PrepNiti Logo"
@@ -93,7 +89,7 @@ export function Navbar() {
                                 priority
                             />
                         </div>
-                        <span className="bg-gradient-to-r from-primary via-primary/90 to-orange-400 bg-clip-text text-transparent items-center gap-1.5 font-extrabold hidden sm:flex">
+                        <span className="bg-linear-to-r from-primary via-primary/90 to-orange-400 bg-clip-text text-transparent items-center gap-1.5 font-extrabold hidden sm:flex">
                             PrepNiti
                         </span>
                     </Link>
@@ -112,12 +108,11 @@ export function Navbar() {
                             />
                         </div>
                     </form>
-                    <div data-tour="navbar-timer" className="shrink-0">
+                    <div data-tour="navbar-timer" className="shrink-0 flex items-center">
                         <NavbarTimer />
                     </div>
                 </div>
 
-                {/* Right Section: Actions & Profile */}
                 <div className="flex items-center gap-2 md:gap-3 shrink-0">
                     <div data-tour="navbar-theme">
                         <ModeToggle />
@@ -127,11 +122,11 @@ export function Navbar() {
                         <div className="w-9 h-9 bg-muted animate-pulse rounded-full hidden sm:block"></div>
                     ) : isLoggedIn ? (
                         <div className="flex items-center gap-3">
-                            <Link href="/posts/create" className="hidden md:flex" data-tour="navbar-post">
+                            {/* <Link href="/posts/create" className="hidden md:flex" data-tour="navbar-post">
                                 <ElevatedButton variant="primary" size="sm" className="btn-elevated" style={{ "--btn-shadow-color": "hsl(15 100% 38%)" } as React.CSSProperties}>
                                     <PenTool className="h-3.5 w-3.5" /> Post
                                 </ElevatedButton>
-                            </Link>
+                            </Link> */}
 
                             <div data-tour="navbar-notifications">
                                 <NotificationBell />
@@ -203,7 +198,7 @@ export function Navbar() {
                                     {missingFields.length > 0 && (
                                         <Link
                                             href="/profile"
-                                            className="mx-1 my-1 p-2.5 rounded-xl bg-primary/[0.06] hover:bg-primary/[0.12] border border-primary/15 transition-all flex items-center justify-between group cursor-pointer"
+                                            className="mx-1 my-1 p-2.5 rounded-xl bg-primary/6 hover:bg-primary/12 border border-primary/15 transition-all flex items-center justify-between group cursor-pointer"
                                         >
                                             <div className="space-y-0.5 min-w-0 pr-2">
                                                 <div className="flex items-center gap-1.5">

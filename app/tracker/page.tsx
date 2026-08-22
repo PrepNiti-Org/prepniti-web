@@ -24,6 +24,7 @@ function useMediaQuery(query: string) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
         const media = window.matchMedia(query);
         setMatches(media.matches);
@@ -95,7 +96,7 @@ export default function TrackerDashboard() {
                     {/* Subject & Priority: Share same line on mobile */}
                     <div className="flex gap-2 w-full sm:w-auto shrink-0">
                         <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                            <SelectTrigger className="flex-1 sm:w-[150px] h-9"><SelectValue placeholder="All Subjects" /></SelectTrigger>
+                            <SelectTrigger className="flex-1 sm:w-37.5 h-9"><SelectValue placeholder="All Subjects" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="ALL">All Subjects</SelectItem>
                                 {uniqueSubjects.map((subject) => (
@@ -104,7 +105,7 @@ export default function TrackerDashboard() {
                             </SelectContent>
                         </Select>
                         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                            <SelectTrigger className="flex-1 sm:w-[130px] h-9"><SelectValue placeholder="Any Priority" /></SelectTrigger>
+                            <SelectTrigger className="flex-1 sm:w-32.5 h-9"><SelectValue placeholder="Any Priority" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="ALL">Any Priority</SelectItem>
                                 <SelectItem value="HIGH">High Priority</SelectItem>
@@ -159,8 +160,9 @@ export default function TrackerDashboard() {
                 </div>
 
                 {activeTask && isLargeScreen && (
-                    <div data-tour="tracker-detail-panel" className="w-full lg:w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-6rem)] overflow-hidden flex flex-col">
+                    <div data-tour="tracker-detail-panel" className="w-full lg:w-105 shrink-0 sticky top-4 max-h-[calc(100vh-6rem)] overflow-hidden flex flex-col">
                         <TaskDetailsPanel
+                            key={activeTask.id}
                             task={activeTask}
                             onClose={() => setSelectedTask(null)}
                         />
@@ -169,10 +171,11 @@ export default function TrackerDashboard() {
             </div>
 
             <Sheet open={!!activeTask && !isLargeScreen} onOpenChange={(open) => { if (!open) setSelectedTask(null); }}>
-                <SheetContent className="w-full sm:max-w-[540px] overflow-y-auto border-l shadow-2xl flex flex-col p-4 sm:p-6 h-full">
+                <SheetContent className="w-full sm:max-w-135 overflow-y-auto border-l shadow-2xl flex flex-col p-4 sm:p-6 h-full">
                     <SheetTitle className="sr-only">Edit Target Details</SheetTitle>
                     {activeTask && (
                         <TaskDetailsPanel
+                            key={activeTask.id}
                             task={activeTask}
                             onClose={() => setSelectedTask(null)}
                             showCloseButton={false}

@@ -31,15 +31,16 @@ export function MobileBottomNav() {
 
     const primaryLinks = [
         navLinks[0], // Tracker
-        navLinks[1], // Mock Tests
-        navLinks[3], // Experiences
-        navLinks[4], // Discussions
-        navLinks[6], // Chat
+        navLinks[1], // Focus
+        navLinks[2], // Mock Tests
+        navLinks[4], // Experiences
+        navLinks[7], // Chat
     ];
 
     const moreLinks = [
-        navLinks[2], // Insights
-        navLinks[5], // Buddies
+        navLinks[3], // Insights
+        navLinks[5], // Discussions
+        navLinks[6], // Buddies
     ];
 
     const isMoreActive = moreLinks.some(link => link.href === "/" ? pathname === "/" : pathname.startsWith(link.href));
@@ -48,9 +49,9 @@ export function MobileBottomNav() {
         <>
             <nav
                 data-tour="mobile-bottom-nav"
-                className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar/90 backdrop-blur-[32px] backdrop-saturate-[200%] border-t border-sidebar-border safe-area-pb shadow-[0_-8px_30px_rgba(0,0,0,0.2)]"
+                className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar/90 backdrop-blur-[32px] backdrop-saturate-200 border-t border-sidebar-border safe-area-pb shadow-[0_-8px_30px_rgba(0,0,0,0.2)]"
             >
-                <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sidebar-foreground/10 to-transparent" />
+                <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-sidebar-foreground/10 to-transparent" />
 
                 <div className="flex items-center justify-around h-16 px-1 relative">
                     {primaryLinks.map((link) => {

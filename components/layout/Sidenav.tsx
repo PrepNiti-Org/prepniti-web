@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
     BookOpen,
@@ -16,6 +16,7 @@ import {
     Send,
     PanelLeftClose,
     PanelLeft,
+    Flame,
     LucideIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export const navSections: NavSection[] = [
         title: "Workspace",
         items: [
             { name: "Tracker", href: "/tracker", icon: LayoutDashboard, showBadge: false },
+            { name: "Focus", href: "/focus", icon: Flame, showBadge: false },
             { name: "Mock Tests", href: "/mock-tests", icon: GraduationCap, showBadge: false },
             { name: "Insights", href: "/insights", icon: Sparkles, showBadge: false },
         ]
